@@ -1,16 +1,20 @@
+import type { Grab } from "./tricks";
+
 export type Jump = {
   lip: number;
   speed: number;
   kick: number;
   slope: number;
   drop: number;
+  grab?: Grab;
+  showcase?: 360 | 720;
 };
 export type Route = {
   id: string;
   name: string;
   mountain: number;
   jumps: Jump[];
-  mode: "tour" | "park" | "daily" | "show";
+  mode: "tour" | "park" | "daily" | "show" | "intro";
 };
 export const mountains = ["松林山", "峡谷山", "夜光山"];
 const names = [
@@ -42,6 +46,7 @@ function jumps(p: number[], mountain: number) {
     kick: 7 + n * 0.45,
     slope: 0.15 + n * 0.026,
     drop: 2.2 + mountain * 0.5 + n * 0.1,
+    grab: (["nose", "tail", "indy"] as const)[(mountain + i) % 3],
   }));
 }
 export const tours: Route[] = patterns.map((p, i) => ({
@@ -57,9 +62,37 @@ export const parks: Route[] = ["落地小台", "转体中台", "长空大台"].m
     name,
     mountain: i,
     mode: "park",
-    jumps: jumps([i * 2], i),
+    jumps: [
+      { ...jumps([i * 2], i)[0], grab: (["indy", "nose", "tail"] as const)[i] },
+    ],
   }),
 );
+export const opening: Route = {
+  id: "opening",
+  name: "极光大跳台",
+  mountain: 2,
+  mode: "intro",
+  jumps: [
+    {
+      lip: 6,
+      speed: 13,
+      kick: 12,
+      slope: 0.2,
+      drop: 4.6,
+      grab: "indy",
+      showcase: 360,
+    },
+    {
+      lip: 7,
+      speed: 15,
+      kick: 15,
+      slope: 0.21,
+      drop: 6,
+      grab: "tail",
+      showcase: 720,
+    },
+  ],
+};
 export function daily(date = new Date()): Route {
   const day = Math.floor((date.getTime() + 28800000) / 86400000),
     n = ((day % 14) + 14) % 14;

@@ -1,4 +1,5 @@
 import { chromium } from "playwright-core";
+import { markOpeningSeen } from "./career-fixture.mjs";
 import { writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 const browser = await chromium.launch({
@@ -19,6 +20,7 @@ try {
   });
   const errors = [];
   p.on("pageerror", (e) => errors.push(e.message));
+  await markOpeningSeen(p);
   await p.goto(process.env.SKI_URL || "http://127.0.0.1:4187");
   await p.waitForSelector("canvas");
   await p.evaluate(() => {

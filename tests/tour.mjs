@@ -31,7 +31,7 @@ try {
     if (!localStorage.getItem("half-turn.ski.v1"))
       localStorage.setItem(
         "half-turn.ski.v1",
-        JSON.stringify({ version: 0, tickets: 40 }),
+        JSON.stringify({ version: 0, tickets: 40, openingSeen: true }),
       );
   });
   await p.clock.install();

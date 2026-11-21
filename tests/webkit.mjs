@@ -1,4 +1,5 @@
 import { webkit } from "playwright-core";
+import { markOpeningSeen } from "./career-fixture.mjs";
 import { writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 const browser = await webkit.launch();
@@ -15,6 +16,7 @@ try {
     console.log("request failure", r.url(), r.failure()?.errorText),
   );
   p.on("response", (r) => console.log(r.status(), new URL(r.url()).pathname));
+  await markOpeningSeen(p);
   await p.goto(process.env.SKI_URL || "http://127.0.0.1:4187", {
     waitUntil: "commit",
     timeout: 65000,

@@ -29,6 +29,7 @@ const initial = () => ({
   lite: false,
   steady: false,
   taught: false,
+  openingSeen: false,
   passes: 0,
   events: [] as { name: string; t: number; value: string }[],
 });

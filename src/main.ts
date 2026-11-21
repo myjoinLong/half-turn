@@ -1,10 +1,12 @@
 import Phaser from "phaser";
+import { version } from "../package.json";
 import "./ui/style.css";
 import { Slope } from "./scenes/slope";
 import { rider } from "./scenes/art";
 import { Ski, courseVersion, simVersion } from "./sim/ski";
 import {
   tours,
+  opening,
   parks,
   daily,
   mountains,
@@ -26,6 +28,7 @@ import {
   type Clip,
 } from "./platform/save";
 import { watch } from "./platform/ad";
+import { grabs } from "./content/tricks";
 const $ = (id: string) => document.getElementById(id)!;
 const sheet = $("sheet") as HTMLDialogElement,
   panel = $("panel");
@@ -60,7 +63,8 @@ let route: Route = tours[0],
   clips: Clip[] = [],
   edges: number[] = [],
   clipHeld = false,
-  landTick = 0;
+  landTick = 0,
+  careerTutorial = false;
 let replay: Clip[] | null = null,
   replayIndex = 0,
   replayEdge = 0,
@@ -71,7 +75,12 @@ let replay: Clip[] | null = null,
 const settings = () => {
   const s = read();
   scene.lite = s.lite;
-  scene.wear = route.mode === "daily" ? [0, 0, 0] : fitting || s.wear;
+  scene.wear =
+    route.mode === "intro"
+      ? [2, 1, 2]
+      : route.mode === "daily"
+        ? [0, 0, 0]
+        : fitting || s.wear;
 };
 const uid = () =>
   Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
@@ -80,12 +89,14 @@ function set(id: string, t: string) {
 }
 function spawn(short = false) {
   scene.ski = new Ski(
-    short ? { ...route.jumps[index], lip: 10 } : route.jumps[index],
-    !read().taught && route.id === tours[0].id && index === 0,
+    short && route.mode !== "intro"
+      ? { ...route.jumps[index], lip: 10 }
+      : route.jumps[index],
+    route.mode === "intro" || (careerTutorial && index === 0),
     combo,
   );
   scene.mountain = route.mountain;
-  scene.aurora = route.mode === "show";
+  scene.aurora = route.mode === "show" || route.mode === "intro";
   edges = [];
   clipHeld = false;
   held = false;
@@ -108,6 +119,7 @@ function start(r: Route) {
   }
   close();
   route = r;
+  careerTutorial = r.id === tours[0].id && !read().taught;
   index = total = combo = 0;
   clips = [];
   runId = uid();
@@ -119,6 +131,16 @@ function start(r: Route) {
 }
 function hud() {
   const s = scene.ski;
+  const showcase = String(route.mode === "intro");
+  if ($("app").dataset.showcase !== showcase)
+    $("app").dataset.showcase = showcase;
+  const trick = s.j.grab ? grabs[s.j.grab] : undefined;
+  set("trick", s.grabbing && trick ? trick.name + " · " + trick.label : "");
+  if (route.mode === "intro" && s.j.showcase && trick) {
+    openingHud(s, trick.name);
+    return;
+  }
+  const tutorial = careerTutorial && !replay;
   set(
     "mode",
     (replay
@@ -128,15 +150,19 @@ function hud() {
           park: "练习公园",
           daily: "每日同题",
           show: "极光表演",
+          intro: "开场表演",
         }[route.mode]) +
       "  /  " +
       mountains[route.mountain],
   );
   set("line", route.name);
+  set("score-label", "线路得分");
   set("score", String(total).padStart(4, "0"));
   set(
     "jump",
-    "跳点  " +
+    (tutorial && index < 3
+      ? ["转体入门  ", "起跳入门  ", "抓板入门  "][index]
+      : "跳点  ") +
       String(index + 1).padStart(2, "0") +
       " / " +
       String(route.jumps.length).padStart(2, "0"),
@@ -179,9 +205,13 @@ function hud() {
         ? "板底与雪面平行时触地最稳"
         : s.auto
           ? "首跳自动起跳 · 腾空后按住，松手减速"
-          : s.phase === "air"
-            ? "看板面，对准落坡；倒滑也能得分"
-            : "橙色区松手起跳 · 空中再次按住后空翻",
+          : tutorial && index === 2
+            ? s.phase === "air"
+              ? "持续收腿进入 Indy 抓板，靠近落坡松手"
+              : "橙色区松手起跳，腾空后按住练习 Indy"
+            : s.phase === "air"
+              ? "看板面，对准落坡；倒滑也能得分"
+              : "橙色区松手起跳 · 空中再次按住后空翻",
   );
   const r = s.result;
   set(
@@ -205,6 +235,52 @@ function hud() {
         : "",
   );
 }
+function openingHud(s: Ski, trick: string) {
+  const phase = s.phase;
+  const spin = s.j.showcase!;
+  set("mode", "开场表演");
+  set("line", opening.name);
+  set("score-label", "表演得分");
+  set("score", String(total).padStart(4, "0"));
+  set(
+    "jump",
+    index + 1 + " / " + opening.jumps.length + "　" + trick + " " + spin + "°",
+  );
+  set("progress", index === 0 ? "◆ ─" : "━ ◆");
+  set("meter", phase === "air" ? Math.round(s.yaw) + "° / " + spin + "°" : "");
+  set(
+    "feedback",
+    countdown > 0
+      ? String(Math.ceil(countdown / 1000))
+      : phase === "land"
+        ? trick + " " + spin + "°"
+        : phase === "crash"
+          ? "再试一次，空中按住久一点"
+          : phase === "air" && held && s.canReleaseShowcase && s.grabbing
+            ? "现在松手！"
+            : "",
+  );
+  set(
+    "action",
+    phase === "land"
+      ? "站稳了"
+      : phase === "crash"
+        ? "再跳一次"
+        : phase === "air" && held && s.canReleaseShowcase && s.grabbing
+          ? "松手，准备落地"
+          : phase === "air" && s.canReleaseShowcase && !s.grabbing && s.yaw > 0
+            ? "瞄准落坡"
+            : "按住起飞",
+  );
+  set(
+    "hint",
+    phase === "land"
+      ? s.result!.grade + "落地 · +" + s.result!.score
+      : phase === "air" && !held && s.canReleaseShowcase
+        ? "展开身体 · 看准落坡"
+        : "按住转体抓板，看到提示就松手",
+  );
+}
 let soundsLoaded = false;
 const soundFiles = import.meta.glob("../assets/*.wav", {
   eager: true,
@@ -215,6 +291,10 @@ function down() {
   if (paused || sheet.open || countdown > 0) return;
   if (replay) {
     stopReplay();
+    return;
+  }
+  if (route.mode === "intro" && scene.ski.phase === "land") {
+    advance();
     return;
   }
   if (!soundsLoaded && scene.load) {
@@ -322,14 +402,20 @@ function step() {
     sound(crashed ? "fall" : "land");
     if (read().vibrate) navigator.vibrate?.(crashed ? 55 : 18);
     if (!read().steady && crashed) scene.cameras.main.shake(100, 0.003);
+    if (!crashed && route.mode === "intro" && !read().steady)
+      scene.cameras.main.shake(135, 0.004);
     log(crashed ? "摔倒" : "成功落地", route.id);
   }
-  if (
-    s.phase === "land" &&
-    s.x >= Math.max(s.j.lip + 33, s.j.lip + route.jumps[index].speed * 3.5) &&
-    s.tick - landTick > 35
-  )
-    advance();
+  if (s.phase === "land") {
+    const landingTicks = s.tick - landTick;
+    if (
+      route.mode === "intro"
+        ? landingTicks > 65
+        : landingTicks > 35 &&
+          s.x >= Math.max(s.j.lip + 33, s.j.lip + s.j.speed * 3.5)
+    )
+      advance();
+  }
 }
 scene.drive = (delta) => {
   if (document.hidden || paused || !playing) return;
@@ -338,7 +424,10 @@ scene.drive = (delta) => {
     hud();
     return;
   }
-  acc += Math.min(delta, 100);
+  const s = scene.ski;
+  const cueSlowMotion =
+    s.j.showcase && s.phase === "air" && s.grabbing && s.airTicks < 65;
+  acc += Math.min(delta, 100) * (cueSlowMotion ? 0.74 : 1);
   while (acc >= 1000 / 60 && playing && !paused) {
     acc -= 1000 / 60;
     step();
@@ -348,10 +437,20 @@ scene.drive = (delta) => {
 function advance() {
   if (index + 1 < route.jumps.length) {
     index++;
+    if (route.mode === "intro") playing = false;
     spawn();
     return;
   }
   playing = false;
+  if (route.mode === "intro") {
+    change((save) => {
+      save.openingSeen = true;
+    });
+    log("开场表演完成");
+    page("高光完成", "Indy 360°、Tailgrab 720°　·　" + total + " 表演分");
+    btn(grid(), "从松林山起步", startCareer, true);
+    return;
+  }
   if (route.mode !== "park")
     finish(runId, route.id, clips, total, route.mode === "tour");
   if (route.id === tours[0].id) change((s) => (s.taught = true));
@@ -443,6 +542,16 @@ function btn(
 }
 function resume() {
   if (adBusy) return;
+  if (
+    !playing &&
+    route.mode === "intro" &&
+    index === opening.jumps.length - 1 &&
+    scene.ski.result?.grade !== "摔倒" &&
+    scene.ski.phase === "land"
+  ) {
+    startCareer();
+    return;
+  }
   close();
   if (!playing && scene.ski.result) {
     if (replay) stopReplay();
@@ -480,6 +589,13 @@ function result() {
   btn(g, "雪场菜单", menu);
 }
 function menu() {
+  if (route.mode === "intro") {
+    page("极光大跳台");
+    const g = grid();
+    btn(g, "继续表演", resume, true);
+    btn(g, "从松林山起步", startCareer);
+    return;
+  }
   page(
     "雪场手册",
     "本机存档　·　雪票 " +
@@ -488,6 +604,7 @@ function menu() {
   );
   const g = grid();
   btn(g, "返回雪道", resume, true);
+  btn(g, "重玩开场表演", () => start(opening));
   btn(g, "巡回赛 · 选山", () => selectMountain());
   btn(g, "练习公园", () => {
     page("练习公园", "随时重试，自由练习。");
@@ -607,7 +724,7 @@ function prefs() {
         [
           JSON.stringify(
             {
-              build: "0.9.0-rc.1",
+              build: version,
               source: location.hostname,
               events: read().events,
             },
@@ -741,5 +858,13 @@ function aurora() {
 }
 $("menu").onclick = menu;
 scene.debug = new URLSearchParams(location.search).has("editor");
-start(tours[0]);
-if (read().passes) aurora();
+function startCareer() {
+  if (!read().openingSeen)
+    change((save) => {
+      save.openingSeen = true;
+    });
+  start(tours[0]);
+}
+const saved = read();
+start(saved.openingSeen || saved.taught || saved.passes ? tours[0] : opening);
+if (saved.passes) aurora();

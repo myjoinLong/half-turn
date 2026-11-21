@@ -125,6 +125,83 @@ h1 {
   font-size: 24px;
   text-shadow: 0 1px 6px #fff7cf;
 }
+#trick {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 92%;
+  padding: 6px 12px;
+  border-radius: 5px;
+  background: #14273be8;
+  color: #fff3ce;
+  font-size: 13px;
+  font-weight: 800;
+}
+#trick:empty {
+  display: none;
+}
+#app[data-showcase="true"] {
+  background: #141d34;
+}
+[data-showcase="true"] header,
+[data-showcase="true"] footer {
+  color: #eaf3ff;
+  background: #101b31;
+  border-color: #5c8db8;
+}
+[data-showcase="true"] #hud,
+[data-showcase="true"] #hud small {
+  color: #eef5ff;
+}
+[data-showcase="true"] #progress {
+  color: #83f7d0;
+}
+[data-showcase="true"] #ride {
+  background: #593cc2;
+  border: 1px solid #c3baff;
+  color: #fff;
+}
+[data-showcase="true"] #ride small {
+  color: #ebe5ff;
+}
+[data-showcase="true"] #ride:active {
+  background: #694dd2;
+}
+[data-showcase="true"] .disc {
+  color: #aaffdf;
+}
+[data-showcase="true"] #feedback {
+  top: 23%;
+  padding: 0 16px;
+  font:
+    italic 900 clamp(22px, 6.5vw, 40px) / 1.15 system-ui,
+    sans-serif;
+  color: #f1fbff;
+  text-shadow:
+    0 2px 16px #071426,
+    0 1px 2px #071426;
+}
+[data-showcase="true"] #meter:not(:empty) {
+  color: #effbff;
+  background: #14273be8;
+  padding: 5px 7px;
+  border-radius: 4px;
+}
+[data-showcase="true"] dialog {
+  color: #f2f7ff;
+  background: #17243d;
+  border-top-color: #91fbd5;
+}
+[data-showcase="true"] dialog button {
+  background: #263950;
+  border-color: #526c87;
+}
+[data-showcase="true"] dialog button.primary {
+  background: #5a42be;
+}
 #meter {
   position: absolute;
   bottom: 13px;

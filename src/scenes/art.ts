@@ -56,25 +56,34 @@ export function panorama(
 ) {
   const night = m === 2;
   const grad = c.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, night ? "#a0b5bc" : "#f3e7c9");
-  grad.addColorStop(0.63, night ? "#b7cebe" : "#f5d3ac");
-  grad.addColorStop(1, "#a6c0ab");
+  grad.addColorStop(0, aurora ? "#090f2b" : night ? "#a0b5bc" : "#f3e7c9");
+  grad.addColorStop(0.63, aurora ? "#34477b" : night ? "#b7cebe" : "#f5d3ac");
+  grad.addColorStop(1, aurora ? "#6787aa" : "#a6c0ab");
   c.fillStyle = grad;
   c.fillRect(0, 0, w, h);
   if (aurora) {
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 95; i++) {
+      c.fillStyle = i % 7 ? "#c2d2fc80" : "#f4fafa";
+      c.fillRect(noise(i) * w, noise(i + 200) * h * 0.42, i % 7 ? 1 : 2, 1);
+    }
+    for (let i = 0; i < 15; i++) {
       const ribbon: Point[] = [];
       for (let x = 0; x <= w; x += 5)
         ribbon.push([
           x,
-          h * (0.14 + i * 0.009 + 0.065 * Math.sin((x / w) * 5 + i * 0.14)),
+          h * (0.18 + i * 0.005 + 0.064 * Math.sin((x / w) * 5 + i * 0.047)),
         ]);
-      line(c, ribbon, ["#85e6bf", "#b6e7ca", "#a7d7e0"][i % 3], h * 0.012);
+      line(
+        c,
+        ribbon,
+        ["#7bffe526", "#7cd5ff20", "#a68fff22"][i % 3],
+        h * 0.028,
+      );
     }
   }
-  c.fillStyle = night ? "#ffdeb2" : "#ed8b56";
+  c.fillStyle = aurora ? "#e7f5ff" : night ? "#ffdeb2" : "#ed8b56";
   c.beginPath();
-  c.arc(w * 0.74, h * 0.25, w * 0.102, 0, 7);
+  c.arc(w * 0.77, h * 0.265, w * (aurora ? 0.052 : 0.102), 0, 7);
   c.fill();
   for (let i = 0; i < 9; i++) {
     const x = noise(i) * w,
@@ -107,7 +116,7 @@ export function panorama(
       [0.87, 0.31],
       [1, 0.39],
     ],
-    "#b3c0a9",
+    aurora ? "#7f93b5" : "#b3c0a9",
   );
   const peak: Point[] = [
     [0, 0.43],
@@ -126,7 +135,7 @@ export function panorama(
     [0.95, 0.256],
     [1, 0.29],
   ];
-  ridge(peak, "#698d82");
+  ridge(peak, aurora ? "#425e89" : "#698d82");
   const facet = (p: Point[], color: string) =>
     poly(
       c,
@@ -145,7 +154,7 @@ export function panorama(
       [0.23, 0.37],
       [0.25, 0.33],
     ],
-    "#f7eacb",
+    aurora ? "#b5c7eb" : "#f7eacb",
   );
   facet(
     [
@@ -158,7 +167,7 @@ export function panorama(
       [0.455, 0.258],
       [0.44, 0.267],
     ],
-    "#d4d7b9",
+    aurora ? "#90aac9" : "#d4d7b9",
   );
   facet(
     [
@@ -168,7 +177,7 @@ export function panorama(
       [0.365, 0.32],
       [0.34, 0.33],
     ],
-    "#48756d",
+    aurora ? "#304d78" : "#48756d",
   );
   facet(
     [
@@ -181,7 +190,7 @@ export function panorama(
       [0.885, 0.319],
       [0.8, 0.363],
     ],
-    "#e6e2c5",
+    aurora ? "#b6d2df" : "#e6e2c5",
   );
   for (let k = 0; k < 3; k++) {
     const pts: Point[] = [];
@@ -194,7 +203,10 @@ export function panorama(
           0.013 * Math.sin(x * 17 + k);
       pts.push([x, y]);
     }
-    ridge(pts, ["#87a49a", "#618979", "#3e6b5b"][k]);
+    const layers = aurora
+      ? ["#55728b", "#38566e", "#263f55"]
+      : ["#87a49a", "#618979", "#3e6b5b"];
+    ridge(pts, layers[k]);
     for (let i = 0; i < 95; i++) {
       const x = noise(i + k) * w,
         idx = Math.min(70, Math.floor((x / w) * 70));
@@ -203,7 +215,7 @@ export function panorama(
         x,
         pts[idx][1] * h + 4,
         5 + k * 5 + noise(i + 80) * 10,
-        ["#88a298", "#638a79", "#406e5c"][k],
+        layers[k],
       );
     }
   }
@@ -225,12 +237,13 @@ export function piste(
   lite: boolean,
   debug: boolean,
 ) {
-  const scale = w / 42,
-    px = w * 0.26,
-    base = h * 0.68,
+  const cinematic = !!s.j.showcase;
+  const scale = w / (cinematic ? 48 : 42),
+    px = w * (cinematic ? 0.34 : 0.26),
+    base = h * (cinematic ? 0.72 : 0.68),
     sy = (y: number) => base + (y - look) * scale,
     sx = (x: number) => px + (x - s.x) * scale;
-  const start = s.x - 13,
+  const start = s.x - (cinematic ? 18 : 13),
     end = s.x + 36;
   const pts: Point[] = [];
   for (let x = start; x < end; x += 0.22) pts.push([sx(x), sy(height(s.j, x))]);
@@ -244,10 +257,10 @@ export function piste(
       sx(i * 5),
       sy(height(s.j, i * 5)) + 2,
       (0.08 + 0.11 * noise(i)) * h,
-      "#325e50",
+      cinematic ? "#233752" : "#325e50",
     );
   }
-  poly(c, [...pts, [w, h + 5], [0, h + 5]], "#cad8c3");
+  poly(c, [...pts, [w, h + 5], [0, h + 5]], cinematic ? "#879dc3" : "#cad8c3");
   poly(
     c,
     [
@@ -262,7 +275,7 @@ export function piste(
           ],
         ),
     ],
-    snow,
+    cinematic ? "#dfeeff" : snow,
   );
   for (let i = Math.floor(start); i < end; i++) {
     const x = sx(i),
@@ -273,7 +286,7 @@ export function piste(
         [x, y],
         [x + 6 + noise(i + 1) * 12, y + 1],
       ],
-      "#adbfac",
+      cinematic ? "#a9b8d5" : "#adbfac",
       1,
     );
   }
@@ -321,6 +334,35 @@ export function piste(
   }
   const yy = sy(s.y),
     ground = sy(height(s.j, s.x));
+  if (cinematic && s.phase === "air") {
+    const landing = sx(s.landingX);
+    const landingY = sy(height(s.j, s.landingX));
+    line(
+      c,
+      [
+        [landing - 6, landingY - 6],
+        [landing, landingY],
+        [landing + 7, landingY - 4],
+      ],
+      "#e3f8ff",
+      2,
+    );
+    if (!lite) {
+      for (let i = 0; i < 18; i++) {
+        const offset = ((noise(i + 40) + s.tick * 0.013) % 1) * w;
+        const y = h * (0.31 + noise(i + 54) * 0.58);
+        line(
+          c,
+          [
+            [w - offset, y],
+            [w - offset - 6 - noise(i) * 22, y + 1.5],
+          ],
+          "#daeeff35",
+          1,
+        );
+      }
+    }
+  }
   c.fillStyle = "#27473330";
   c.beginPath();
   c.ellipse(px, ground + 3, 17, 3, 0, 0, 7);
@@ -343,7 +385,28 @@ export function piste(
       2,
     );
   }
-  rider(c, px, yy, Math.max(0.8, w / 410), s, items);
+  if (
+    cinematic &&
+    s.contactTick &&
+    s.tick - s.contactTick < 32 &&
+    s.result?.grade !== "摔倒"
+  ) {
+    const age = (s.tick - s.contactTick) / 32;
+    for (let i = 0; i < (lite ? 16 : 56); i++) {
+      const spread = noise(i + 13);
+      c.fillStyle = "rgba(233,250,255," + (1 - age) * 0.9 + ")";
+      c.beginPath();
+      c.arc(
+        px + (spread - 0.7) * age * 200,
+        yy - Math.sin(age * Math.PI) * noise(i + 43) * 76,
+        1 + noise(i) * 3,
+        0,
+        7,
+      );
+      c.fill();
+    }
+  }
+  rider(c, px, yy, Math.max(0.8, w / 410) * (cinematic ? 1.55 : 1.1), s, items);
 }
 export function rider(
   c: C,
@@ -357,6 +420,14 @@ export function rider(
   c.translate(x, y);
   c.scale(scale, scale);
   c.rotate((s.angle * Math.PI) / 180);
+  if (s.j.showcase && s.phase === "air") {
+    const turn = (s.yaw * Math.PI) / 180;
+    const side = Math.cos(turn);
+    c.scale((side < 0 ? -1 : 1) * (0.3 + 0.7 * Math.abs(side)), 1);
+    c.transform(1, 0, Math.sin(turn) * 0.29, 1, 0, 0);
+  } else if (s.phase === "land" && s.result && s.result.halves % 2) {
+    c.scale(-1, 1);
+  }
   if (s.phase === "crash") {
     c.translate(0, 3);
     c.rotate(-0.56);
@@ -365,8 +436,10 @@ export function rider(
     (s.phase === "run" && s.held) ||
     (s.phase === "air" && s.held) ||
     s.phase === "crash" ||
-    (s.phase === "land" && s.x < s.j.lip + 21);
-  const hip: Point = tucked ? [-5, -12] : [-3, -20],
+    (s.phase === "land" && s.tick - s.contactTick < 13);
+  const grab = s.grabbing ? s.j.grab : undefined;
+  const hip: Point =
+      grab === "tail" ? [-9, -12] : tucked ? [-5, -12] : [-3, -20],
     shoulder: Point = tucked ? [2, -20] : [1, -32],
     head: Point = [shoulder[0] + 3, shoulder[1] - 6];
   line(
@@ -393,6 +466,15 @@ export function rider(
   );
   line(
     c,
+    [
+      [-11, -1],
+      [9, -1],
+    ],
+    "#ffecac",
+    0.9,
+  );
+  line(
+    c,
     [[-8, -3], [-10, -10], hip, [7, tucked ? -11 : -14], [6, -3]],
     ink,
     4.4,
@@ -407,16 +489,29 @@ export function rider(
     "#ecc782",
     2.4,
   );
+  const hand: Point =
+    grab === "tail"
+      ? [-16, -3]
+      : grab === "nose"
+        ? [15, -4]
+        : grab === "indy"
+          ? [1, -2]
+          : [tucked ? 6 : 15, tucked ? -10 : -21];
+  if (grab) {
+    const freeHand: Point = grab === "tail" ? [22, -25] : [-20, -17];
+    line(c, [shoulder, [freeHand[0] * 0.6, -28], freeHand], "#263942", 3.5);
+  }
   line(
     c,
     [
       shoulder,
-      [shoulder[0] + 8, shoulder[1] + 8],
-      [tucked ? 6 : 15, tucked ? -10 : -21],
+      grab === "tail" ? [-12, -15] : [shoulder[0] + 8, shoulder[1] + 8],
+      hand,
     ],
     ink,
     3.8,
   );
+  if (grab) line(c, [hand, [hand[0] + 1.5, hand[1]]], "#ffcb76", 4);
   c.fillStyle = ink;
   c.beginPath();
   c.arc(...head, 5.6, 0, 7);

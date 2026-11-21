@@ -1,4 +1,5 @@
 import { chromium } from "playwright-core";
+import { markOpeningSeen } from "./career-fixture.mjs";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 import assert from "node:assert/strict";
@@ -16,6 +17,7 @@ try {
     hasTouch: true,
   });
   await p.clock.install();
+  await markOpeningSeen(p);
   await p.goto(process.env.SKI_URL || "http://127.0.0.1:4187");
   await p.waitForSelector("canvas");
   await p.clock.pauseAt((await p.evaluate(() => Date.now())) + 60000);

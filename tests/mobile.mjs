@@ -1,4 +1,5 @@
 import { chromium } from "playwright-core";
+import { markOpeningSeen } from "./career-fixture.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 const browser = await chromium.launch({
@@ -54,6 +55,7 @@ const angle = (n) =>
 try {
   const epoch = Date.now();
   await page.clock.install({ time: epoch });
+  await markOpeningSeen(page);
   await page.goto(url);
   await page.waitForSelector("canvas");
   await waitText("action", "触碰出发");

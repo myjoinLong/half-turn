@@ -1,4 +1,5 @@
 import { chromium } from "playwright-core";
+import { markOpeningSeen } from "./career-fixture.mjs";
 import { spawn } from "node:child_process";
 import assert from "node:assert/strict";
 import { writeFile } from "node:fs/promises";
@@ -51,6 +52,7 @@ try {
   });
   const errors = [];
   p.on("pageerror", (e) => errors.push(e.message));
+  await markOpeningSeen(p);
   await p.addInitScript(() => {
     window.tap = {
       createRewardedVideoAd: ({ adUnitId }) => {

@@ -1,4 +1,5 @@
 import { chromium } from "playwright-core";
+import { markOpeningSeen } from "./career-fixture.mjs";
 import { writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -24,6 +25,7 @@ try {
     uploadThroughput: 1250000,
   });
   const results = [];
+  await markOpeningSeen(page);
   for (const entry of ["cold", "warm"]) {
     if (entry === "cold") await cdp.send("Network.clearBrowserCache");
     await page.goto(process.env.SKI_URL || "http://127.0.0.1:4187");
