@@ -7,7 +7,8 @@ import {
   sectionEnd,
   Ski,
 } from "../sim/ski";
-import { rider } from "./rider";
+import { buildRider } from "./rider";
+import { nearClip, near, paintFaces, placeAboveSnow } from "./geometry";
 
 type Vec = [number, number, number];
 type Point = [number, number];
@@ -63,20 +64,26 @@ export function drawDescent(
   const span = sectionEnd(j);
   const upcoming = jumps[stage + 1];
   const previous = jumps[stage - 1];
+  const priorLength = previous ? sectionEnd(previous) : 0;
+  const nextHeight = upcoming ? height(j, span) - height(upcoming, 0) : 0;
+  const priorHeight = previous
+    ? height(j, 0) - height(previous, priorLength)
+    : 0;
+  function snowHeight(x: number) {
+    if (x > span && upcoming) return height(upcoming, x - span) + nextHeight;
+    if (x < 0 && previous)
+      return height(previous, x + priorLength) + priorHeight;
+    return height(j, x);
+  }
   function surface(x: number): Surface {
     const next = x > span && upcoming;
     const last = x < 0 && previous;
     const jump = next || last || j;
-    const local = next ? x - span : last ? x + sectionEnd(last) : x;
-    const yOffset = next
-      ? height(j, span) - height(next, 0)
-      : last
-        ? height(j, 0) - height(last, sectionEnd(last))
-        : 0;
+    const local = next ? x - span : last ? x + priorLength : x;
     return {
       center: roadCenter(jump, local),
       half: roadWidth(jump, local),
-      y: height(jump, local) + yOffset,
+      y: snowHeight(x),
       jump,
       local,
     };
@@ -88,7 +95,7 @@ export function drawDescent(
       ? Math.min(1, Math.max(0, (s.speed / j.speed - 1) * 2))
       : 0;
   const air = s.phase === "air";
-  const distance = 10 + rush * 3 + (air ? 4 : 0);
+  const distance = 9.6 + rush * 2.2 + (air ? 1.1 : 0);
   const eye: Vec = [
     s.x - distance,
     cameraY - 5.8 - (air ? 0.9 : 0),
@@ -108,10 +115,39 @@ export function drawDescent(
     right[0] * forward[1],
   ];
   const focal = Math.min(w * 1.08, h * 0.8) * (1 - rush * 0.1);
-  function project(x: number, y: number, z: number): Point {
+  function camera([x, y, z]: Vec): Vec {
     const v: Vec = [x - eye[0], y - eye[1], z - eye[2]];
-    const scale = focal / Math.max(0.8, dot(v, forward));
-    return [w * 0.57 + dot(v, right) * scale, h * 0.39 + dot(v, down) * scale];
+    return [-dot(v, right), dot(v, down), dot(v, forward)];
+  }
+  function screen([x, y, z]: Vec): Point {
+    const scale = focal / z;
+    return [w * 0.57 - x * scale, h * 0.39 + y * scale];
+  }
+  function project(x: number, y: number, z: number): Point {
+    const view = camera([x, y, z]);
+    view[2] = Math.max(near, view[2]);
+    return screen(view);
+  }
+  function worldPoly(vertices: Vec[], color: string, edge = false) {
+    const visible = nearClip(vertices.map(camera));
+    if (visible.length < 3) return;
+    polygon(c, visible.map(screen), color);
+    if (edge) {
+      c.strokeStyle = color;
+      c.lineWidth = 0.65;
+      c.stroke();
+    }
+  }
+  function worldLine(a: Vec, b: Vec, color: string, width: number) {
+    let p = camera(a),
+      q = camera(b);
+    if (p[2] < near && q[2] < near) return;
+    if (q[2] < near) [p, q] = [q, p];
+    if (p[2] < near) {
+      const t = (near - p[2]) / (q[2] - p[2]);
+      p = [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, near];
+    }
+    line(c, screen(p), screen(q), color, width);
   }
   const start = s.x - distance + 2.2;
   const bands = [start];
@@ -120,14 +156,30 @@ export function drawDescent(
     cursor += cursor < s.x + 52 ? 1.45 : 3.8;
     bands.push(cursor);
   }
-  if (j.lip > start && j.lip < cursor)
-    bands.push(j.lip - 0.035, j.lip, j.lip + 0.06);
+  const terrainBreaks = [0, span];
+  for (const [offset, jump] of [
+    [-priorLength, previous],
+    [0, j],
+    [span, upcoming],
+  ] as const) {
+    if (jump)
+      terrainBreaks.push(
+        offset + jump.lip - (jump.showcase ? 9 : 5),
+        offset + jump.lip,
+        offset + jump.lip + (jump.showcase ? 15 : 5),
+      );
+  }
+  for (const position of terrainBreaks)
+    if (position > start && position < cursor) bands.push(position);
   bands.sort((a, b) => a - b);
-  const ribbon = (x: number, p: Surface, offset: number) =>
-    project(x, p.y, p.center + p.half * offset);
+  const ribbon = (x: number, p: Surface, offset: number): Vec => [
+    x,
+    p.y,
+    p.center + p.half * offset,
+  ];
   const foreground = surface(start);
-  const nearLeft = ribbon(start, foreground, -2.8),
-    nearRight = ribbon(start, foreground, 2.8);
+  const nearLeft = project(...ribbon(start, foreground, -2.8)),
+    nearRight = project(...ribbon(start, foreground, 2.8));
   polygon(
     c,
     [
@@ -146,14 +198,14 @@ export function drawDescent(
       b = bands[i],
       p = surface(a),
       q = surface(b);
+    if (b - a < 1e-6) continue;
     const altitudeShift = Math.max(
       -2,
       Math.min(3, ((q.y - p.y) / (b - a)) * 2),
     );
     const snow =
       nightSnow[altitudeShift > 1 ? 0 : altitudeShift < -0.2 ? 2 : 1];
-    polygon(
-      c,
+    worldPoly(
       [
         ribbon(a, p, -2.8),
         ribbon(b, q, -2.8),
@@ -162,16 +214,12 @@ export function drawDescent(
       ],
       night ? "#53728e" : "#92afb0",
     );
-    polygon(
-      c,
+    worldPoly(
       [ribbon(a, p, -1), ribbon(b, q, -1), ribbon(b, q, 1), ribbon(a, p, 1)],
       snow,
+      true,
     );
-    c.strokeStyle = snow;
-    c.lineWidth = 0.65;
-    c.stroke();
-    polygon(
-      c,
+    worldPoly(
       [
         ribbon(a, p, -1),
         ribbon(b, q, -1),
@@ -180,8 +228,7 @@ export function drawDescent(
       ],
       night ? "#7196b8" : "#acc9ca",
     );
-    polygon(
-      c,
+    worldPoly(
       [
         ribbon(a, p, 0.86),
         ribbon(b, q, 0.86),
@@ -191,86 +238,140 @@ export function drawDescent(
       night ? "#dce8f3" : "#fcf6df",
     );
     if (p.local < p.jump.lip && p.local > p.jump.lip - 5)
-      polygon(
-        c,
+      worldPoly(
         [ribbon(a, p, -1), ribbon(b, q, -1), ribbon(b, q, 1), ribbon(a, p, 1)],
         "#faa651",
       );
   }
-  const gatePole = (x: number, z: number, y: number, flag: string) => {
-    const top = project(x, y - 2.45, z),
-      foot = project(x, y, z);
-    line(
-      c,
-      top,
-      foot,
-      "#293e57",
-      Math.max(1, Math.abs(top[1] - foot[1]) * 0.065),
-    );
-    polygon(
-      c,
-      [
-        top,
-        project(x, y - 2.34, z + 1.05),
-        project(x, y - 1.72, z + 0.79),
-        project(x, y - 1.52, z),
-      ],
-      flag,
-    );
+
+  const objects: { depth: number; draw: () => void }[] = [];
+  const atDepth = (position: Vec, draw: () => void) => {
+    const depth = camera(position)[2];
+    if (depth > near) objects.push({ depth, draw });
   };
-  for (let i = 0; i < (j.trail?.gates.length || 0); i++) {
-    const x = j.trail!.gates[i] * j.lip;
-    if (x < start || x > s.x + 142) continue;
-    const gate = surface(x),
-      z = gate.center + gateOffset(j, i);
-    const flag = i < s.gateIndex ? "#83bead" : i % 2 ? "#ee8063" : "#40c8bd";
-    gatePole(x, z - 2.05, gate.y, flag);
-    gatePole(x, z + 2.05, gate.y, flag);
-    line(
-      c,
-      project(x, gate.y - 0.05, z - 2),
-      project(x, gate.y - 0.05, z + 2),
-      flag,
-      2,
-    );
+  function gatePole(
+    x: number,
+    z: number,
+    y: number,
+    flag: string,
+    bend = 0,
+    side = 0,
+  ) {
+    atDepth([x, y - 1, z], () => {
+      const foot: Vec = [x, y + 0.035, z];
+      const top: Vec = [
+        x + bend * 1.3,
+        y - 2.45 + bend * 0.8,
+        z + side * bend * 1.25,
+      ];
+      worldLine(
+        foot,
+        top,
+        "#293e57",
+        Math.max(1, Math.min(7, 12 / camera(foot)[2])),
+      );
+      worldPoly(
+        [
+          top,
+          [top[0], top[1] + 0.1, top[2] + 1.05],
+          [top[0], top[1] + 0.64, top[2] + 0.79],
+          [top[0], top[1] + 0.84, top[2]],
+        ],
+        flag,
+      );
+    });
   }
-  if (j.lip >= start && j.lip < s.x + 150) {
-    gatePole(j.lip, roadWidth(j, j.lip) - 0.4, height(j, j.lip), "#ef8951");
-    gatePole(j.lip, -roadWidth(j, j.lip) + 0.4, height(j, j.lip), "#ef8951");
+  const stages = [
+    [previous, -priorLength],
+    [j, 0],
+    [upcoming, span],
+  ] as const;
+  for (const [jump, offset] of stages) {
+    if (!jump) continue;
+    for (const [index, gate] of (jump.trail?.gates || []).entries()) {
+      const x = offset + gate * jump.lip;
+      if (x < start || x > s.x + 142) continue;
+      const road = surface(x);
+      const center = road.center + gateOffset(jump, index);
+      const flag =
+        jump === j && index < s.gateIndex
+          ? "#83bead"
+          : index % 2
+            ? "#ee8063"
+            : "#40c8bd";
+      for (const side of [-1, 1]) {
+        const touch =
+          jump === j
+            ? s.gateTouches.find((t) => t.index === index && t.side === side)
+            : undefined;
+        const bend = touch ? Math.max(0, 1 - (s.tick - touch.tick) / 36) : 0;
+        const z = center + side * 2.05;
+        gatePole(x, z, road.y, flag, bend, side);
+      }
+      worldLine(
+        [x, road.y - 0.045, center - 2],
+        [x, road.y - 0.045, center + 2],
+        flag,
+        2,
+      );
+    }
+    const lip = offset + jump.lip;
+    if (lip >= start && lip < s.x + 150) {
+      const road = surface(lip);
+      for (const side of [-1, 1])
+        gatePole(
+          lip,
+          road.center + side * (road.half - 0.35),
+          road.y,
+          "#ef8951",
+        );
+    }
   }
-  for (let k = Math.floor((s.x + 146) / 8); k * 8 > start + 2; k--) {
-    const x = k * 8,
-      p = surface(x),
+
+  const passed = jumps
+    .slice(0, stage)
+    .reduce((sum, jump) => sum + sectionEnd(jump), 0);
+  for (
+    let k = Math.floor((s.x + passed + 146) / 8);
+    k * 8 > start + passed + 2;
+    k--
+  ) {
+    const x = k * 8 - passed,
+      road = surface(x),
       seed = Math.abs(Math.sin(k * 54.1));
-    const stripe = seed * 1.35 - 0.65;
-    const cx = p.center + stripe * p.half;
-    line(
-      c,
-      project(x, p.y - 0.04, cx),
-      project(x + 1.35, surface(x + 1.35).y - 0.04, cx),
+    const z = road.center + (seed * 1.35 - 0.65) * road.half;
+    worldLine(
+      [x, road.y - 0.04, z],
+      [x + 1.35, snowHeight(x + 1.35) - 0.04, z],
       "#8caead",
       0.7,
     );
     for (const side of [-1, 1]) {
-      const z = p.center + side * (p.half + 2 + seed * 6);
-      const base = project(x, p.y, z),
-        top = project(x, p.y - 3.5 - seed * 5, z);
-      const wide = Math.min(25, Math.abs(base[1] - top[1]) * 0.29);
-      polygon(
-        c,
-        [
-          top,
-          [base[0] + wide * 0.54, top[1] + (base[1] - top[1]) * 0.6],
-          [base[0] + wide, base[1]],
-          [base[0] - wide, base[1]],
-        ],
-        night ? "#26435a" : "#2f635a",
-      );
-      polygon(
-        c,
-        [top, [base[0] - wide, base[1]], [base[0], base[1] - wide * 0.2]],
-        night ? "#3d6076" : "#4a8272",
-      );
+      const lateral = road.center + side * (road.half + 3.7 + seed * 6);
+      const treeY = road.y;
+      const size = 4 + seed * 4.8;
+      atDepth([x, treeY - size * 0.32, lateral], () => {
+        const colors = night
+          ? ["#38566a", "#233e54", "#1c3449"]
+          : ["#53816e", "#356454", "#254c44"];
+        worldLine(
+          [x, treeY + 0.09, lateral],
+          [x, treeY - size * 0.65, lateral],
+          "#635448",
+          2,
+        );
+        for (let tier = 0; tier < 3; tier++) {
+          const y = treeY - size * 0.22 - tier * size * 0.23;
+          const width = size * (0.24 - tier * 0.044);
+          const apex: Vec = [x + 0.1, y - size * 0.51, lateral];
+          const a: Vec = [x - width, y, lateral - width * 0.62],
+            b: Vec = [x + width, y, lateral - width * 0.55];
+          const d: Vec = [x - 0.19, y, lateral + width * 0.79];
+          worldPoly([apex, a, b], colors[1]);
+          worldPoly([apex, b, d], colors[2]);
+          worldPoly([apex, d, a], colors[0]);
+        }
+      });
     }
   }
   if (air && s.landingX > s.x) {
@@ -283,8 +384,7 @@ export function drawDescent(
     line(c, [mark[0] - 7, mark[1] - 4], mark, "#ec7546", 2);
     line(c, mark, [mark[0] + 7, mark[1] - 4], "#ec7546", 2);
   }
-  const feet = project(s.x, s.y, boardZ),
-    shadow = project(s.x, ground.y - 0.12, boardZ);
+  const shadow = project(s.x, ground.y - 0.12, boardZ);
   c.fillStyle = "#172f4749";
   c.beginPath();
   c.ellipse(shadow[0], shadow[1], 12, 4, 0, 0, 7);
@@ -328,21 +428,36 @@ export function drawDescent(
         ? Math.max(0, 1 - (s.tick - s.recoverTick) / 28) * 0.95
         : s.lean * 0.42 +
           (air ? Math.sin(airborne * Math.PI) * s.tuckAmount * 0.23 : 0);
-  const vertical = cameraScale(project, s.x, s.y, boardZ);
-  rider(c, feet[0], feet[1], vertical, s, wear, ([advance, up], side) => {
-    const x = advance * 0.043,
-      y = up * 0.043,
-      z = side * 0.043;
-    const yy = y * Math.cos(roll) - z * Math.sin(roll);
-    const zz = y * Math.sin(roll) + z * Math.cos(roll);
-    const xx = x * Math.cos(pitch) - yy * Math.sin(pitch);
-    const dy = x * Math.sin(pitch) + yy * Math.cos(pitch);
-    return project(
-      s.x + xx * Math.cos(yaw) - zz * Math.sin(yaw),
-      s.y + dy,
-      boardZ + xx * Math.sin(yaw) + zz * Math.cos(yaw),
-    );
-  });
+  const cosRoll = Math.cos(roll),
+    sinRoll = Math.sin(roll);
+  const cosPitch = Math.cos(pitch),
+    sinPitch = Math.sin(pitch);
+  const cosYaw = Math.cos(yaw),
+    sinYaw = Math.sin(yaw);
+  const rig = placeAboveSnow(
+    buildRider(s, wear, !lite),
+    ([advance, up, side]) => {
+      const x = advance * 0.043,
+        y = up * 0.043,
+        z = side * 0.043;
+      const yy = y * cosRoll - z * sinRoll;
+      const zz = y * sinRoll + z * cosRoll;
+      const xx = x * cosPitch - yy * sinPitch;
+      const dy = x * sinPitch + yy * cosPitch;
+      return [
+        s.x + xx * cosYaw - zz * sinYaw,
+        s.y + dy,
+        boardZ + xx * sinYaw + zz * cosYaw,
+      ];
+    },
+    snowHeight,
+    terrainBreaks.filter((x) => Math.abs(x - s.x) < 3),
+  );
+  const feet = project(s.x, s.y - rig.lift, boardZ);
+  atDepth([s.x, s.y - rig.lift - 0.66, boardZ], () =>
+    paintFaces(c, rig.faces, camera, screen),
+  );
+  objects.sort((a, b) => b.depth - a.depth).forEach((object) => object.draw());
 
   const intensity = Math.min(1, Math.max(rush, (s.speed - 16) / 18));
   if (s.tick && (!air || rush > 0) && !lite) {
@@ -372,15 +487,4 @@ export function drawDescent(
       c.fillRect(px, py, 1 + f * 4, 1 + f * 3);
     }
   }
-}
-function cameraScale(
-  project: (x: number, y: number, z: number) => Point,
-  x: number,
-  y: number,
-  z: number,
-) {
-  return Math.max(
-    0.48,
-    Math.abs(project(x, y - 1, z)[1] - project(x, y, z)[1]) * 0.043,
-  );
 }

@@ -1,8 +1,8 @@
 # 再翻半圈
 
-本地候选版为 0.9.0-rc.4。交付包在 release/half-turn-0.9.0-rc.4.zip。本机私测事件可用 [私测看板](release/私测看板.html) 离线查看。
+本地候选版为 0.9.0-rc.5。交付包在 release/half-turn-0.9.0-rc.5.zip。本机私测事件可用 [私测看板](release/私测看板.html) 离线查看。
 
-竖屏单指滑雪。地面按住左右拖动走线，过旗门加分。按住「压刃」可减速，松开恢复滑行。起跳前可点「冲刺」。极光开场的两座高台落差为 24 和 32 米，空中按住左右滑可切换抓板，松开展体。开场有落地辅助，完成后从松林山零分起步。
+竖屏单指滑雪。按住雪道或底部操作区，地面左右拖动走线，下滑压刃，上滑冲刺。也可单独按压刃键或点冲刺键。极光开场的两座高台落差为 24 和 32 米。起跳前点「动作」可选抓板，空中按住左右滑可以换招，松手则展体。开场有落地辅助，完成后从松林山零分起步。
 
 正式雪道练习转体、手动蹬伸、抓板和连续弯。失误后会侧滑卸力，按住可以更快撑地起身，随后从当前位置继续滑。电脑可用空格、左右方向键、下方向键和 Shift 对应抓板、走线、压刃和冲刺。每日赛使用统一配置，允许压刃走线和起身。
 
@@ -10,13 +10,13 @@
 
 在本目录执行 `npm ci`、`npm run dev`。手机与电脑连同一局域网，打开 Vite 输出的 Network 地址。正式静态包执行 `npm run build`、`python tools/package.py`，使用 `npm run preview` 检查。压缩包根目录为 index.html，以 HTTP(S) 静态托管。开发和预览服务器通过不同端口隔离本地存档。Phaser 和素材随包分发。
 
-`npm test` 验证确定性模拟、评分和存档事务。`node node_modules/tsx/dist/cli.mjs tools/audit-descent.ts` 跑完各线路三种打法。浏览器回归先以 `npm run preview -- --port 4187` 启动预览，再执行 `node tests/descent.mjs`，默认使用 Windows Edge，可用 BROWSER_EXE 指定 Chromium。滑行设置可导出最近的本机事件。
+`npm test` 验证确定性模拟、模型接触、触控状态、评分与存档事务。浏览器回归先启动 `npm run preview -- --port 4187`，再执行 `node tests/descent.mjs` 和 `node tests/precision-mobile.mjs`。默认使用 Windows Edge，可用 BROWSER_EXE 指定 Chromium。`node node_modules/tsx/dist/cli.mjs tools/audit-descent.ts` 跑完各线路三种打法。滑行设置可导出最近的本机事件。
 
 ## 源码与素材
 
 - src/sim/ski.ts 包含每秒 60 步的模拟和按距离细分的碰撞检测。录像按跳台记录按键变化的模拟步、起跳配置和连段。
 - src/content/routes.ts 定义三座山、15 条线路、练习与北京时间轮换题，以及纯外观收藏。个人最佳保存在本机，每日同题使用固定装扮和初始连段。
-- 六种抓板采用中文动作名。雪道、旗门、雪板与关节姿态共用三维透视投影。抓板手位参考 [国际雪联单板动作表](https://www.fis-ski.com/DB/v2/tricks?discipline=SB&event=HP)。
+- 六种抓板采用中文动作名。雪道、旗门、雪板和关节模型共用三维透视。整副模型按雪面修正接触，近处场景按相机视锥裁剪。抓板手位参考 [国际雪联单板动作表](https://www.fis-ski.com/DB/v2/tricks?discipline=SB&event=HP)。
 - src/scenes/art.ts 为本作原创程序绘制的雪山、松林、滑手骨架、雪板与雪粉。音效由 tools/sounds.py 在本地合成，渲染使用系统字体。Phaser 和构建工具许可证见各自包内 LICENSE。
 - src/platform 独占 half-turn.ski.v1 存档和本作广告位配置。开通后填写 .env.production.local 重新构建。预览环境无可用广告时返回原入口。真实宿主完播回调才发奖，记录在同笔存档写入中。
 - 首发候选必须补录 Android/iOS 支持入口的触控、后台恢复、20 分钟稳定性、10 Mbps 冷热启动，以及私有二维码验证。平台曝光、收入、认证状态和审核结果取开发者后台。

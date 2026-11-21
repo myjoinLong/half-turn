@@ -32,6 +32,12 @@
         <div id="feedback"></div>
         <div id="trick"></div>
         <div id="meter"></div>
+        <div
+          id="grab-choices"
+          role="group"
+          aria-label="选择抓板动作"
+          hidden
+        ></div>
       </section>
       <footer>
         <div class="strip">
@@ -41,11 +47,18 @@
           <div id="speed-row">
             <output id="speed"></output>
             <div class="pedals">
-              <button id="brake" type="button" aria-pressed="false">压刃</button
+              <button
+                id="grab-toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="grab-choices"
+              >
+                动作</button
+              ><button id="brake" type="button" aria-pressed="false">
+                压刃</button
               ><button id="boost" type="button">冲刺</button>
             </div>
           </div>
-          <div id="grab-choices" role="group" aria-label="选择抓板动作"></div>
         </div>
         <button id="ride">
           <span class="disc">↗</span

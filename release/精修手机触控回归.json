@@ -1,0 +1,93 @@
+{
+  "browser": "134.0.3124.93",
+  "results": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "buttons": {
+        "boost": [
+          46,
+          44
+        ],
+        "brake": [
+          46,
+          44
+        ],
+        "grab-toggle": [
+          46,
+          44
+        ],
+        "ride": [
+          296,
+          62
+        ]
+      },
+      "base": 54,
+      "boosted": 69,
+      "braked": 50,
+      "stableControls": true,
+      "gestureLanding": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "buttons": {
+        "boost": [
+          46,
+          44
+        ],
+        "brake": [
+          46,
+          44
+        ],
+        "grab-toggle": [
+          45.99998474121094,
+          44
+        ],
+        "ride": [
+          366.3999938964844,
+          62
+        ]
+      },
+      "base": 54,
+      "boosted": 68,
+      "braked": 47,
+      "stableControls": true,
+      "gestureLanding": true
+    },
+    {
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "buttons": {
+        "boost": [
+          46,
+          44
+        ],
+        "brake": [
+          46,
+          44
+        ],
+        "grab-toggle": [
+          46,
+          44
+        ],
+        "ride": [
+          406.3999938964844,
+          62
+        ]
+      },
+      "base": 54,
+      "boosted": 68,
+      "braked": 46,
+      "stableControls": true,
+      "gestureLanding": true
+    }
+  ],
+  "errors": []
+}

@@ -30,6 +30,7 @@ import {
 } from "./platform/save";
 import { watch } from "./platform/ad";
 import { grabs, grabOrder, type Grab } from "./content/tricks";
+import { RideGesture } from "./ui/gesture";
 const $ = (id: string) => document.getElementById(id)!;
 const sheet = $("sheet") as HTMLDialogElement,
   panel = $("panel");
@@ -69,8 +70,16 @@ let route: Route = tours[0],
 let highlights: string[] = [];
 let steering = 0,
   braking = false,
+  gestureBrake = false,
+  keyBrake = false,
+  latchedBrake = false,
+  brakePointer: number | null = null,
+  ridePointer: number | null = null,
+  showGrabs = false,
+  cancelledHolds: number[] = [],
   recoveryCount = 0,
   control: NonNullable<Clip["control"]> = [];
+const rideGesture = new RideGesture();
 let replayControl = 0,
   sectionEntrySpeed = 0;
 let replay: Clip[] | null = null,
@@ -113,6 +122,8 @@ function spawn(entrySpeed = route.jumps[index].speed) {
   held = false;
   landTick = 0;
   control = [];
+  cancelledHolds = [];
+  showGrabs = false;
   steering = 0;
   braking = false;
   acc = 0;
@@ -122,9 +133,7 @@ function spawn(entrySpeed = route.jumps[index].speed) {
 function close() {
   if (sheet.open) sheet.close();
   paused = false;
-  held = false;
-  steering = 0;
-  braking = false;
+  resetControls();
   fitting = null;
   settings();
 }
@@ -240,7 +249,7 @@ function hud() {
                 : "橙色区松手起跳，腾空后按住抓板"
               : s.phase === "air"
                 ? "看板面，对准落坡；倒滑也能得分"
-                : "左右拖动过旗门，到橙线松手起跳",
+                : "左右走线 · 下滑压刃",
   );
   const r = s.result;
   set(
@@ -319,7 +328,7 @@ function openingHud(s: Ski, trick: string) {
         ? "展开身体 · 看准落坡"
         : phase === "air" && held
           ? "按住时左右滑动，可串接不同抓板"
-          : "可先冲刺或选抓板，按住起飞",
+          : "按住出发 · 上滑冲刺 · 下滑压刃",
   );
 }
 const grabButtons = new Map(
@@ -332,14 +341,23 @@ const grabButtons = new Map(
       "aria-label",
       grabs[grab].name + " · " + grabs[grab].label,
     );
-    button.onclick = () => selectGrab(grab);
+    button.onclick = () => {
+      showGrabs = false;
+      selectGrab(grab);
+    };
     $("grab-choices").append(button);
     return [grab, button] as const;
   }),
 );
 function updateControls(s: Ski) {
   $("freestyle-controls").hidden = Boolean(replay);
-  $("grab-choices").hidden = !s.j.showcase;
+  const choicesAvailable = !!s.j.showcase && !replay && s.phase === "run";
+  $("grab-toggle").hidden = !choicesAvailable;
+  $("grab-choices").hidden = !choicesAvailable || !showGrabs || paused;
+  $("grab-toggle").setAttribute(
+    "aria-expanded",
+    String(!$("grab-choices").hidden),
+  );
   const boost = $("boost") as HTMLButtonElement;
   boost.hidden = route.mode === "daily";
   boost.disabled = s.phase !== "run" || s.boostAt !== undefined;
@@ -385,19 +403,33 @@ function boost() {
   hud();
 }
 $("boost").onclick = boost;
+$("grab-toggle").onclick = () => {
+  showGrabs = !showGrabs;
+  hud();
+};
+function updateBrake() {
+  braking = gestureBrake || keyBrake || latchedBrake || brakePointer !== null;
+}
 const brakeButton = $("brake");
 brakeButton.onpointerdown = (event) => {
+  if (brakePointer !== null || event.button !== 0 || paused) return;
   brakeButton.setPointerCapture(event.pointerId);
-  braking = true;
+  brakePointer = event.pointerId;
+  updateBrake();
 };
 brakeButton.onlostpointercapture =
   brakeButton.onpointerup =
   brakeButton.onpointercancel =
-    () => {
-      braking = false;
+    (event) => {
+      if (brakePointer !== event.pointerId) return;
+      brakePointer = null;
+      updateBrake();
     };
 brakeButton.onclick = (event) => {
-  if (event.detail === 0) braking = !braking;
+  if (event.detail === 0) {
+    latchedBrake = !latchedBrake;
+    updateBrake();
+  }
 };
 let soundsLoaded = false;
 const soundFiles = import.meta.glob("../assets/*.wav", {
@@ -428,48 +460,71 @@ function up() {
   held = false;
   steering = 0;
 }
-let ridePointer: number | null = null;
-let gestureX = 0;
+function cancelRide() {
+  if (!replay && scene.ski && (held || scene.ski.held)) {
+    if (cancelledHolds.at(-1) !== scene.ski.tick)
+      cancelledHolds.push(scene.ski.tick);
+    scene.ski.cancelHold();
+  }
+  up();
+}
+function resetControls() {
+  cancelRide();
+  ridePointer = null;
+  brakePointer = null;
+  gestureBrake = keyBrake = latchedBrake = braking = false;
+  showGrabs = false;
+}
 for (const surface of [$("game"), $("ride")]) {
   surface.onpointerdown = (event) => {
     if (ridePointer !== null || event.button !== 0) return;
     event.preventDefault();
     ridePointer = event.pointerId;
-    gestureX = event.clientX;
+    rideGesture.start(event.clientX, event.clientY, scene.ski.phase);
+    showGrabs = false;
     surface.setPointerCapture(event.pointerId);
     down();
   };
   surface.onpointermove = (event) => {
-    const delta = event.clientX - gestureX;
     if (event.pointerId !== ridePointer || !held) return;
-    if (
-      scene.ski.phase === "air" &&
-      scene.ski.j.showcase &&
-      Math.abs(delta) >= 44
-    ) {
-      cycleGrab(Math.sign(delta));
-      gestureX = event.clientX;
-    } else if (scene.ski.phase !== "air")
-      steering = Math.round(Math.max(-1, Math.min(1, delta / 68)) * 10) / 10;
+    const motion = rideGesture.move(
+      event.clientX,
+      event.clientY,
+      scene.ski.phase,
+      !!scene.ski.j.showcase,
+    );
+    steering = motion.steer;
+    gestureBrake = motion.brake;
+    updateBrake();
+    if (motion.boost) boost();
+    if (motion.grab) cycleGrab(motion.grab);
   };
   const release = (event: PointerEvent) => {
     if (ridePointer !== event.pointerId) return;
     ridePointer = null;
-    up();
+    if (event.type !== "pointerup" || gestureBrake) cancelRide();
+    else up();
+    gestureBrake = false;
+    updateBrake();
   };
   surface.onpointerup = release;
   surface.onpointercancel = release;
   surface.onlostpointercapture = release;
 }
 window.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && !sheet.open) {
+  if (
+    e.code === "Space" &&
+    !sheet.open &&
+    !["boost", "brake", "grab-toggle"].includes((e.target as HTMLElement)?.id)
+  ) {
     e.preventDefault();
     if (!e.repeat) down();
   }
   if (!sheet.open && !e.repeat && e.key === "Shift") boost();
   if (!sheet.open && e.key === "ArrowDown") {
     e.preventDefault();
-    braking = true;
+    keyBrake = true;
+    updateBrake();
   }
   if (!sheet.open && ["ArrowLeft", "ArrowRight"].includes(e.key)) {
     e.preventDefault();
@@ -481,13 +536,14 @@ window.addEventListener("keydown", (e) => {
 });
 window.addEventListener("keyup", (e) => {
   if (e.code === "Space") up();
-  if (e.key === "ArrowDown") braking = false;
+  if (e.key === "ArrowDown") {
+    keyBrake = false;
+    updateBrake();
+  }
   if (e.key === "ArrowLeft" || e.key === "ArrowRight") steering = 0;
 });
 document.addEventListener("visibilitychange", () => {
-  held = false;
-  steering = 0;
-  braking = false;
+  resetControls();
   acc = 0;
   if (!document.hidden && playing && !paused) {
     countdown = 2000;
@@ -515,6 +571,7 @@ function step() {
       replayEdge++;
     }
     if (clip.boostAt === s.tick) s.boost();
+    if (clip.cancelledHolds?.includes(s.tick)) s.cancelHold();
     const move = clip.control?.[replayControl];
     if (move?.[0] === s.tick) {
       s.steer = move[1];
@@ -537,6 +594,8 @@ function step() {
   const phase = s.phase;
   s.step(held);
   if (phase === "run" && s.phase === "air") {
+    gestureBrake = false;
+    updateBrake();
     sound("lift");
     if (s.manual) log("手动起跳", route.id);
   }
@@ -556,6 +615,7 @@ function step() {
       lip: s.j.lip,
       boostAt: s.boostAt,
       control: [...control],
+      cancelledHolds: [...cancelledHolds],
       speed: sectionEntrySpeed,
     });
     if (!crashed && s.j.showcase)
@@ -677,9 +737,7 @@ function stopReplay() {
 }
 function page(title: string, body = "") {
   paused = true;
-  held = false;
-  steering = 0;
-  braking = false;
+  resetControls();
   acc = 0;
   panel.replaceChildren();
   sheet.dataset.page = "";
@@ -944,10 +1002,9 @@ function closet(post: boolean, cat = 0, msg = "") {
   );
   if (msg) note(msg);
   const preview = document.createElement("canvas");
-  preview.width = 300;
-  preview.height = 96;
-  preview.style.cssText =
-    "width:100%;height:96px;object-fit:contain;background:#cad8c3;border-radius:5px";
+  preview.width = 360;
+  preview.height = 128;
+  preview.className = "outfit-preview";
   preview.ariaLabel = "当前试穿效果";
   panel.append(preview);
   const context = preview.getContext("2d")!,
@@ -956,9 +1013,10 @@ function closet(post: boolean, cat = 0, msg = "") {
   posing.angle = 0;
   context.fillStyle = ["#ffffeb", "#ffe5ae", "#abe4df"][outfit[2]];
   for (let i = 0; i < 12; i++)
-    context.fillRect(75 + i * 5, 73 + (i % 4) * 2, 8, 2);
-  rider(context, 150, 86, 1.9, posing, outfit);
+    context.fillRect(83 + i * 6, 111 + (i % 4) * 2, 8, 2);
+  rider(context, 180, 113, 1.98, posing, outfit);
   let g = grid();
+  g.classList.add("outfit-tabs");
   ["雪板", "雪服", "雪迹"].forEach((l, i) =>
     btn(g, l, () => closet(post, i), cat === i),
   );

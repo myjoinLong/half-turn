@@ -10,6 +10,7 @@ export type Clip = {
   boostAt?: number;
   speed?: number;
   control?: [number, number, boolean][];
+  cancelledHolds?: number[];
 };
 export type RecordRun = {
   score: number;

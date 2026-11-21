@@ -1,6 +1,18 @@
 import { boardColors, suitColors } from "../content/routes";
 import type { Grab } from "../content/tricks";
 import type { Ski } from "../sim/ski";
+import {
+  add,
+  sub,
+  mul,
+  dot,
+  cross,
+  unit,
+  average,
+  paintFaces,
+  type Face,
+  type V3,
+} from "./geometry";
 
 type Point = [number, number];
 type Pose = {
@@ -50,6 +62,15 @@ const reach: Pose = {
   frontElbow: [15, -34],
   rearHand: [-25, -29],
   frontHand: [27, -30],
+};
+const kneel: Pose = {
+  ...crouch,
+  hips: [-9, -11],
+  shoulders: [1, -18],
+  rearElbow: [-10, -11],
+  frontElbow: [10, -12],
+  rearHand: [-14, -5],
+  frontHand: [17, -5],
 };
 const grabPoses: Record<Grab, Pose> = {
   indy: {
@@ -131,197 +152,320 @@ function pose(s: Ski) {
   }
   if (s.phase === "crash") return blend(crouch, reach, 0.5);
   if (s.phase === "recover")
-    return blend(crouch, cruise, Math.min(1, (s.tick - s.recoverTick) / 32));
+    return blend(kneel, cruise, Math.min(1, (s.tick - s.recoverTick) / 27));
   if (s.phase === "land") {
     const recovery = Math.min(1, (s.tick - s.contactTick) / 22);
     return blend(crouch, cruise, 1 - (1 - recovery) ** 3);
   }
   const takeoff = Math.min(1, s.airTicks / 11);
   const grab =
-    s.activeGrab && s.grabbing
-      ? blend(crouch, grabPoses[s.activeGrab], s.gripBlend)
+    s.visualGrab && s.visualGrip > 0.01
+      ? blend(crouch, grabPoses[s.visualGrab], s.visualGrip)
       : crouch;
   const aerial = blend(reach, grab, s.tuckAmount);
   return blend(jump, aerial, takeoff);
 }
+function outward(faces: Face[], points: V3[], center: V3, color: string) {
+  const facing = cross(sub(points[1], points[0]), sub(points[2], points[0]));
+  faces.push({
+    points:
+      dot(facing, sub(average(points), center)) < 0 ? points.reverse() : points,
+    color,
+  });
+}
 
-type Context = CanvasRenderingContext2D;
-function stroke(c: Context, points: Point[], color: string, width: number) {
-  c.strokeStyle = color;
-  c.lineWidth = width;
-  c.lineCap = "round";
-  c.lineJoin = "round";
-  c.beginPath();
-  c.moveTo(...points[0]);
-  for (const point of points.slice(1)) c.lineTo(...point);
-  c.stroke();
+function sleeve(
+  faces: Face[],
+  start: V3,
+  end: V3,
+  width: number,
+  finish: number,
+  color: string,
+  trim?: string,
+) {
+  const along = unit(sub(end, start));
+  const side = unit(
+    cross(along, Math.abs(along[2]) > 0.85 ? [1, 0, 0] : [0, 0, 1]),
+  );
+  const other = cross(along, side);
+  const ring = (center: V3, radius: number) =>
+    Array.from({ length: 6 }, (_, i) => {
+      const angle = (i * Math.PI) / 3;
+      return add(
+        center,
+        mul(
+          add(mul(side, Math.cos(angle)), mul(other, Math.sin(angle))),
+          radius,
+        ),
+      );
+    });
+  const a = ring(start, width),
+    b = ring(end, finish),
+    mid = average([start, end]);
+  for (let i = 0; i < 6; i++) {
+    const next = (i + 1) % 6;
+    outward(
+      faces,
+      [a[i], a[next], b[next], b[i]],
+      mid,
+      i === 1 && trim ? trim : color,
+    );
+  }
+  outward(faces, a, mid, color);
+  outward(faces, b, mid, color);
 }
-function dot(c: Context, point: Point, radius: number, color: string) {
-  c.fillStyle = color;
-  c.beginPath();
-  c.arc(...point, radius, 0, Math.PI * 2);
-  c.fill();
+
+function capsule(
+  faces: Face[],
+  center: V3,
+  size: V3,
+  color: string,
+  accent?: string,
+) {
+  const rows = [-0.93, -0.61, 0, 0.61, 0.93];
+  const rings = rows.map((y) =>
+    Array.from({ length: 8 }, (_, i) => {
+      const r = Math.sqrt(1 - y * y),
+        angle = i * Math.PI * 0.25;
+      return add(center, [
+        Math.cos(angle) * r * size[0],
+        y * size[1],
+        Math.sin(angle) * r * size[2],
+      ]);
+    }),
+  );
+  for (let row = 1; row < rings.length; row++)
+    for (let i = 0; i < 8; i++) {
+      const next = (i + 1) % 8;
+      const tint = accent && row === 3 && (i === 0 || i === 7) ? accent : color;
+      outward(
+        faces,
+        [
+          rings[row - 1][i],
+          rings[row - 1][next],
+          rings[row][next],
+          rings[row][i],
+        ],
+        center,
+        tint,
+      );
+    }
+  outward(faces, rings[0], center, color);
+  outward(faces, rings.at(-1)!, center, color);
 }
-const color = (rgb: number) => "#" + rgb.toString(16).padStart(6, "0");
+
+const renderColor = (rgb: number) => "#" + rgb.toString(16).padStart(6, "0");
+const deckOutline: V3[] = [
+  [-23, -3.8, 0],
+  [-21, -2.8, -3.7],
+  [-17, -1.3, -5.7],
+  [13, -1.3, -5.6],
+  [19, -2.1, -4.8],
+  [22, -3.3, -2.7],
+  [23, -3.8, 0],
+  [22, -3.3, 2.7],
+  [19, -2.1, 4.8],
+  [13, -1.3, 5.6],
+  [-17, -1.3, 5.7],
+  [-21, -2.8, 3.7],
+];
+const grip: Record<Grab, { front: boolean; point: V3 }> = {
+  indy: { front: false, point: [0.3, -3.6, 7.25] },
+  nose: { front: true, point: [22.35, -5.15, -2.8] },
+  tail: { front: false, point: [-22.35, -5.15, 2.8] },
+  melon: { front: true, point: [1, -3.6, -7.25] },
+  stalefish: { front: false, point: [-5, -3.6, -7.25] },
+  japan: { front: true, point: [2, -3.6, 7.25] },
+};
+const joint = ([x, y]: Point, z = 0): V3 => [x, y, z];
+const mix3 = (a: V3, b: V3, t: number) => add(a, mul(sub(b, a), t));
+
+export function buildRider(s: Ski, wear: number[], detail = true): Face[] {
+  const p = pose(s);
+  const faces: Face[] = [];
+  const jacket = renderColor(suitColors[wear[1]]);
+  const board = renderColor(boardColors[wear[0]]);
+  const sole = deckOutline.map(([x, y, z]): V3 => [x, y + 1.3, z]);
+  const within: V3 = [0, -0.65, 0];
+  // Longitudinal strips keep the curved deck tessellated without filling across the lifted tips.
+  for (let i = 1; i <= 5; i++) {
+    const far = 12 - i;
+    const corners = i === 5 ? [i, i + 1, far] : [i, i + 1, far - 1, far];
+    const top = corners.map((k) => deckOutline[k]);
+    const bottom = corners.map((k) => sole[k]);
+    outward(faces, top, within, board);
+    outward(faces, bottom, [0, -2, 0], "#1c3d59");
+  }
+  outward(
+    faces,
+    [deckOutline[0], deckOutline[1], deckOutline[11]],
+    within,
+    board,
+  );
+  outward(faces, [sole[0], sole[1], sole[11]], [0, -3.8, 0], "#1c3d59");
+  for (let i = 0; i < 12; i++) {
+    const next = (i + 1) % 12;
+    outward(
+      faces,
+      [deckOutline[i], deckOutline[next], sole[next], sole[i]],
+      within,
+      "#e1ebf2",
+    );
+  }
+
+  for (const front of [false, true]) {
+    const foot: V3 = [front ? 9 : -9, -3, 0];
+    const heel: V3 = [foot[0] - 0.9, -3, -2.35],
+      toe: V3 = [foot[0] + 1.5, -3, 2.25];
+    sleeve(faces, heel, toe, 1.65, 1.4, "#263341", "#a0adbf");
+    sleeve(faces, [foot[0], -1.55, 0], foot, 3.7, 3.25, "#283d55");
+    const knee = joint(front ? p.frontKnee : p.rearKnee, front ? 1.7 : -1.9);
+    const thigh = joint(p.hips, front ? 2.9 : -2.9);
+    const ankle: V3 = [foot[0], -4.2, 0];
+    sleeve(faces, thigh, knee, 3.95, 2.95, front ? "#3e5068" : "#324155");
+    sleeve(
+      faces,
+      knee,
+      ankle,
+      2.95,
+      2.12,
+      front ? "#3b4e65" : "#2a3a4b",
+      detail ? "#6c7c91" : undefined,
+    );
+  }
+
+  const hips = joint(p.hips),
+    shoulders = joint(p.shoulders);
+  sleeve(
+    faces,
+    hips,
+    shoulders,
+    5.65,
+    5.3,
+    jacket,
+    detail ? "#ecb77a" : undefined,
+  );
+  if (detail) {
+    const collar = mix3(hips, shoulders, 0.88);
+    sleeve(faces, collar, add(shoulders, [0, -2.4, 0]), 5.3, 3.7, "#20364a");
+    const patch = mix3(hips, shoulders, 0.47);
+    sleeve(
+      faces,
+      add(patch, [1.0, 0, 4.9]),
+      add(patch, [1.7, -3.8, 5.0]),
+      1.1,
+      1,
+      "#e9ac6b",
+    );
+    const packTop = add(mix3(hips, shoulders, 0.83), [-4.2, 0.4, 0]);
+    const packBase = add(mix3(hips, shoulders, 0.23), [-3.9, 0.1, 0]);
+    sleeve(faces, packBase, packTop, 3.65, 3.92, "#253a4c", "#72879b");
+    sleeve(
+      faces,
+      add(packBase, [-3.18, -1, -0.8]),
+      add(packTop, [-3.35, 1, -0.8]),
+      0.63,
+      0.55,
+      "#f7b77c",
+    );
+  }
+  const selected = s.visualGrab && grip[s.visualGrab];
+  const strength = selected ? s.visualGrip : 0;
+  for (const front of [false, true]) {
+    const side = front ? 1 : -1;
+    const shoulder = add(shoulders, [0, 0.6, side * 4.15]);
+    let elbow = joint(front ? p.frontElbow : p.rearElbow, side * 8);
+    let hand = joint(front ? p.frontHand : p.rearHand, side * 8.7);
+    if (selected && selected.front === front && s.phase === "air") {
+      const rimSide = Math.sign(selected.point[2]);
+      // Keep the elbow outside the jacket on the same side as the reached edge.
+      const elbowX =
+        rimSide === side
+          ? elbow[0]
+          : shoulders[0] +
+            side * Math.max(13.2, Math.abs(elbow[0] - shoulders[0]));
+      elbow = mix3(
+        elbow,
+        [elbowX, Math.min(-10, elbow[1]), rimSide * 9.1],
+        strength,
+      );
+      const neutral = front ? crouch.frontHand : crouch.rearHand;
+      const extended = front ? reach.frontHand : reach.rearHand;
+      hand = mix3(
+        mix3(
+          joint(extended, side * 8.7),
+          joint(neutral, side * 8.7),
+          s.tuckAmount,
+        ),
+        selected.point,
+        strength,
+      );
+    }
+    sleeve(faces, shoulder, elbow, 2.98, 2.36, jacket);
+    sleeve(
+      faces,
+      elbow,
+      hand,
+      2.36,
+      1.57,
+      jacket,
+      detail ? "#e7a970" : undefined,
+    );
+    const wrist = mix3(elbow, hand, 0.81);
+    sleeve(
+      faces,
+      wrist,
+      hand,
+      1.85,
+      1.8,
+      "#27384a",
+      detail ? "#bd8556" : undefined,
+    );
+    const next = mix3(wrist, hand, 1.23);
+    sleeve(faces, hand, next, 1.85, 1.32, "#e5ae6c");
+  }
+  const neck = add(shoulders, [1, -2.2, 0]);
+  const head = add(neck, [2.2, -5.1, 0]);
+  sleeve(faces, shoulders, neck, 2.8, 2.45, "#b57e57");
+  capsule(faces, head, [5.45, 6.35, 4.75], "#263c59", "#617a9b");
+  const visor = add(head, [3.7, 1.05, 0]);
+  sleeve(
+    faces,
+    add(visor, [0, 0, -3.75]),
+    add(visor, [0, 0, 3.75]),
+    1.7,
+    1.67,
+    "#edac60",
+    "#fff3ba",
+  );
+  if (detail)
+    sleeve(
+      faces,
+      add(head, [-3.5, 0.6, -3.8]),
+      add(head, [-3.5, 0.6, 3.8]),
+      0.9,
+      0.9,
+      "#72909e",
+    );
+  return faces;
+}
+
 export function rider(
-  c: Context,
+  c: CanvasRenderingContext2D,
   x: number,
   y: number,
   size: number,
   s: Ski,
   wear: number[],
-  project?: (point: Point, side: number) => Point,
 ) {
-  const p = pose(s);
-  c.save();
-  if (!project) {
-    c.translate(x, y);
-    c.scale(size, size);
-  }
-  let depth = 0;
-  const trace = (points: Point[], color: string, width: number) =>
-    stroke(
-      c,
-      project ? points.map((point) => project(point, depth)) : points,
-      color,
-      project ? width * size : width,
-    );
-  const circle = (point: Point, radius: number, color: string) =>
-    dot(
-      c,
-      project ? project(point, depth) : point,
-      project ? radius * size : radius,
-      color,
-    );
-
-  const jacket = color(suitColors[wear[1]]);
-  if (project) {
-    const outline: Point[] = [
-      project([-24, -4], 0),
-      project([-17, 0], -7),
-      project([17, 0], -7),
-      project([24, -4], 0),
-      project([17, 0], 7),
-      project([-17, 0], 7),
-    ];
-    c.fillStyle = color(boardColors[wear[0]]);
-    c.beginPath();
-    c.moveTo(...outline[0]);
-    for (const point of outline.slice(1)) c.lineTo(...point);
-    c.closePath();
-    c.fill();
-    c.lineWidth = 1;
-    c.strokeStyle = "#1e314b";
-    c.stroke();
-  }
-  trace(
-    [
-      [-23, -4],
-      [-18, 0],
-      [17, 0],
-      [24, -4],
+  paintFaces(
+    c,
+    buildRider(s, wear),
+    ([advance, up, side]) => [
+      advance * 0.92 - side * 0.39,
+      up,
+      (advance * 0.39 + side * 0.92) * 0.5 + 31,
     ],
-    "#101e31",
-    5.7,
+    ([u, v]) => [x + u * size, y + v * size],
   );
-  trace(
-    [
-      [-23, -4.6],
-      [-18, -1.5],
-      [17, -1.5],
-      [24, -4.6],
-    ],
-    color(boardColors[wear[0]]),
-    3.4,
-  );
-  trace(
-    [
-      [-17, 0.7],
-      [17, 0.7],
-    ],
-    "#d6edf5",
-    0.8,
-  );
-
-  const rearBoot: Point = [-9, -3];
-  const frontBoot: Point = [9, -3];
-  const drawLeg = (knee: Point, boot: Point, fabric: string) => {
-    trace([p.hips, knee, boot], "#101c2d", 7.5);
-    trace([p.hips, knee, boot], fabric, 5);
-    trace(
-      [
-        [boot[0] - 1, -5],
-        [boot[0] + 3.6, -4],
-      ],
-      "#171d2c",
-      5,
-    );
-    trace(
-      [
-        [boot[0] - 1.5, -5.5],
-        [boot[0] + 2, -5],
-      ],
-      "#d1d8e2",
-      0.8,
-    );
-  };
-  const drawArm = (elbow: Point, hand: Point, sleeve: string) => {
-    trace([p.shoulders, elbow, hand], "#122338", 6.7);
-    trace([p.shoulders, elbow, hand], sleeve, 4.7);
-    circle(hand, 2.8, "#ffc96e");
-  };
-  const forwardGrip =
-    s.activeGrab === "nose" ||
-    s.activeGrab === "melon" ||
-    s.activeGrab === "japan";
-  const frontArmOver = !s.grabbing || forwardGrip;
-  depth = -5;
-  if (frontArmOver) drawArm(p.rearElbow, p.rearHand, "#39465e");
-  else drawArm(p.frontElbow, p.frontHand, "#39465e");
-  drawLeg(p.rearKnee, rearBoot, "#243448");
-  depth = 4;
-  drawLeg(p.frontKnee, frontBoot, "#3b5365");
-  depth = 0;
-  trace([p.hips, p.shoulders], "#192d42", 14);
-  trace([p.hips, p.shoulders], jacket, 11.2);
-  trace(
-    [
-      [p.hips[0] + 2, p.hips[1]],
-      [p.shoulders[0] + 3, p.shoulders[1] + 2],
-    ],
-    "#f6e1b9",
-    1.1,
-  );
-  depth = 6;
-  if (frontArmOver) drawArm(p.frontElbow, p.frontHand, jacket);
-  else drawArm(p.rearElbow, p.rearHand, jacket);
-
-  depth = 0;
-  const head: Point = [p.shoulders[0] + 4, p.shoulders[1] - 7];
-  circle(head, 7.2, "#162237");
-  trace(
-    [
-      [head[0] - 4, head[1] - 4],
-      [head[0] + 1, head[1] - 6],
-    ],
-    "#8598ab",
-    1.2,
-  );
-  trace(
-    [
-      [head[0] + 1, head[1]],
-      [head[0] + 7, head[1] - 1],
-    ],
-    "#ffab54",
-    3.5,
-  );
-  trace(
-    [
-      [head[0] + 3, head[1] - 1],
-      [head[0] + 6, head[1] - 1.5],
-    ],
-    "#fff0a8",
-    1,
-  );
-  c.restore();
 }

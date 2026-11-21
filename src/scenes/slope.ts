@@ -19,6 +19,7 @@ export class Slope extends Phaser.Scene {
   private picture!: Phaser.GameObjects.Image;
   private cameraY = 0;
   private cameraRider?: Ski;
+  private frameKey = "";
   create() {
     this.layer = this.textures.createCanvas("piste", 1, 1)!;
     this.picture = this.add.image(0, 0, "piste").setOrigin(0);
@@ -39,15 +40,28 @@ export class Slope extends Phaser.Scene {
     }
     const actual = this.ski;
     const s = actual;
-    const c = this.layer.context;
-    c.drawImage(this.sky, 0, 0);
     const ground = height(s.j, s.x);
     const target = s.y + Math.min(8, Math.max(0, ground - s.y)) * 0.25;
     if (this.cameraRider !== actual) {
       this.cameraRider = actual;
       this.cameraY = target;
+      this.frameKey = "";
     }
     this.cameraY += (target - this.cameraY) * (1 - Math.exp(-delta / 63));
+    if (Math.abs(target - this.cameraY) < 0.002) this.cameraY = target;
+    const frameKey = [
+      key,
+      s.tick,
+      s.speed,
+      this.cameraY,
+      this.lite,
+      this.steady,
+      ...this.wear,
+    ].join("/");
+    if (frameKey === this.frameKey) return;
+    this.frameKey = frameKey;
+    const c = this.layer.context;
+    c.drawImage(this.sky, 0, 0);
     drawDescent(
       c,
       w,

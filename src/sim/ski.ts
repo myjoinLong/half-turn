@@ -92,10 +92,13 @@ export class Ski {
   braking = false;
   gateIndex = 0;
   gateHits = 0;
+  gateTouches: { index: number; side: number; tick: number }[] = [];
   recoverTick = 0;
   boostAt: number | undefined;
   speed: number;
   activeGrab: Grab | undefined;
+  visualGrab: Grab | undefined;
+  visualGrip = 0;
   performedGrabs: Grab[] = [];
   private grabTicks = 0;
   private targetYaw = 0;
@@ -116,6 +119,7 @@ export class Ski {
     this.angle = tangent(j, 0);
     this.speed = entrySpeed;
     this.activeGrab = j.grab;
+    this.visualGrab = j.grab;
     this.targetYaw = j.showcase || 0;
   }
   boost() {
@@ -128,6 +132,10 @@ export class Ski {
       return;
     this.activeGrab = grab;
     this.grabTicks = 0;
+  }
+  cancelHold() {
+    this.held = false;
+    this.charge = 0;
   }
   step(pressed: boolean) {
     const release = this.held && !pressed;
@@ -177,6 +185,21 @@ export class Ski {
       );
       if (pressed) this.charge = Math.min(1, this.charge + dt * 2.8);
       this.x += this.speed * dt;
+      for (
+        let i = Math.max(0, this.gateIndex - 1);
+        i < Math.min(this.gateIndex + 2, j.trail?.gates.length || 0);
+        i++
+      ) {
+        if (Math.abs(this.x - j.trail!.gates[i] * j.lip) > 1.05) continue;
+        for (const side of [-1, 1])
+          if (
+            Math.abs(this.lateral - gateOffset(j, i) - side * 2.05) < 0.68 &&
+            !this.gateTouches.some(
+              (touch) => touch.index === i && touch.side === side,
+            )
+          )
+            this.gateTouches.push({ index: i, side, tick: this.tick });
+      }
       const gate = j.trail?.gates[this.gateIndex];
       if (gate !== undefined && this.x >= gate * j.lip) {
         if (Math.abs(this.lateral - gateOffset(j, this.gateIndex)) < 2.45)
@@ -247,6 +270,12 @@ export class Ski {
           ((pressed ? -240 : 0) - this.omega) * (pressed ? 0.1 : 0.17);
         this.angle += this.omega * dt;
         this.yaw = -this.angle;
+      }
+      if (this.grabbing && this.visualGrab !== this.activeGrab) {
+        this.visualGrip *= 0.62;
+        if (this.visualGrip < 0.12) this.visualGrab = this.activeGrab;
+      } else {
+        this.visualGrip += ((this.grabbing ? 1 : 0) - this.visualGrip) * 0.22;
       }
       // Limit swept distance and refine first contact on the terrain segment.
       const steps = Math.ceil(
@@ -322,12 +351,6 @@ export class Ski {
   }
   get airProgress() {
     return this.flightTicks ? this.airTicks / this.flightTicks : 0;
-  }
-  get gripBlend() {
-    return Math.min(
-      1,
-      (this.j.showcase ? this.grabTicks : this.tuckTicks - 7) / 7,
-    );
   }
   get spinTarget() {
     return this.phase === "run"
