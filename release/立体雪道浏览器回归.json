@@ -1,0 +1,14 @@
+{
+  "browser": "134.0.3124.93",
+  "coverage": [
+    "开场、冲刺、摔倒滑行、按住起身、横滑换抓板、零分入山",
+    "巡回赛四跳完赛、得分纪录与回放、练习公园、压刃减速、走线",
+    "每日表演赛、衣柜、无广告返回"
+  ],
+  "initialSpeed": 54,
+  "boostedSpeed": 73,
+  "brakeSpeed": 38,
+  "tourScore": 660,
+  "narrow": true,
+  "errors": []
+}

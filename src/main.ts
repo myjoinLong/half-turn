@@ -2,8 +2,8 @@ import Phaser from "phaser";
 import { version } from "../package.json";
 import "./ui/style.css";
 import { Slope } from "./scenes/slope";
-import { rider } from "./scenes/art";
-import { Ski, courseVersion, simVersion } from "./sim/ski";
+import { rider } from "./scenes/rider";
+import { Ski, courseVersion, simVersion, sectionEnd } from "./sim/ski";
 import {
   tours,
   opening,
@@ -15,6 +15,7 @@ import {
   trails,
   boardColors,
   suitColors,
+  trailName,
   type Route,
 } from "./content/routes";
 import {
@@ -66,6 +67,12 @@ let route: Route = tours[0],
   landTick = 0,
   careerTutorial = false;
 let highlights: string[] = [];
+let steering = 0,
+  braking = false,
+  recoveryCount = 0,
+  control: NonNullable<Clip["control"]> = [];
+let replayControl = 0,
+  sectionEntrySpeed = 0;
 let replay: Clip[] | null = null,
   replayIndex = 0,
   replayEdge = 0,
@@ -76,6 +83,7 @@ let replay: Clip[] | null = null,
 const settings = () => {
   const s = read();
   scene.lite = s.lite;
+  scene.steady = s.steady;
   scene.wear =
     route.mode === "intro"
       ? [2, 1, 2]
@@ -88,22 +96,25 @@ const uid = () =>
 function set(id: string, t: string) {
   if ($(id).textContent !== t) $(id).textContent = t;
 }
-function spawn(short = false) {
-  const previousGrab = short && scene.ski?.activeGrab;
+function spawn(entrySpeed = route.jumps[index].speed) {
+  sectionEntrySpeed = entrySpeed;
   scene.ski = new Ski(
-    short && route.mode !== "intro"
-      ? { ...route.jumps[index], lip: 10 }
-      : route.jumps[index],
+    route.jumps[index],
     route.mode === "intro" || (careerTutorial && index === 0),
     combo,
+    entrySpeed,
   );
-  if (previousGrab) scene.ski.selectGrab(previousGrab);
+  scene.jumps = route.jumps;
+  scene.stage = index;
   scene.mountain = route.mountain;
   scene.aurora = route.mode === "show" || route.mode === "intro";
   edges = [];
   clipHeld = false;
   held = false;
   landTick = 0;
+  control = [];
+  steering = 0;
+  braking = false;
   acc = 0;
   settings();
   hud();
@@ -112,6 +123,8 @@ function close() {
   if (sheet.open) sheet.close();
   paused = false;
   held = false;
+  steering = 0;
+  braking = false;
   fitting = null;
   settings();
 }
@@ -126,6 +139,7 @@ function start(r: Route) {
   index = total = combo = 0;
   clips = [];
   highlights = [];
+  recoveryCount = 0;
   runId = uid();
   replay = null;
   playing = false;
@@ -167,7 +181,7 @@ function hud() {
     "jump",
     (tutorial && index < 3
       ? ["转体入门  ", "起跳入门  ", "抓板入门  "][index]
-      : "跳点  ") +
+      : trailName(s.j) + "  ") +
       String(index + 1).padStart(2, "0") +
       " / " +
       String(route.jumps.length).padStart(2, "0"),
@@ -175,19 +189,25 @@ function hud() {
   set(
     "progress",
     route.jumps
-      .map((_, i) => (i < index ? "━" : i === index ? "◆" : "─"))
-      .join(" "),
+      .map((j, i) =>
+        i < index
+          ? sectionEnd(j)
+          : i === index
+            ? Math.min(s.x, sectionEnd(j))
+            : 0,
+      )
+      .reduce((a, b) => a + b, 0)
+      .toFixed(0) + " 米",
   );
-  const crash = s.phase === "crash",
-    dailyFail = crash && route.mode === "daily";
+  const crash = s.phase === "crash" || s.phase === "recover";
   set(
     "action",
     replay
       ? "结束回看"
       : crash
-        ? dailyFail
-          ? "继续比赛"
-          : "点一下，再来一跳"
+        ? s.phase === "crash"
+          ? "侧滑卸力"
+          : "按住撑地起身"
         : !playing
           ? "触碰出发"
           : s.phase === "air"
@@ -196,27 +216,31 @@ function hud() {
               : "按住收腿转体"
             : s.phase === "land"
               ? "落地滑行"
-              : s.auto
-                ? "准备空翻"
-                : s.held
-                  ? "到橙线松手"
-                  : "按住屈膝",
+              : s.j.lip - s.x > 20
+                ? "拖动走线"
+                : s.auto
+                  ? "准备空翻"
+                  : s.held
+                    ? "到橙线松手"
+                    : "按住屈膝",
   );
   set(
     "hint",
     replay
       ? "播放已记录的固定步输入"
       : crash
-        ? "板底与雪面平行时触地最稳"
-        : s.auto
-          ? "首跳自动起跳 · 腾空后按住，松手减速"
-          : tutorial && index === 2
-            ? s.phase === "air"
-              ? "持续收腿进入 Indy 抓板，靠近落坡松手"
-              : "橙色区松手起跳，腾空后按住练习 Indy"
-            : s.phase === "air"
-              ? "看板面，对准落坡；倒滑也能得分"
-              : "橙色区松手起跳 · 空中再次按住后空翻",
+        ? "保持前进，站稳后接着滑"
+        : s.phase === "land"
+          ? "拖动走线，按住压刃可减速"
+          : s.auto && s.x > s.j.lip - 21
+            ? "首跳自动起跳 · 腾空后按住，松手减速"
+            : tutorial && index === 2
+              ? s.phase === "air"
+                ? "持续收腿抓前刃，靠近落坡松手"
+                : "橙色区松手起跳，腾空后按住抓板"
+              : s.phase === "air"
+                ? "看板面，对准落坡；倒滑也能得分"
+                : "左右拖动过旗门，到橙线松手起跳",
   );
   const r = s.result;
   set(
@@ -225,19 +249,21 @@ function hud() {
       ? String(Math.ceil(countdown / 1000))
       : r
         ? crash
-          ? (r.error < 0 ? "多转了 " : "松早了 ") +
-            Math.round(Math.abs(r.error)) +
-            "°"
-          : r.grade + "落地  +" + r.score
+          ? "摔进雪里 · 压板起身"
+          : s.tick - s.contactTick < 76
+            ? r.grade === "摔倒"
+              ? "重新站稳"
+              : r.grade + "落地  +" + r.score
+            : ""
         : "",
   );
   set(
     "meter",
     s.phase === "air"
-      ? "空翻  " + Math.round(Math.abs(s.angle)) + "°"
+      ? "转体  " + Math.round(Math.abs(s.angle)) + "°"
       : s.phase === "run"
-        ? "距台沿  " + Math.max(0, s.j.lip - s.x).toFixed(1) + " m"
-        : "",
+        ? "离跳台 " + Math.max(0, s.j.lip - s.x).toFixed(0) + " 米"
+        : "旗门 " + s.gateHits + " / " + (s.j.trail?.gates.length || 0),
   );
 }
 function openingHud(s: Ski, trick: string) {
@@ -251,7 +277,7 @@ function openingHud(s: Ski, trick: string) {
   set("score", String(total).padStart(4, "0"));
   set(
     "jump",
-    index + 1 + " / " + opening.jumps.length + "　落差 " + s.j.drop + " m",
+    index + 1 + " / " + opening.jumps.length + "　落差 " + s.j.drop + " 米",
   );
   set("progress", index === 0 ? "◆ ─" : "━ ◆");
   set("meter", phase === "air" ? Math.round(s.yaw) + "° / " + spin + "°" : "");
@@ -260,9 +286,11 @@ function openingHud(s: Ski, trick: string) {
     countdown > 0
       ? String(Math.ceil(countdown / 1000))
       : phase === "land"
-        ? landed + " " + spin + "°"
-        : phase === "crash"
-          ? "再试一次，空中按住久一点"
+        ? s.result?.grade === "摔倒"
+          ? "重新站稳"
+          : landed + " " + spin + "°"
+        : phase === "crash" || phase === "recover"
+          ? "先侧滑卸力，再撑地起身"
           : phase === "air" && held && s.releaseWindow && s.grabbing
             ? "现在松手！"
             : "",
@@ -271,8 +299,10 @@ function openingHud(s: Ski, trick: string) {
     "action",
     phase === "land"
       ? "站稳了"
-      : phase === "crash"
-        ? "再跳一次"
+      : phase === "crash" || phase === "recover"
+        ? phase === "crash"
+          ? "侧滑卸力"
+          : "按住撑地起身"
         : phase === "air" && held && s.releaseWindow && s.grabbing
           ? "松手，准备落地"
           : phase === "air" && s.canReleaseShowcase && !s.grabbing && s.yaw > 0
@@ -282,12 +312,14 @@ function openingHud(s: Ski, trick: string) {
   set(
     "hint",
     phase === "land"
-      ? s.result!.grade + "落地 · +" + s.result!.score
+      ? s.result?.grade === "摔倒"
+        ? "稳住雪板，继续滑行"
+        : s.result!.grade + "落地 · +" + s.result!.score
       : phase === "air" && !held && s.canReleaseShowcase
         ? "展开身体 · 看准落坡"
         : phase === "air" && held
           ? "按住时左右滑动，可串接不同抓板"
-          : "可先加速或选抓板，按住起飞",
+          : "可先冲刺或选抓板，按住起飞",
   );
 }
 const grabButtons = new Map(
@@ -306,15 +338,21 @@ const grabButtons = new Map(
   }),
 );
 function updateControls(s: Ski) {
-  $("freestyle-controls").hidden = Boolean(replay) || route.mode === "daily";
+  $("freestyle-controls").hidden = Boolean(replay);
   $("grab-choices").hidden = !s.j.showcase;
   const boost = $("boost") as HTMLButtonElement;
+  boost.hidden = route.mode === "daily";
   boost.disabled = s.phase !== "run" || s.boostAt !== undefined;
-  set("boost", s.boostAt === undefined ? "⚡ 加速" : "⚡ 加速中");
+  set("boost", s.boostAt === undefined ? "冲刺" : "冲刺中");
+  $("brake").setAttribute("aria-pressed", String(braking));
+  $("app").classList.toggle(
+    "rushing",
+    s.boostAt !== undefined && s.speed > s.j.speed * 1.25,
+  );
   set(
     "speed",
     Math.round(s.speed * 3.6) +
-      " km/h" +
+      " 公里／时" +
       (s.j.showcase && s.phase === "run"
         ? "　·　目标 " + s.spinTarget + "°"
         : ""),
@@ -340,9 +378,27 @@ function cycleGrab(direction: number) {
 function boost() {
   if (paused || replay || route.mode === "daily") return;
   scene.ski.boost();
+  if (scene.ski.boostAt === scene.ski.tick) {
+    if (!read().steady) scene.cameras.main.shake(150, 0.003);
+    if (read().vibrate) navigator.vibrate?.(24);
+  }
   hud();
 }
 $("boost").onclick = boost;
+const brakeButton = $("brake");
+brakeButton.onpointerdown = (event) => {
+  brakeButton.setPointerCapture(event.pointerId);
+  braking = true;
+};
+brakeButton.onlostpointercapture =
+  brakeButton.onpointerup =
+  brakeButton.onpointercancel =
+    () => {
+      braking = false;
+    };
+brakeButton.onclick = (event) => {
+  if (event.detail === 0) braking = !braking;
+};
 let soundsLoaded = false;
 const soundFiles = import.meta.glob("../assets/*.wav", {
   eager: true,
@@ -355,24 +411,11 @@ function down() {
     stopReplay();
     return;
   }
-  if (route.mode === "intro" && scene.ski.phase === "land") {
-    advance();
-    return;
-  }
   if (!soundsLoaded && scene.load) {
     soundsLoaded = true;
     for (const [path, url] of Object.entries(soundFiles))
       scene.load.audio(path.split("/").pop()!.split(".")[0], url);
     scene.load.start();
-  }
-  if (scene.ski.phase === "crash") {
-    log("失误后重试", route.id);
-    if (route.mode === "daily") {
-      advance();
-      return;
-    }
-    combo = 0;
-    spawn(true);
   }
   if (!playing) {
     playing = true;
@@ -383,6 +426,7 @@ function down() {
 }
 function up() {
   held = false;
+  steering = 0;
 }
 let ridePointer: number | null = null;
 let gestureX = 0;
@@ -397,16 +441,16 @@ for (const surface of [$("game"), $("ride")]) {
   };
   surface.onpointermove = (event) => {
     const delta = event.clientX - gestureX;
+    if (event.pointerId !== ridePointer || !held) return;
     if (
-      event.pointerId !== ridePointer ||
-      !held ||
-      !scene.ski.j.showcase ||
-      scene.ski.phase !== "air" ||
-      Math.abs(delta) < 44
-    )
-      return;
-    cycleGrab(Math.sign(delta));
-    gestureX = event.clientX;
+      scene.ski.phase === "air" &&
+      scene.ski.j.showcase &&
+      Math.abs(delta) >= 44
+    ) {
+      cycleGrab(Math.sign(delta));
+      gestureX = event.clientX;
+    } else if (scene.ski.phase !== "air")
+      steering = Math.round(Math.max(-1, Math.min(1, delta / 68)) * 10) / 10;
   };
   const release = (event: PointerEvent) => {
     if (ridePointer !== event.pointerId) return;
@@ -423,20 +467,27 @@ window.addEventListener("keydown", (e) => {
     if (!e.repeat) down();
   }
   if (!sheet.open && !e.repeat && e.key === "Shift") boost();
-  if (
-    !sheet.open &&
-    scene.ski.j.showcase &&
-    ["ArrowLeft", "ArrowRight"].includes(e.key)
-  ) {
+  if (!sheet.open && e.key === "ArrowDown") {
     e.preventDefault();
-    if (!e.repeat) cycleGrab(e.key === "ArrowLeft" ? -1 : 1);
+    braking = true;
+  }
+  if (!sheet.open && ["ArrowLeft", "ArrowRight"].includes(e.key)) {
+    e.preventDefault();
+    const direction = e.key === "ArrowLeft" ? -1 : 1;
+    if (scene.ski.phase === "air" && scene.ski.j.showcase) {
+      if (!e.repeat) cycleGrab(direction);
+    } else steering = direction;
   }
 });
 window.addEventListener("keyup", (e) => {
   if (e.code === "Space") up();
+  if (e.key === "ArrowDown") braking = false;
+  if (e.key === "ArrowLeft" || e.key === "ArrowRight") steering = 0;
 });
 document.addEventListener("visibilitychange", () => {
   held = false;
+  steering = 0;
+  braking = false;
   acc = 0;
   if (!document.hidden && playing && !paused) {
     countdown = 2000;
@@ -464,11 +515,21 @@ function step() {
       replayEdge++;
     }
     if (clip.boostAt === s.tick) s.boost();
+    const move = clip.control?.[replayControl];
+    if (move?.[0] === s.tick) {
+      s.steer = move[1];
+      s.braking = move[2];
+      replayControl++;
+    }
     s.step(replayHeld);
-    if (s.result) total += s.result.score;
+    if (s.result) total += s.result.score + s.gateHits * 25;
     return;
   }
-  if (s.phase === "crash") return;
+  if (s.steer !== steering || s.braking !== braking) {
+    control.push([s.tick, steering, braking]);
+    s.steer = steering;
+    s.braking = braking;
+  }
   if (clipHeld !== held) {
     edges.push(s.tick);
     clipHeld = held;
@@ -482,20 +543,21 @@ function step() {
   if (phase === "air" && s.result) {
     const r = s.result;
     landTick = s.tick;
-    total += r.score;
+    total += r.score + s.gateHits * 25;
     combo = r.combo;
     const crashed = r.grade === "摔倒";
-    if (!crashed || route.mode === "daily")
-      clips.push({
-        jump: index,
-        edges: [...edges],
-        ticks: s.tick,
-        auto: s.auto,
-        combo: s.combo,
-        points: r.score,
-        lip: s.j.lip,
-        boostAt: s.boostAt,
-      });
+    clips.push({
+      jump: index,
+      edges: [...edges],
+      ticks: s.tick,
+      auto: s.auto,
+      combo: s.combo,
+      points: r.score + s.gateHits * 25,
+      lip: s.j.lip,
+      boostAt: s.boostAt,
+      control: [...control],
+      speed: sectionEntrySpeed,
+    });
     if (!crashed && s.j.showcase)
       highlights.push(
         s.performedGrabs.map((grab) => grabs[grab].name).join(" → ") +
@@ -510,15 +572,13 @@ function step() {
       scene.cameras.main.shake(135, 0.004);
     log(crashed ? "摔倒" : "成功落地", route.id);
   }
+  if (phase === "recover" && s.phase === "land") {
+    recoveryCount++;
+    log("摔倒后起身", route.id);
+  }
   if (s.phase === "land") {
     const landingTicks = s.tick - landTick;
-    if (
-      route.mode === "intro"
-        ? landingTicks > 65
-        : landingTicks > 35 &&
-          s.x >= Math.max(s.j.lip + 33, s.j.lip + s.j.speed * 3.5)
-    )
-      advance();
+    if (landingTicks > 35 && s.x >= sectionEnd(s.j)) advance();
   }
 }
 scene.drive = (delta) => {
@@ -540,9 +600,11 @@ scene.drive = (delta) => {
 };
 function advance() {
   if (index + 1 < route.jumps.length) {
+    const continuedSpeed = scene.ski.speed;
+    const input = { held, steering, braking };
     index++;
-    if (route.mode === "intro") playing = false;
-    spawn();
+    spawn(continuedSpeed);
+    ({ held, steering, braking } = input);
     return;
   }
   playing = false;
@@ -551,7 +613,12 @@ function advance() {
       save.openingSeen = true;
     });
     log("开场表演完成");
-    page("高光完成", highlights.join(" / ") + "　·　" + total + " 表演分");
+    page(
+      "高光完成",
+      (highlights.length ? highlights.join(" ／ ") + "　·　" : "") +
+        total +
+        " 表演分",
+    );
     btn(grid(), "从松林山起步", startCareer, true);
     return;
   }
@@ -565,8 +632,11 @@ function loadClip() {
   const c = replay![replayIndex];
   index = c.jump;
   const j = route.jumps[index];
-  scene.ski = new Ski({ ...j, lip: c.lip ?? j.lip }, c.auto, c.combo);
+  scene.ski = new Ski({ ...j, lip: c.lip ?? j.lip }, c.auto, c.combo, c.speed);
+  scene.jumps = route.jumps;
+  scene.stage = index;
   replayEdge = 0;
+  replayControl = 0;
   replayHeld = false;
   acc = 0;
 }
@@ -586,6 +656,8 @@ function view(list: Clip[], back: () => void, course = route) {
     index = previous.index;
     total = previous.total;
     scene.ski = previous.ski;
+    scene.jumps = route.jumps;
+    scene.stage = index;
     playing = previous.playing;
     scene.mountain = route.mountain;
     scene.aurora = route.mode === "show";
@@ -606,8 +678,11 @@ function stopReplay() {
 function page(title: string, body = "") {
   paused = true;
   held = false;
+  steering = 0;
+  braking = false;
   acc = 0;
   panel.replaceChildren();
+  sheet.dataset.page = "";
   const b = document.createElement("button");
   b.textContent = "×";
   b.className = "back";
@@ -679,6 +754,7 @@ function result() {
       ["完成线路", "铜牌", "银牌", "金牌"][medal(total)] +
         "　｜　首次取得奖牌另奖 40 张",
     );
+  if (recoveryCount) note("倒地后重新站稳 " + recoveryCount + " 次");
   const g = grid();
   btn(g, "再滑一趟", () => start(route), true);
   if (route.mode === "tour" && tours.indexOf(route) < 14)
@@ -695,21 +771,22 @@ function result() {
 function menu() {
   if (route.mode === "intro") {
     page("极光大跳台");
+    sheet.dataset.page = "mountain";
     const g = grid();
     btn(g, "继续表演", resume, true);
     btn(g, "从松林山起步", startCareer);
     return;
   }
   page(
-    "雪场手册",
-    "本机存档　·　雪票 " +
-      read().tickets +
-      (volatile ? "　·　浏览器存储不可用" : ""),
+    "雪场",
+    "雪票 " + read().tickets + (volatile ? "　·　浏览器存储不可用" : ""),
   );
+  sheet.dataset.page = "mountain";
   const g = grid();
-  btn(g, "返回雪道", resume, true);
-  btn(g, "重玩开场表演", () => start(opening));
-  btn(g, "巡回赛 · 选山", () => selectMountain());
+  g.classList.add("trail-grid");
+  btn(g, "返回雪道", resume, true).classList.add("lift-card");
+  btn(g, "巡回赛 · 选山", () => selectMountain()).classList.add("map-card");
+  btn(g, "重玩开场表演", () => start(opening)).classList.add("night-card");
   btn(g, "练习公园", () => {
     page("练习公园", "随时重试，自由练习。");
     const d = grid();
@@ -724,15 +801,15 @@ function menu() {
         new Date(Number(r.id.slice(6)) * 86400000).toISOString().slice(0, 10) +
         " · 本机最高 " +
         (read().records[r.id]?.score || 0) +
-        " 分。固定装备，每台一次机会。",
+        " 分。固定装备，摔倒起身后继续。",
     );
     const actions = grid();
     btn(actions, "开始同题挑战", () => start(daily()), true);
     btn(actions, "复制同题挑战", async () => {
       const invite =
         r.name +
-        " · " +
-        r.id +
+        " · 同题编号 " +
+        r.id.slice("daily-".length) +
         " · 我的本机最高 " +
         (read().records[r.id]?.score || 0) +
         " 分";
@@ -787,20 +864,29 @@ function records() {
   if (!g.childElementCount) note("完成一条正式线路后，这里会保存你的录像。");
 }
 function selectMountain() {
-  page("选择雪山", "三座山均可直接挑战。");
+  page("选择雪山");
+  sheet.dataset.page = "mountain";
   const g = grid();
+  g.classList.add("mountain-grid");
   mountains.forEach((m, i) =>
     btn(g, m, () => {
       page(m);
+      sheet.dataset.page = "mountain";
       const rows = grid();
+      rows.classList.add("route-list");
       tours
         .slice(i * 5, i * 5 + 5)
         .forEach((r) =>
-          btn(rows, r.name + " · " + (read().records[r.id]?.score || 0), () =>
-            start(r),
+          btn(
+            rows,
+            r.name +
+              "　" +
+              r.jumps.reduce((sum, j) => sum + sectionEnd(j), 0) +
+              " 米",
+            () => start(r),
           ),
         );
-    }),
+    }).classList.add("mountain-" + i),
   );
   if (read().passes) btn(g, "继续已领取的极光表演", aurora);
   else {
@@ -962,7 +1048,6 @@ function aurora() {
   start({ ...tours[11], id: "aurora", name: "极光巡游", mode: "show" });
 }
 $("menu").onclick = menu;
-scene.debug = new URLSearchParams(location.search).has("editor");
 function startCareer() {
   if (!read().openingSeen)
     change((save) => {

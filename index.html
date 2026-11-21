@@ -14,8 +14,8 @@
     <main id="app">
       <header>
         <span class="mark">◢◭</span>
-        <div><b>再翻半圈</b><small>HALF TURN SKI CLUB</small></div>
-        <button id="menu" aria-label="打开雪场菜单">☰</button>
+        <div><b>再翻半圈</b></div>
+        <button id="menu" aria-label="打开雪场菜单">雪场</button>
       </header>
       <section id="field" aria-label="雪道，按住收腿，松开展体">
         <div id="game"></div>
@@ -39,8 +39,11 @@
         </div>
         <div id="freestyle-controls">
           <div id="speed-row">
-            <output id="speed"></output
-            ><button id="boost" type="button">⚡ 加速</button>
+            <output id="speed"></output>
+            <div class="pedals">
+              <button id="brake" type="button" aria-pressed="false">压刃</button
+              ><button id="boost" type="button">冲刺</button>
+            </div>
           </div>
           <div id="grab-choices" role="group" aria-label="选择抓板动作"></div>
         </div>

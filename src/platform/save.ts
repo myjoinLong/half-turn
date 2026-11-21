@@ -8,6 +8,8 @@ export type Clip = {
   points: number;
   lip?: number;
   boostAt?: number;
+  speed?: number;
+  control?: [number, number, boolean][];
 };
 export type RecordRun = {
   score: number;

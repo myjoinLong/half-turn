@@ -400,3 +400,294 @@ button:focus-visible {
     top: 8px;
   }
 }
+/* Warm trail markers and cut-corner controls carry across the menus and HUD. */
+#app,
+#app[data-showcase="true"] {
+  background: #102333;
+  color: #e9f2ef;
+}
+header,
+[data-showcase="true"] header {
+  background: #142b38;
+  color: #fbf2d5;
+  border-bottom: 1px solid #79958e;
+  padding-inline: 17px;
+}
+header b,
+h1,
+dialog h2 {
+  font-family: "Songti SC", "SimSun", "Microsoft YaHei", serif;
+  font-style: normal;
+}
+header b {
+  font-size: 24px;
+  letter-spacing: 0.08em;
+}
+header button {
+  width: auto;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 5px;
+  color: #f7e7b3;
+  font-size: 13px;
+  font-weight: 800;
+}
+#field::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    #142837b0,
+    transparent 29%,
+    transparent 86%,
+    #162d40ae
+  );
+}
+#hud,
+#feedback,
+#meter,
+#trick {
+  z-index: 2;
+}
+#hud {
+  inset: 16px 16px auto;
+  text-shadow: 0 1px 4px #1f3335;
+  color: #fff9df;
+}
+#hud small,
+[data-showcase="true"] #hud small {
+  color: #deece4;
+  font: 700 11px system-ui;
+  letter-spacing: 0.13em;
+}
+h1 {
+  font-size: clamp(23px, 6vw, 33px);
+  letter-spacing: 0.05em;
+}
+.points strong {
+  font-size: 28px;
+  letter-spacing: 0.06em;
+  color: #ffe0a0;
+}
+#feedback {
+  top: 27%;
+  color: #fff3cf;
+  text-shadow:
+    0 2px 11px #172d3b,
+    0 1px 3px #172d3b;
+  font-size: clamp(19px, 5vw, 31px);
+}
+#meter {
+  background: #182f44df;
+  color: #fff5da;
+  border-radius: 3px;
+  padding: 4px 7px;
+}
+#meter:empty {
+  display: none;
+}
+footer,
+[data-showcase="true"] footer {
+  border-top: 1px solid #6e8d93;
+  background: #142b38;
+  color: #e8f3ee;
+  padding: 9px 13px max(10px, env(safe-area-inset-bottom));
+}
+.strip {
+  color: #d2e2db;
+  font-size: 11px;
+}
+#progress,
+[data-showcase="true"] #progress {
+  color: #f8ce80;
+}
+#speed {
+  font: 800 13px system-ui;
+  color: #d5e9e8;
+  font-variant-numeric: tabular-nums;
+}
+.rushing #speed {
+  color: #ffce76;
+  text-shadow: 0 0 9px #ffc44b77;
+}
+.pedals {
+  display: flex;
+  gap: 6px;
+}
+#boost,
+#brake,
+#grab-choices button {
+  background: #263f49;
+  border: 1px solid #738c91;
+  color: #f3f4db;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 800;
+  min-height: 30px;
+}
+#brake {
+  touch-action: none;
+}
+#brake[aria-pressed="true"] {
+  background: #bfdcd6;
+  color: #142c39;
+}
+#boost,
+[data-showcase="true"] #boost {
+  color: #241f1f;
+  background: #f2c478;
+  border-color: #f2c478;
+}
+#grab-choices button,
+[data-showcase="true"] #grab-choices button {
+  border-color: #546e77;
+  background: #263d51;
+  color: #eef3ea;
+}
+#grab-choices button[aria-pressed="true"],
+[data-showcase="true"] #grab-choices button[aria-pressed="true"] {
+  background: #cae7db;
+  color: #1d3541;
+  border-color: #cae7db;
+}
+#ride,
+[data-showcase="true"] #ride {
+  border: 0;
+  clip-path: polygon(0 0, 96% 0, 100% 22%, 100% 100%, 4% 100%, 0 78%);
+  background: linear-gradient(108deg, #f4d393, #e5a55b);
+  color: #252f33;
+  min-height: 55px;
+  padding: 7px 12px;
+}
+#ride strong {
+  font: 900 18px system-ui;
+  letter-spacing: 0.05em;
+}
+#ride small,
+[data-showcase="true"] #ride small {
+  color: #293b3e;
+  font-size: 11px;
+}
+#ride .disc,
+[data-showcase="true"] #ride .disc {
+  color: #273e47;
+  border-color: #3d5355;
+  font-size: 20px;
+}
+#ride i {
+  color: #473c32;
+}
+#ride:active {
+  background: #ffd99c;
+}
+dialog,
+[data-showcase="true"] dialog {
+  background: #172e3b;
+  color: #f4f0dc;
+  border-top: 3px solid #e6b86c;
+  border-radius: 7px 7px 0 0;
+}
+dialog::backdrop {
+  background: #14243196;
+  backdrop-filter: blur(3px);
+}
+dialog h2 {
+  font-size: 34px;
+  letter-spacing: 0.1em;
+  font-weight: 850;
+  margin-bottom: 14px;
+}
+dialog p {
+  color: #cbdeda;
+}
+dialog button,
+[data-showcase="true"] dialog button {
+  border: 1px solid #62818c;
+  border-radius: 3px;
+  background: #263e49;
+  color: #edf3e4;
+  text-align: left;
+  font: 800 14px/1.25 system-ui;
+}
+dialog button.primary,
+[data-showcase="true"] dialog button.primary {
+  color: #233237;
+  border-color: #ffcf81;
+  background: linear-gradient(110deg, #f7d6a0, #e8ae67);
+}
+dialog button:active {
+  background: #4c6770;
+}
+dialog .back {
+  border-radius: 50%;
+  font-size: 17px;
+  text-align: center;
+}
+.trail-grid .lift-card {
+  grid-column: span 2;
+  padding: 15px;
+  font-size: 18px;
+}
+.trail-grid .map-card,
+.trail-grid .night-card,
+.mountain-grid button {
+  min-height: 62px;
+  background: linear-gradient(
+    155deg,
+    #254b4a 50%,
+    #487675 50%,
+    #2b4e50 74%,
+    #588579 74%
+  );
+  border-color: #809e91;
+}
+.trail-grid .night-card,
+.mountain-grid .mountain-2 {
+  background: linear-gradient(
+    161deg,
+    #233654 42%,
+    #487681 43%,
+    #344e62 64%,
+    #40536d 64%
+  );
+}
+.mountain-grid .mountain-1 {
+  background: linear-gradient(
+    166deg,
+    #5a3c32 48%,
+    #91644d 49%,
+    #63443a 74%,
+    #90604a 74%
+  );
+}
+.mountain-grid,
+.route-list {
+  grid-template-columns: 1fr;
+  margin-bottom: 9px;
+}
+.mountain-grid button {
+  font:
+    850 24px "Songti SC",
+    "SimSun",
+    serif;
+  letter-spacing: 0.1em;
+}
+.route-list button {
+  border-left: 3px solid #e7bd7a;
+}
+@media (max-height: 620px) {
+  #ride {
+    min-height: 43px;
+  }
+  #grab-choices button,
+  #boost,
+  #brake {
+    min-height: 24px;
+  }
+  #trick {
+    bottom: 13%;
+  }
+}

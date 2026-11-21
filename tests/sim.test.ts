@@ -2,7 +2,7 @@ import test from "node:test";
 test("recorded touch edges replay on the same simulation ticks at 30 and 60 Hz", () => {
   const edges = new Set([0, 68, 73, 113]);
   function replay(fps: number) {
-    const s = new Ski(parks[0].jumps[0]);
+    const s = new Ski({ lip: 12, speed: 10, kick: 7, slope: 0.15, drop: 2.2 });
     let held = false,
       elapsed = 0;
     for (let frame = 0; frame < fps * 5 && !s.result; frame++) {
@@ -24,6 +24,34 @@ import assert from "node:assert/strict";
 import { Ski, judge, height } from "../src/sim/ski";
 import { tours, parks, daily, opening } from "../src/content/routes";
 import { finish, read, change, credit } from "../src/platform/save";
+test("carving through a gate and braking have physical consequences", () => {
+  const j = tours[0].jumps[0];
+  const turned = new Ski(j);
+  const straight = new Ski(j);
+  while (straight.gateIndex === 0 || turned.gateIndex === 0) {
+    turned.steer = Math.max(-1, Math.min(1, (4.3 - turned.lateral) * 0.65));
+    turned.braking = true;
+    turned.step(false);
+    straight.step(false);
+  }
+  assert.equal(turned.gateHits, 1);
+  assert.equal(straight.gateHits, 0);
+  assert.ok(turned.speed < straight.speed * 0.75);
+});
+
+test("a missed landing slides forward and both recovery paths resume downhill", () => {
+  const j = opening.jumps[0];
+  for (const push of [false, true]) {
+    const ski = new Ski(j, true);
+    while (!ski.result) ski.step(false);
+    const impact = ski.x;
+    assert.equal(ski.phase, "crash");
+    while (ski.phase === "crash" || ski.phase === "recover") ski.step(push);
+    assert.equal(ski.phase, "land");
+    assert.ok(ski.x > impact);
+    assert.ok(ski.tick - ski.recoverTick <= (push ? 17 : 58));
+  }
+});
 test("big air boost raises speed and distance, and distinct grabs add a landing bonus", () => {
   const profile = opening.jumps[1];
   function fly(boosted: boolean) {

@@ -8,6 +8,13 @@ export type Jump = {
   drop: number;
   grab?: Grab;
   showcase?: 360 | 720;
+  trail?: {
+    bend: number;
+    waves: number;
+    width: number;
+    runout: number;
+    gates: number[];
+  };
 };
 export type Route = {
   id: string;
@@ -39,13 +46,31 @@ const patterns = [
   [5, 1, 3, 4],
   [5, 4, 1, 3, 2],
 ];
-function jumps(p: number[], mountain: number) {
+const terrain = [
+  { title: "林道缓弯", bend: 6, waves: 1, width: 9 },
+  { title: "连续蛇形弯", bend: 11, waves: 2, width: 10 },
+  { title: "峡谷窄道", bend: -9, waves: 1, width: 7 },
+  { title: "横切长坡", bend: -13, waves: 2, width: 11 },
+  { title: "波浪岭", bend: 10, waves: 3, width: 9 },
+  { title: "陡坡冲刺", bend: -16, waves: 2, width: 10 },
+];
+export function trailName(j: Jump) {
+  return j.showcase
+    ? "大跳台"
+    : (terrain.find((t) => t.bend === j.trail?.bend)?.title ?? "落地坡");
+}
+function jumps(p: number[], mountain: number, line = 0) {
   return p.map((n, i) => ({
-    lip: i === 0 ? 12 : 70 + n * 2,
-    speed: 10 + n * 0.25,
-    kick: 7 + n * 0.45,
-    slope: 0.15 + n * 0.026,
-    drop: 2.2 + mountain * 0.5 + n * 0.1,
+    lip: line === 0 && i === 0 ? 46 : 204 + n * 14 + (line % 5) * 15 + i * 3,
+    speed: 15 + mountain * 1.6 + n * 0.65,
+    kick: 7.3 + n * 0.6,
+    slope: 0.19 + n * 0.018,
+    drop: 3.4 + mountain * 1.5 + n * 0.55,
+    trail: {
+      ...terrain[n],
+      runout: 58 + n * 5,
+      gates: i === 0 && line === 0 ? [0.35] : [0.22, 0.46, 0.68],
+    },
     grab: (["nose", "tail", "indy"] as const)[(mountain + i) % 3],
   }));
 }
@@ -53,7 +78,7 @@ export const tours: Route[] = patterns.map((p, i) => ({
   id: "tour-" + i,
   name: names[Math.floor(i / 5)][i % 5],
   mountain: Math.floor(i / 5),
-  jumps: jumps(p, Math.floor(i / 5)),
+  jumps: jumps(p, Math.floor(i / 5), i),
   mode: "tour",
 }));
 export const parks: Route[] = ["落地小台", "转体中台", "长空大台"].map(
@@ -63,7 +88,12 @@ export const parks: Route[] = ["落地小台", "转体中台", "长空大台"].m
     mountain: i,
     mode: "park",
     jumps: [
-      { ...jumps([i * 2], i)[0], grab: (["indy", "nose", "tail"] as const)[i] },
+      {
+        ...jumps([i * 2], i)[0],
+        lip: 43 + i * 21,
+        trail: { ...terrain[i * 2], runout: 52 + i * 13, gates: [0.35, 0.62] },
+        grab: (["indy", "nose", "tail"] as const)[i],
+      },
     ],
   }),
 );
@@ -74,7 +104,7 @@ export const opening: Route = {
   mode: "intro",
   jumps: [
     {
-      lip: 20,
+      lip: 53,
       speed: 15,
       kick: 11,
       slope: 0.27,
@@ -83,7 +113,7 @@ export const opening: Route = {
       showcase: 360,
     },
     {
-      lip: 24,
+      lip: 75,
       speed: 17,
       kick: 14,
       slope: 0.29,

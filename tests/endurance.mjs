@@ -64,10 +64,10 @@ try {
       } else {
         const action = document.querySelector("#action").textContent,
           meter = document.querySelector("#meter").textContent;
-        if (action === "触碰出发" || action.includes("再来一跳")) key(true);
-        else if (meter.includes("台沿"))
+        if (action === "触碰出发" || action.includes("撑地起身")) key(true);
+        else if (meter.includes("离跳台"))
           key(parseFloat(meter.replace(/[^0-9.]/g, "")) > 1.8);
-        else if (meter.includes("空翻"))
+        else if (meter.includes("转体"))
           key(parseInt(meter.replace(/[^0-9]/g, "")) < 146);
         else key(false);
       }

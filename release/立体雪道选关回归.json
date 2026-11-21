@@ -1,0 +1,81 @@
+{
+  "browser": "134.0.3124.93",
+  "launchAndSlide": [
+    {
+      "mountain": "松林山",
+      "name": "初雪山脊",
+      "distance": 1022
+    },
+    {
+      "mountain": "松林山",
+      "name": "林间电台",
+      "distance": 1240
+    },
+    {
+      "mountain": "松林山",
+      "name": "白桦小径",
+      "distance": 1319
+    },
+    {
+      "mountain": "松林山",
+      "name": "北风垭口",
+      "distance": 1417
+    },
+    {
+      "mountain": "松林山",
+      "name": "松林决赛",
+      "distance": 1830
+    },
+    {
+      "mountain": "峡谷山",
+      "name": "鹰翼峡口",
+      "distance": 1256
+    },
+    {
+      "mountain": "峡谷山",
+      "name": "回声长廊",
+      "distance": 1335
+    },
+    {
+      "mountain": "峡谷山",
+      "name": "断崖来信",
+      "distance": 1414
+    },
+    {
+      "mountain": "峡谷山",
+      "name": "逐风岭",
+      "distance": 1493
+    },
+    {
+      "mountain": "峡谷山",
+      "name": "峡谷决赛",
+      "distance": 1906
+    },
+    {
+      "mountain": "夜光山",
+      "name": "蓝调时刻",
+      "distance": 1275
+    },
+    {
+      "mountain": "夜光山",
+      "name": "月下接力",
+      "distance": 1354
+    },
+    {
+      "mountain": "夜光山",
+      "name": "星轨长街",
+      "distance": 1433
+    },
+    {
+      "mountain": "夜光山",
+      "name": "极夜快线",
+      "distance": 1493
+    },
+    {
+      "mountain": "夜光山",
+      "name": "夜光决赛",
+      "distance": 1925
+    }
+  ],
+  "errors": []
+}

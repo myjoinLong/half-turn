@@ -129,7 +129,9 @@ function pose(s: Ski) {
     const effort = Math.max(s.charge, (s.speed / s.j.speed - 1) * 2.3);
     return blend(cruise, crouch, Math.min(1, effort));
   }
-  if (s.phase === "crash") return crouch;
+  if (s.phase === "crash") return blend(crouch, reach, 0.5);
+  if (s.phase === "recover")
+    return blend(crouch, cruise, Math.min(1, (s.tick - s.recoverTick) / 32));
   if (s.phase === "land") {
     const recovery = Math.min(1, (s.tick - s.contactTick) / 22);
     return blend(crouch, cruise, 1 - (1 - recovery) ** 3);
@@ -168,27 +170,51 @@ export function rider(
   size: number,
   s: Ski,
   wear: number[],
+  project?: (point: Point, side: number) => Point,
 ) {
   const p = pose(s);
   c.save();
-  c.translate(x, y);
-  c.scale(size, size);
-  c.rotate((s.angle * Math.PI) / 180);
-  if (s.j.showcase && s.phase === "air") {
-    const radians = (s.yaw * Math.PI) / 180;
-    const sideways = Math.cos(radians);
-    c.scale((sideways < 0 ? -1 : 1) * (0.45 + 0.55 * Math.abs(sideways)), 1);
-    c.transform(1, 0, Math.sin(radians) * 0.24, 1, 0, 0);
+  if (!project) {
+    c.translate(x, y);
+    c.scale(size, size);
   }
-  if (s.phase === "land" && s.result && s.result.halves % 2) c.scale(-1, 1);
-  if (s.phase === "crash") {
-    c.translate(0, 4);
-    c.rotate(-0.57);
-  }
+  let depth = 0;
+  const trace = (points: Point[], color: string, width: number) =>
+    stroke(
+      c,
+      project ? points.map((point) => project(point, depth)) : points,
+      color,
+      project ? width * size : width,
+    );
+  const circle = (point: Point, radius: number, color: string) =>
+    dot(
+      c,
+      project ? project(point, depth) : point,
+      project ? radius * size : radius,
+      color,
+    );
 
   const jacket = color(suitColors[wear[1]]);
-  stroke(
-    c,
+  if (project) {
+    const outline: Point[] = [
+      project([-24, -4], 0),
+      project([-17, 0], -7),
+      project([17, 0], -7),
+      project([24, -4], 0),
+      project([17, 0], 7),
+      project([-17, 0], 7),
+    ];
+    c.fillStyle = color(boardColors[wear[0]]);
+    c.beginPath();
+    c.moveTo(...outline[0]);
+    for (const point of outline.slice(1)) c.lineTo(...point);
+    c.closePath();
+    c.fill();
+    c.lineWidth = 1;
+    c.strokeStyle = "#1e314b";
+    c.stroke();
+  }
+  trace(
     [
       [-23, -4],
       [-18, 0],
@@ -198,8 +224,7 @@ export function rider(
     "#101e31",
     5.7,
   );
-  stroke(
-    c,
+  trace(
     [
       [-23, -4.6],
       [-18, -1.5],
@@ -209,8 +234,7 @@ export function rider(
     color(boardColors[wear[0]]),
     3.4,
   );
-  stroke(
-    c,
+  trace(
     [
       [-17, 0.7],
       [17, 0.7],
@@ -222,10 +246,9 @@ export function rider(
   const rearBoot: Point = [-9, -3];
   const frontBoot: Point = [9, -3];
   const drawLeg = (knee: Point, boot: Point, fabric: string) => {
-    stroke(c, [p.hips, knee, boot], "#101c2d", 7.5);
-    stroke(c, [p.hips, knee, boot], fabric, 5);
-    stroke(
-      c,
+    trace([p.hips, knee, boot], "#101c2d", 7.5);
+    trace([p.hips, knee, boot], fabric, 5);
+    trace(
       [
         [boot[0] - 1, -5],
         [boot[0] + 3.6, -4],
@@ -233,8 +256,7 @@ export function rider(
       "#171d2c",
       5,
     );
-    stroke(
-      c,
+    trace(
       [
         [boot[0] - 1.5, -5.5],
         [boot[0] + 2, -5],
@@ -244,23 +266,25 @@ export function rider(
     );
   };
   const drawArm = (elbow: Point, hand: Point, sleeve: string) => {
-    stroke(c, [p.shoulders, elbow, hand], "#122338", 6.7);
-    stroke(c, [p.shoulders, elbow, hand], sleeve, 4.7);
-    dot(c, hand, 2.8, "#ffc96e");
+    trace([p.shoulders, elbow, hand], "#122338", 6.7);
+    trace([p.shoulders, elbow, hand], sleeve, 4.7);
+    circle(hand, 2.8, "#ffc96e");
   };
   const forwardGrip =
     s.activeGrab === "nose" ||
     s.activeGrab === "melon" ||
     s.activeGrab === "japan";
   const frontArmOver = !s.grabbing || forwardGrip;
+  depth = -5;
   if (frontArmOver) drawArm(p.rearElbow, p.rearHand, "#39465e");
   else drawArm(p.frontElbow, p.frontHand, "#39465e");
   drawLeg(p.rearKnee, rearBoot, "#243448");
+  depth = 4;
   drawLeg(p.frontKnee, frontBoot, "#3b5365");
-  stroke(c, [p.hips, p.shoulders], "#192d42", 14);
-  stroke(c, [p.hips, p.shoulders], jacket, 11.2);
-  stroke(
-    c,
+  depth = 0;
+  trace([p.hips, p.shoulders], "#192d42", 14);
+  trace([p.hips, p.shoulders], jacket, 11.2);
+  trace(
     [
       [p.hips[0] + 2, p.hips[1]],
       [p.shoulders[0] + 3, p.shoulders[1] + 2],
@@ -268,13 +292,14 @@ export function rider(
     "#f6e1b9",
     1.1,
   );
+  depth = 6;
   if (frontArmOver) drawArm(p.frontElbow, p.frontHand, jacket);
   else drawArm(p.rearElbow, p.rearHand, jacket);
 
+  depth = 0;
   const head: Point = [p.shoulders[0] + 4, p.shoulders[1] - 7];
-  dot(c, head, 7.2, "#162237");
-  stroke(
-    c,
+  circle(head, 7.2, "#162237");
+  trace(
     [
       [head[0] - 4, head[1] - 4],
       [head[0] + 1, head[1] - 6],
@@ -282,8 +307,7 @@ export function rider(
     "#8598ab",
     1.2,
   );
-  stroke(
-    c,
+  trace(
     [
       [head[0] + 1, head[1]],
       [head[0] + 7, head[1] - 1],
@@ -291,8 +315,7 @@ export function rider(
     "#ffab54",
     3.5,
   );
-  stroke(
-    c,
+  trace(
     [
       [head[0] + 3, head[1] - 1],
       [head[0] + 6, head[1] - 1.5],

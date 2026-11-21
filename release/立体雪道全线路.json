@@ -1,0 +1,3210 @@
+[
+  {
+    "name": "极光大跳台",
+    "mode": "intro",
+    "id": "opening",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 456,
+        "seconds": 27.8,
+        "points": 1060,
+        "recoveries": 0,
+        "gates": 0,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 0,
+            "meters": 217
+          },
+          {
+            "grade": "完美",
+            "gates": 0,
+            "meters": 239
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 456,
+        "seconds": 30.1,
+        "points": 0,
+        "recoveries": 2,
+        "gates": 0,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 0,
+            "meters": 217
+          },
+          {
+            "grade": "摔倒",
+            "gates": 0,
+            "meters": 239
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 456,
+        "seconds": 21.4,
+        "points": 1370,
+        "recoveries": 0,
+        "gates": 0,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 0,
+            "meters": 217
+          },
+          {
+            "grade": "完美",
+            "gates": 0,
+            "meters": 239
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "初雪山脊",
+    "mode": "tour",
+    "id": "tour-0",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1022,
+        "seconds": 58.4,
+        "points": 790,
+        "recoveries": 0,
+        "gates": 10,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 1,
+            "meters": 104
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 303
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 287
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 328
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1022,
+        "seconds": 65.9,
+        "points": 250,
+        "recoveries": 4,
+        "gates": 10,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 1,
+            "meters": 104
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 303
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 287
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 328
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1022,
+        "seconds": 42.9,
+        "points": 790,
+        "recoveries": 0,
+        "gates": 10,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 1,
+            "meters": 104
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 303
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 287
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 328
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "林间电台",
+    "mode": "tour",
+    "id": "tour-1",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1240,
+        "seconds": 71.4,
+        "points": 840,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 296
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 340
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1240,
+        "seconds": 80.2,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 296
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 340
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1240,
+        "seconds": 51.9,
+        "points": 840,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 296
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 340
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "白桦小径",
+    "mode": "tour",
+    "id": "tour-2",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1319,
+        "seconds": 75,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 330
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 314
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 374
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 301
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1319,
+        "seconds": 83.9,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 330
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 314
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 374
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 301
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1319,
+        "seconds": 54.6,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 330
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 314
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 374
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 301
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "北风垭口",
+    "mode": "tour",
+    "id": "tour-3",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1417,
+        "seconds": 78.9,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 364
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 348
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 313
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1417,
+        "seconds": 88,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 364
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 348
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 313
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1417,
+        "seconds": 57.5,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 364
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 348
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 313
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "松林决赛",
+    "mode": "tour",
+    "id": "tour-4",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1830,
+        "seconds": 102.8,
+        "points": 1105,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 382
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 404
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 369
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 353
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1830,
+        "seconds": 114.8,
+        "points": 375,
+        "recoveries": 5,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 382
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 404
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 369
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 353
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1830,
+        "seconds": 74.7,
+        "points": 1105,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 382
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 404
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 369
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 353
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "鹰翼峡口",
+    "mode": "tour",
+    "id": "tour-5",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1256,
+        "seconds": 63.4,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 300
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 341
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 325
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 290
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1256,
+        "seconds": 71.3,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 300
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 341
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 325
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 290
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1256,
+        "seconds": 48.6,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 300
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 341
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 325
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 290
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "回声长廊",
+    "mode": "tour",
+    "id": "tour-6",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1335,
+        "seconds": 66.5,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 299
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 378
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1335,
+        "seconds": 74.9,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 299
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 378
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1335,
+        "seconds": 50.3,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 299
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 378
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "断崖来信",
+    "mode": "tour",
+    "id": "tour-7",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1414,
+        "seconds": 69.8,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 333
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 317
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 396
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1414,
+        "seconds": 78.2,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 333
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 317
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 396
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1414,
+        "seconds": 52.6,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 333
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 317
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 396
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "逐风岭",
+    "mode": "tour",
+    "id": "tour-8",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1493,
+        "seconds": 73,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 326
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 405
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 389
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 373
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1493,
+        "seconds": 81.8,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 326
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 405
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 389
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 373
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1493,
+        "seconds": 55.8,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 326
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 405
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 389
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 373
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "峡谷决赛",
+    "mode": "tour",
+    "id": "tour-9",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1906,
+        "seconds": 94.5,
+        "points": 1135,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 360
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 420
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 385
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 407
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1906,
+        "seconds": 105.8,
+        "points": 375,
+        "recoveries": 5,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 360
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 420
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 385
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 407
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 334
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1906,
+        "seconds": 71.5,
+        "points": 1135,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 360
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 420
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 385
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 407
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "蓝调时刻",
+    "mode": "tour",
+    "id": "tour-10",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1275,
+        "seconds": 58.6,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 281
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 306
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 366
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1275,
+        "seconds": 65.9,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 281
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 306
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 366
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1275,
+        "seconds": 46.1,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 281
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 306
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 366
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "月下接力",
+    "mode": "tour",
+    "id": "tour-11",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1354,
+        "seconds": 61.6,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1354,
+        "seconds": 69,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1354,
+        "seconds": 49,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "星轨长街",
+    "mode": "tour",
+    "id": "tour-12",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1433,
+        "seconds": 64.7,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 352
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 393
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 320
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1433,
+        "seconds": 72.5,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 352
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 393
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 320
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1433,
+        "seconds": 51.3,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 352
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 393
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 320
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "极夜快线",
+    "mode": "tour",
+    "id": "tour-13",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1493,
+        "seconds": 67.3,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 402
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 329
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 370
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1493,
+        "seconds": 75.3,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 402
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 329
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 370
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1493,
+        "seconds": 51.7,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 402
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 329
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 370
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "夜光决赛",
+    "mode": "tour",
+    "id": "tour-14",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1925,
+        "seconds": 87.3,
+        "points": 1135,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 417
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 401
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 347
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 388
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 372
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1925,
+        "seconds": 97.8,
+        "points": 375,
+        "recoveries": 5,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 417
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 401
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 347
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 388
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 372
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1925,
+        "seconds": 67,
+        "points": 1135,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 417
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 401
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 347
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 388
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 372
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "落地小台",
+    "mode": "park",
+    "id": "park-0",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 95,
+        "seconds": 6,
+        "points": 145,
+        "recoveries": 0,
+        "gates": 1,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 1,
+            "meters": 95
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 95,
+        "seconds": 7.1,
+        "points": 25,
+        "recoveries": 1,
+        "gates": 1,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 1,
+            "meters": 95
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 95,
+        "seconds": 4.8,
+        "points": 145,
+        "recoveries": 0,
+        "gates": 1,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 1,
+            "meters": 95
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "转体中台",
+    "mode": "park",
+    "id": "park-1",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 129,
+        "seconds": 6.8,
+        "points": 170,
+        "recoveries": 0,
+        "gates": 2,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 2,
+            "meters": 129
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 129,
+        "seconds": 7.9,
+        "points": 50,
+        "recoveries": 1,
+        "gates": 2,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 2,
+            "meters": 129
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 129,
+        "seconds": 5.8,
+        "points": 170,
+        "recoveries": 0,
+        "gates": 2,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 2,
+            "meters": 129
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "长空大台",
+    "mode": "park",
+    "id": "park-2",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 163,
+        "seconds": 7.4,
+        "points": 200,
+        "recoveries": 0,
+        "gates": 2,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 2,
+            "meters": 163
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 163,
+        "seconds": 8.5,
+        "points": 50,
+        "recoveries": 1,
+        "gates": 2,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 2,
+            "meters": 163
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 163,
+        "seconds": 6.7,
+        "points": 200,
+        "recoveries": 0,
+        "gates": 2,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 2,
+            "meters": 163
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 01",
+    "mode": "daily",
+    "id": "daily-0",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1022,
+        "seconds": 58.4,
+        "points": 790,
+        "recoveries": 0,
+        "gates": 10,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 1,
+            "meters": 104
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 303
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 287
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 328
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1022,
+        "seconds": 65.9,
+        "points": 250,
+        "recoveries": 4,
+        "gates": 10,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 1,
+            "meters": 104
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 303
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 287
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 328
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1022,
+        "seconds": 58.8,
+        "points": 790,
+        "recoveries": 0,
+        "gates": 10,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 1,
+            "meters": 104
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 303
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 287
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 328
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 02",
+    "mode": "daily",
+    "id": "daily-1",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1240,
+        "seconds": 71.4,
+        "points": 840,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 296
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 340
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1240,
+        "seconds": 80.2,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 296
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 340
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1240,
+        "seconds": 71.7,
+        "points": 840,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 296
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 340
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 03",
+    "mode": "daily",
+    "id": "daily-2",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1319,
+        "seconds": 75,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 330
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 314
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 374
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 301
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1319,
+        "seconds": 83.9,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 330
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 314
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 374
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 301
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1319,
+        "seconds": 75.4,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 330
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 314
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 374
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 301
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 04",
+    "mode": "daily",
+    "id": "daily-3",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1417,
+        "seconds": 78.9,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 364
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 348
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 313
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1417,
+        "seconds": 88,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 364
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 348
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 313
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1417,
+        "seconds": 79.2,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 364
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 348
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 313
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 05",
+    "mode": "daily",
+    "id": "daily-4",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1830,
+        "seconds": 102.8,
+        "points": 1105,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 382
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 404
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 369
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 353
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1830,
+        "seconds": 114.8,
+        "points": 375,
+        "recoveries": 5,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 382
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 404
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 369
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 353
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1830,
+        "seconds": 103.2,
+        "points": 1105,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 382
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 404
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 369
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 353
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 06",
+    "mode": "daily",
+    "id": "daily-5",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1256,
+        "seconds": 63.4,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 300
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 341
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 325
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 290
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1256,
+        "seconds": 71.3,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 300
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 341
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 325
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 290
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1256,
+        "seconds": 63.8,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 300
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 341
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 325
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 290
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 07",
+    "mode": "daily",
+    "id": "daily-6",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1335,
+        "seconds": 66.5,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 299
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 378
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1335,
+        "seconds": 74.9,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 299
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 378
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1335,
+        "seconds": 66.9,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 299
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 378
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 324
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 08",
+    "mode": "daily",
+    "id": "daily-7",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1414,
+        "seconds": 69.8,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 333
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 317
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 396
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1414,
+        "seconds": 78.2,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 333
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 317
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 396
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1414,
+        "seconds": 70.2,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 333
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 317
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 396
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 09",
+    "mode": "daily",
+    "id": "daily-8",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1493,
+        "seconds": 73,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 326
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 405
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 389
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 373
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1493,
+        "seconds": 81.8,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 326
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 405
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 389
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 373
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1493,
+        "seconds": 73.4,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 326
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 405
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 389
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 373
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 10",
+    "mode": "daily",
+    "id": "daily-9",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1906,
+        "seconds": 94.5,
+        "points": 1135,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 360
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 420
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 385
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 407
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1906,
+        "seconds": 105.8,
+        "points": 375,
+        "recoveries": 5,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 360
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 420
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 385
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 407
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 334
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1906,
+        "seconds": 94.9,
+        "points": 1135,
+        "recoveries": 0,
+        "gates": 15,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 360
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 420
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 385
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 407
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 11",
+    "mode": "daily",
+    "id": "daily-10",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1275,
+        "seconds": 58.6,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 281
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 306
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 366
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1275,
+        "seconds": 65.9,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 281
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 306
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 366
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1275,
+        "seconds": 58.9,
+        "points": 870,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 281
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 322
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 306
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 366
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 12",
+    "mode": "daily",
+    "id": "daily-11",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1354,
+        "seconds": 61.6,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1354,
+        "seconds": 69,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1354,
+        "seconds": 61.9,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 13",
+    "mode": "daily",
+    "id": "daily-12",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1433,
+        "seconds": 64.7,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 352
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 393
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 320
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1433,
+        "seconds": 72.5,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 352
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 393
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 320
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1433,
+        "seconds": 65,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 368
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 352
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 393
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 320
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "每日表演 · 14",
+    "mode": "daily",
+    "id": "daily-13",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1493,
+        "seconds": 67.3,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 402
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 329
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 370
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1493,
+        "seconds": 75.3,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 402
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 329
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 370
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1493,
+        "seconds": 67.6,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 402
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 329
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 370
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 392
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "极光巡游",
+    "mode": "show",
+    "id": "aurora",
+    "runs": [
+      {
+        "style": "clean",
+        "distance": 1354,
+        "seconds": 61.6,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      },
+      {
+        "style": "recover",
+        "distance": 1354,
+        "seconds": 69,
+        "points": 300,
+        "recoveries": 4,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "摔倒",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      },
+      {
+        "style": "rush",
+        "distance": 1354,
+        "seconds": 49,
+        "points": 900,
+        "recoveries": 0,
+        "gates": 12,
+        "stages": [
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 334
+          },
+          {
+            "grade": "干净",
+            "gates": 3,
+            "meters": 280
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 359
+          },
+          {
+            "grade": "完美",
+            "gates": 3,
+            "meters": 381
+          }
+        ]
+      }
+    ]
+  }
+]
