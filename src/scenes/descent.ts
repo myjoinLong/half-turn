@@ -9,6 +9,7 @@ import {
 } from "../sim/ski";
 import { buildRider } from "./rider";
 import { nearClip, near, paintFaces, placeAboveSnow } from "./geometry";
+import { clipTree, visibleTreeHeight } from "./forest";
 
 type Vec = [number, number, number];
 type Point = [number, number];
@@ -96,9 +97,10 @@ export function drawDescent(
       : 0;
   const air = s.phase === "air";
   const distance = 9.6 + rush * 2.2 + (air ? 1.1 : 0);
+  const cameraX = s.x - distance;
   const eye: Vec = [
-    s.x - distance,
-    cameraY - 5.8 - (air ? 0.9 : 0),
+    cameraX,
+    Math.min(cameraY - 5.8 - (air ? 0.9 : 0), snowHeight(cameraX) - 2.6),
     boardZ + 6.6,
   ];
   const nextGround = surface(s.x + 24);
@@ -193,11 +195,21 @@ export function drawDescent(
   const nightSnow = night
     ? ["#9bb8d2", "#b2cbe1", "#c0d6e6"]
     : ["#bfd9dd", "#d7e8e6", "#ecf1de"];
+  const surfaces = bands.map(surface);
+  const snowEdges = bands.map((x, i) => {
+    const p = surfaces[i];
+    return {
+      x,
+      y: p.y,
+      left: p.center - p.half * 2.8,
+      right: p.center + p.half * 2.8,
+    };
+  });
   for (let i = bands.length - 1; i > 0; i--) {
     const a = bands[i - 1],
       b = bands[i],
-      p = surface(a),
-      q = surface(b);
+      p = surfaces[i - 1],
+      q = surfaces[i];
     if (b - a < 1e-6) continue;
     const altitudeShift = Math.max(
       -2,
@@ -347,19 +359,56 @@ export function drawDescent(
       0.7,
     );
     for (const side of [-1, 1]) {
-      const lateral = road.center + side * (road.half + 3.7 + seed * 6);
+      // Keep the full crown outside the riding line, the chase camera and kicker shoulders.
+      const takeoff = road.jump.lip;
+      if (
+        road.local >= takeoff - 13 &&
+        road.local <= takeoff + (road.jump.showcase ? 19 : 9)
+      )
+        continue;
       const treeY = road.y;
       const size = 4 + seed * 4.8;
+      const edge = Math.max(
+        ...[surface(x - size * 0.24), road, surface(x + size * 0.24)].map(
+          (p) => side * p.center + p.half,
+        ),
+      );
+      const lateral = side * (edge + (side === 1 ? 12 : 6) + seed * 7);
+      const cameraDistance = Math.hypot(x - eye[0], lateral - eye[2]);
+      if (x < eye[0] + 3.5 || cameraDistance < 5.8) continue;
+      const screenTop = project(x, treeY - size, lateral);
+      const screenBase = project(x, treeY, lateral);
+      const screenRadius = Math.abs(screenBase[1] - screenTop[1]) * 0.46;
+      if (
+        Math.min(screenTop[0], screenBase[0]) - screenRadius > w ||
+        Math.max(screenTop[0], screenBase[0]) + screenRadius < 0
+      )
+        continue;
       atDepth([x, treeY - size * 0.32, lateral], () => {
+        const gaps = new Map<Vec, number>();
+        const clearance = (point: Vec) => {
+          const known = gaps.get(point);
+          if (known !== undefined) return known;
+          const limit = Math.min(
+            snowHeight(point[0]),
+            visibleTreeHeight(eye, snowEdges, point[0], point[2]),
+          );
+          const gap = Math.max(-600, limit - point[1]);
+          gaps.set(point, gap);
+          return gap;
+        };
         const colors = night
           ? ["#38566a", "#233e54", "#1c3449"]
           : ["#53816e", "#356454", "#254c44"];
-        worldLine(
-          [x, treeY + 0.09, lateral],
-          [x, treeY - size * 0.65, lateral],
-          "#635448",
-          2,
+        c.save();
+        c.globalAlpha *= Math.min(1, (cameraDistance - 5.8) / 4);
+        const root = Math.min(
+          treeY,
+          visibleTreeHeight(eye, snowEdges, x, lateral),
         );
+        const trunkTop: Vec = [x, treeY - size * 0.65, lateral];
+        if (root > trunkTop[1])
+          worldLine([x, root, lateral], trunkTop, "#635448", 2);
         for (let tier = 0; tier < 3; tier++) {
           const y = treeY - size * 0.22 - tier * size * 0.23;
           const width = size * (0.24 - tier * 0.044);
@@ -367,10 +416,11 @@ export function drawDescent(
           const a: Vec = [x - width, y, lateral - width * 0.62],
             b: Vec = [x + width, y, lateral - width * 0.55];
           const d: Vec = [x - 0.19, y, lateral + width * 0.79];
-          worldPoly([apex, a, b], colors[1]);
-          worldPoly([apex, b, d], colors[2]);
-          worldPoly([apex, d, a], colors[0]);
+          worldPoly(clipTree([apex, a, b], clearance), colors[1]);
+          worldPoly(clipTree([apex, b, d], clearance), colors[2]);
+          worldPoly(clipTree([apex, d, a], clearance), colors[0]);
         }
+        c.restore();
       });
     }
   }

@@ -12,6 +12,30 @@ import { buildRider } from "../src/scenes/rider";
 import { gateOffset, height, Ski } from "../src/sim/ski";
 import { opening, parks, tours } from "../src/content/routes";
 import { grabOrder } from "../src/content/tricks";
+import { clipTree, visibleTreeHeight } from "../src/scenes/forest";
+
+test("snow blocks tree roots behind a crest while the visible crown remains", () => {
+  const eye: V3 = [0, -4, 0];
+  const snow = [
+    { x: 0, y: 1, left: -3, right: 3 },
+    { x: 4, y: -2, left: -3, right: 3 },
+    { x: 8, y: 3, left: -3, right: 3 },
+  ];
+  const behind = visibleTreeHeight(eye, snow, 8, 0);
+  assert.equal(behind, 0);
+  assert.ok(visibleTreeHeight(eye, snow, 8, 17) > 4);
+  const visible = clipTree(
+    [
+      [8, -3, 0],
+      [8, 2, -1],
+      [8, 2, 1],
+    ],
+    (point) => behind - point[1],
+  );
+  assert.equal(visible.length, 3);
+  assert.ok(visible.every((point) => point[1] <= 1e-9));
+  assert.equal(visible.filter((point) => Math.abs(point[1]) < 1e-9).length, 2);
+});
 
 test("near-plane clipping trims faces instead of stretching hidden points", () => {
   assert.deepEqual(
