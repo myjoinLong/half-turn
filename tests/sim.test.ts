@@ -22,8 +22,33 @@ test("recorded touch edges replay on the same simulation ticks at 30 and 60 Hz",
 });
 import assert from "node:assert/strict";
 import { Ski, judge, height } from "../src/sim/ski";
-import { tours, parks, daily } from "../src/content/routes";
+import { tours, parks, daily, opening } from "../src/content/routes";
 import { finish, read, change, credit } from "../src/platform/save";
+test("big air boost raises speed and distance, and distinct grabs add a landing bonus", () => {
+  const profile = opening.jumps[1];
+  function fly(boosted: boolean) {
+    const ski = new Ski(profile, true);
+    while (ski.phase === "run") {
+      if (boosted && ski.tick === 15) ski.boost();
+      ski.step(true);
+    }
+    while (!ski.result && ski.tick < 800) {
+      if (ski.airTicks === 32) ski.selectGrab("melon");
+      if (ski.airTicks === 58) ski.selectGrab("japan");
+      ski.step(!ski.releaseWindow);
+    }
+    assert.equal(ski.result?.grade, "完美");
+    assert.deepEqual(ski.performedGrabs, ["tail", "melon", "japan"]);
+    assert.equal(ski.result.score, (ski.spinTarget / 180) * 150 + 180);
+    assert.ok(Math.abs(ski.x - ski.landingX) < 0.001);
+    return ski;
+  }
+  const normal = fly(false);
+  const faster = fly(true);
+  assert.ok(faster.speed > normal.speed * 1.3);
+  assert.ok(faster.x > normal.x + 12);
+  assert.equal(faster.spinTarget, normal.spinTarget + 180);
+});
 test("inclusive landing thresholds and switch stance", () => {
   for (const [error, grade] of [
     [0, "完美"],

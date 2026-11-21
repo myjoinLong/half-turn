@@ -209,6 +209,60 @@ h1 {
   color: #315749;
   font: 700 10px monospace;
   letter-spacing: 0.1em;
+  pointer-events: none;
+}
+#freestyle-controls {
+  margin-bottom: 8px;
+}
+#freestyle-controls[hidden],
+#grab-choices[hidden] {
+  display: none;
+}
+#speed-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+#speed {
+  font: 700 12px monospace;
+}
+#boost,
+#grab-choices button {
+  min-height: 30px;
+  padding: 3px 9px;
+  border: 1px solid #79988a;
+  border-radius: 5px;
+  background: #f9f5e7;
+  font-size: 12px;
+  font-weight: 800;
+}
+#boost:disabled {
+  opacity: 0.66;
+  cursor: default;
+}
+#grab-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+}
+[data-showcase="true"] #boost,
+[data-showcase="true"] #grab-choices button {
+  background: #223350;
+  border-color: #53658b;
+  color: #eef5ff;
+}
+[data-showcase="true"] #grab-choices button[aria-pressed="true"] {
+  color: #161d2d;
+  background: #a6f9de;
+  border-color: #d6fff1;
+}
+[data-showcase="true"]
+  #grab-choices
+  button.performed:not([aria-pressed="true"]) {
+  color: #a6f9de;
+  border-color: #a6f9de;
 }
 footer {
   padding: 12px 17px max(14px, env(safe-area-inset-bottom));

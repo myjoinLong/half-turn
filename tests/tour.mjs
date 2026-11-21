@@ -5,7 +5,11 @@ const browser = await chromium.launch({
   executablePath:
     process.env.BROWSER_EXE ||
     "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
-  args: ["--disable-gpu"],
+  args: [
+    "--disable-gpu",
+    "--disable-renderer-backgrounding",
+    "--disable-background-timer-throttling",
+  ],
 });
 const p = await browser.newPage({
   viewport: { width: 360, height: 740 },
@@ -24,7 +28,7 @@ async function waitFor(check, limit = 15000) {
     if (await check()) return;
     await p.clock.runFor(64);
   }
-  throw Error(await p.locator("#app").innerText());
+  throw Error((await p.locator("#app").innerText()) + "\n" + errors.join("\n"));
 }
 try {
   await p.addInitScript(() => {
@@ -37,6 +41,12 @@ try {
   await p.clock.install();
   await p.goto(process.env.SKI_URL || "http://127.0.0.1:4187");
   await p.waitForSelector("canvas");
+  await p.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
   await p.clock.pauseAt((await p.evaluate(() => Date.now())) + 60000);
   for (let n = 0; n < 4; n++) {
     await p.keyboard.down("Space");

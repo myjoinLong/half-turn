@@ -1,0 +1,27 @@
+{
+  "browser": "134.0.3124.93",
+  "viewport": "390×844",
+  "narrow": "320×568",
+  "failedTapThenRetry": true,
+  "drops": [
+    24,
+    32
+  ],
+  "landed": [
+    {
+      "grab": "Indy",
+      "combo": "Nosegrab",
+      "spin": 360
+    },
+    {
+      "grab": "Tailgrab",
+      "combo": "Melon",
+      "spin": 900
+    }
+  ],
+  "boostedSpeed": 83,
+  "careerScore": 0,
+  "persisted": true,
+  "replayAndSkip": true,
+  "errors": []
+}

@@ -9,8 +9,6 @@ export class Slope extends Phaser.Scene {
   lite = false;
   debug = false;
   drive: (delta: number) => void = () => {};
-  down: () => void = () => {};
-  up: () => void = () => {};
   private layer!: Phaser.Textures.CanvasTexture;
   private sky = document.createElement("canvas");
   private key = "";
@@ -18,12 +16,11 @@ export class Slope extends Phaser.Scene {
   private flight: Ski[] = [];
   private flightTick = -1;
   private crashTime = 0;
+  private cameraY = 0;
+  private cameraRider?: Ski;
   create() {
     this.layer = this.textures.createCanvas("piste", 1, 1)!;
     this.picture = this.add.image(0, 0, "piste").setOrigin(0);
-    this.input.on("pointerdown", () => this.down());
-    this.input.on("pointerup", () => this.up());
-    this.input.on("pointerupoutside", () => this.up());
   }
   update(_: number, delta: number) {
     if (!this.ski) return;
@@ -64,7 +61,16 @@ export class Slope extends Phaser.Scene {
     }
     const c = this.layer.context;
     c.drawImage(this.sky, 0, 0);
-    const look = height(s.j, s.x) * 0.85 + height(s.j, s.x + 4) * 0.15;
-    piste(c, w, h, s, look, this.wear, this.lite, this.debug);
+    const ground = height(s.j, s.x);
+    const lookAhead = height(s.j, s.x + 4);
+    const target = s.j.showcase
+      ? s.y + Math.min(9, Math.max(-2, ground - s.y)) * 0.44
+      : ground * 0.85 + lookAhead * 0.15;
+    if (this.cameraRider !== actual) {
+      this.cameraRider = actual;
+      this.cameraY = target;
+    }
+    this.cameraY += (target - this.cameraY) * (1 - Math.exp(-delta / 63));
+    piste(c, w, h, s, this.cameraY, this.wear, this.lite, this.debug);
   }
 }

@@ -1,5 +1,7 @@
 import { height, Ski } from "../sim/ski";
-import { boardColors, suitColors } from "../content/routes";
+
+import { rider } from "./rider";
+export { rider } from "./rider";
 type C = CanvasRenderingContext2D;
 type Point = [number, number];
 const ink = "#163d36",
@@ -224,9 +226,6 @@ export function panorama(
     c.fillRect(noise(i) * w, noise(i + 3101) * h, 1, 1);
   }
 }
-function hex(n: number) {
-  return "#" + n.toString(16).padStart(6, "0");
-}
 export function piste(
   c: C,
   w: number,
@@ -238,13 +237,13 @@ export function piste(
   debug: boolean,
 ) {
   const cinematic = !!s.j.showcase;
-  const scale = w / (cinematic ? 48 : 42),
+  const scale = cinematic ? Math.min(w / 51, h / (s.j.drop + 28)) : w / 42,
     px = w * (cinematic ? 0.34 : 0.26),
-    base = h * (cinematic ? 0.72 : 0.68),
+    base = h * (cinematic ? 0.5 : 0.68),
     sy = (y: number) => base + (y - look) * scale,
     sx = (x: number) => px + (x - s.x) * scale;
-  const start = s.x - (cinematic ? 18 : 13),
-    end = s.x + 36;
+  const start = s.x - px / scale - 3,
+    end = s.x + (w - px) / scale + 3;
   const pts: Point[] = [];
   for (let x = start; x < end; x += 0.22) pts.push([sx(x), sy(height(s.j, x))]);
   const lip = s.j.lip,
@@ -277,6 +276,44 @@ export function piste(
     ],
     cinematic ? "#dfeeff" : snow,
   );
+  if (cinematic) {
+    for (let i = 0; i < 4; i++) {
+      const x = lip + 7 + i * 1.2;
+      const y = sy(height(s.j, x)) + 9;
+      poly(
+        c,
+        [
+          [sx(x), y],
+          [sx(x) + 20, y + 9],
+          [sx(x + 4), h],
+          [sx(x) - 9, h],
+        ],
+        "#334a7652",
+      );
+    }
+    for (let x = lip + 16; x < end; x += 6) {
+      const px = sx(x),
+        py = sy(height(s.j, x));
+      line(
+        c,
+        [
+          [px, py - 2],
+          [px + 3, py - 16],
+        ],
+        "#425475",
+        2,
+      );
+      line(
+        c,
+        [
+          [px + 3, py - 15],
+          [px + 7, py - 13],
+        ],
+        "#ffbe63",
+        2.5,
+      );
+    }
+  }
   for (let i = Math.floor(start); i < end; i++) {
     const x = sx(i),
       y = sy(height(s.j, i)) + 30 + noise(i) * 110;
@@ -407,123 +444,4 @@ export function piste(
     }
   }
   rider(c, px, yy, Math.max(0.8, w / 410) * (cinematic ? 1.55 : 1.1), s, items);
-}
-export function rider(
-  c: C,
-  x: number,
-  y: number,
-  scale: number,
-  s: Ski,
-  items: number[],
-) {
-  c.save();
-  c.translate(x, y);
-  c.scale(scale, scale);
-  c.rotate((s.angle * Math.PI) / 180);
-  if (s.j.showcase && s.phase === "air") {
-    const turn = (s.yaw * Math.PI) / 180;
-    const side = Math.cos(turn);
-    c.scale((side < 0 ? -1 : 1) * (0.3 + 0.7 * Math.abs(side)), 1);
-    c.transform(1, 0, Math.sin(turn) * 0.29, 1, 0, 0);
-  } else if (s.phase === "land" && s.result && s.result.halves % 2) {
-    c.scale(-1, 1);
-  }
-  if (s.phase === "crash") {
-    c.translate(0, 3);
-    c.rotate(-0.56);
-  }
-  const tucked =
-    (s.phase === "run" && s.held) ||
-    (s.phase === "air" && s.held) ||
-    s.phase === "crash" ||
-    (s.phase === "land" && s.tick - s.contactTick < 13);
-  const grab = s.grabbing ? s.j.grab : undefined;
-  const hip: Point =
-      grab === "tail" ? [-9, -12] : tucked ? [-5, -12] : [-3, -20],
-    shoulder: Point = tucked ? [2, -20] : [1, -32],
-    head: Point = [shoulder[0] + 3, shoulder[1] - 6];
-  line(
-    c,
-    [
-      [-17, -3],
-      [-14, 0],
-      [10, 0],
-      [18, -3],
-    ],
-    ink,
-    4,
-  );
-  line(
-    c,
-    [
-      [-17, -4],
-      [-13, -2],
-      [11, -2],
-      [17, -5],
-    ],
-    hex(boardColors[items[0]]),
-    2.8,
-  );
-  line(
-    c,
-    [
-      [-11, -1],
-      [9, -1],
-    ],
-    "#ffecac",
-    0.9,
-  );
-  line(
-    c,
-    [[-8, -3], [-10, -10], hip, [7, tucked ? -11 : -14], [6, -3]],
-    ink,
-    4.4,
-  );
-  line(c, [hip, shoulder], hex(suitColors[items[1]]), 10);
-  line(
-    c,
-    [
-      [shoulder[0] - 2, shoulder[1] + 3],
-      [shoulder[0] + 3, shoulder[1] + 2],
-    ],
-    "#ecc782",
-    2.4,
-  );
-  const hand: Point =
-    grab === "tail"
-      ? [-16, -3]
-      : grab === "nose"
-        ? [15, -4]
-        : grab === "indy"
-          ? [1, -2]
-          : [tucked ? 6 : 15, tucked ? -10 : -21];
-  if (grab) {
-    const freeHand: Point = grab === "tail" ? [22, -25] : [-20, -17];
-    line(c, [shoulder, [freeHand[0] * 0.6, -28], freeHand], "#263942", 3.5);
-  }
-  line(
-    c,
-    [
-      shoulder,
-      grab === "tail" ? [-12, -15] : [shoulder[0] + 8, shoulder[1] + 8],
-      hand,
-    ],
-    ink,
-    3.8,
-  );
-  if (grab) line(c, [hand, [hand[0] + 1.5, hand[1]]], "#ffcb76", 4);
-  c.fillStyle = ink;
-  c.beginPath();
-  c.arc(...head, 5.6, 0, 7);
-  c.fill();
-  line(
-    c,
-    [
-      [head[0] + 1, head[1]],
-      [head[0] + 6, head[1] - 1],
-    ],
-    "#fa9a50",
-    3,
-  );
-  c.restore();
 }

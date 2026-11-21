@@ -1,10 +1,10 @@
 # 再翻半圈
 
-本地候选版为 0.9.0-rc.2。交付包在 release/half-turn-0.9.0-rc.2.zip。上一版发布包和验收记录保留在 release/。本机私测事件可用 [私测看板](release/私测看板.html) 离线查看。
+本地候选版为 0.9.0-rc.3。交付包在 release/half-turn-0.9.0-rc.3.zip。旧版发布包和验收记录保留在 release/。本机私测事件可用 [私测看板](release/私测看板.html) 离线查看。
 
-竖屏单指滑雪。首次进入极光大跳台，按住起飞并抓板，看到「现在松手」就展开落地。两跳分别体验 Indy 360° 和 Tailgrab 720°。开场有落地辅助，表演分只在开场显示。随后从松林山零分起步。菜单可以重玩开场或直接入山。
+竖屏单指滑雪。首次进入极光大跳台，两跳落差分别为 24、32 米。默认体验 Indy 360° 和 Tailgrab 720°。起跳前可选择「加速」，提升实际速度、延长飞行距离并为高台增加 180° 转体目标。空中按住并向左右滑动可切换抓板，也可用动作按钮预选。保持不同抓板可获得连招加分。看到松手提示即可展体。开场有落地辅助，表演后从松林山零分起步。雪场菜单和练习公园都可重玩高台。
 
-正式雪道第一跳自动离台，腾空时按住向后翻，提前松手减速。第二跳开始，在橙色区松手蹬伸，腾空后再次按住转体。第三跳加入 Indy 抓板练习。按住画面或底部按钮操作，键盘空格等效。摔倒后点一下回到台前，每日赛则消耗本跳。
+正式雪道第一跳自动离台，腾空时按住向后翻，提前松手减速。第二跳开始，在橙色区松手蹬伸，腾空后再次按住转体。第三跳加入 Indy 抓板练习。按住画面或底部按钮操作，键盘空格等效，Shift 加速，高台支持用方向键切抓板。摔倒后点一下回到台前。每日赛使用统一速度并消耗失误跳。
 
 ## 运行与打包
 
@@ -18,7 +18,7 @@
 
 - src/sim/ski.ts 包含每秒 60 步的模拟和按距离细分的碰撞检测。录像按跳台记录按键变化的模拟步、起跳配置和连段。
 - src/content/routes.ts 定义三座山、15 条线路、练习与北京时间轮换题，以及纯外观收藏。个人最佳保存在本机，每日同题使用固定装扮和初始连段。
-- Indy、Nosegrab 和 Tailgrab 按单板赛事的抓板部位绘制。开场以侧视投影表现横向转体，正式雪道用原有的侧视翻转与对坡判定。参考 [FIS 单板动作表](https://www.fis-ski.com/DB/v2/tricks?discipline=SB&event=HP) 和 [大跳台世界杯赛例](https://www.fis-ski.com/snowboard-park-and-pipe/news/2022-23/first-timer-fukada-and-one-of-a-kind-kleveland-claim-big-air-wins)。
+- Indy、Nosegrab、Tailgrab、Melon、Stalefish、Japan 按单板赛事的抓板部位绘制。角色有独立前后臂、双腿、雪靴和护目镜，屈膝、蹬伸、抱板、展体和落地吸震采用关节姿态过渡。高台以侧视投影表现横向转体，正式雪道保持侧视翻转与对坡判定。参考 [FIS 单板动作表](https://www.fis-ski.com/DB/v2/tricks?discipline=SB&event=HP) 和 [大跳台世界杯赛例](https://www.fis-ski.com/snowboard-park-and-pipe/news/2022-23/first-timer-fukada-and-one-of-a-kind-kleveland-claim-big-air-wins)。
 - src/scenes/art.ts 为本作原创程序绘制的雪山、松林、滑手骨架、雪板与雪粉。音效由 tools/sounds.py 在本地合成，渲染使用系统字体。Phaser 和构建工具许可证见各自包内 LICENSE。
 - src/platform 独占 half-turn.ski.v1 存档和本作广告位配置。开通后填写 .env.production.local 重新构建。预览环境无可用广告时返回原入口。真实宿主完播回调才发奖，记录在同笔存档写入中。
 - 首发候选必须补录 Android/iOS 支持入口的触控、后台恢复、20 分钟稳定性、10 Mbps 冷热启动，以及私有二维码验证。平台曝光、收入、认证状态和审核结果取开发者后台。

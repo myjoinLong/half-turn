@@ -1,9 +1,16 @@
 import type { Jump } from "../content/routes";
+import type { Grab } from "../content/tricks";
 export const simVersion = 1,
   courseVersion = 1,
   dt = 1 / 60;
 export function height(j: Jump, x: number) {
   const z = x - j.lip;
+  if (j.showcase) {
+    if (z <= -9) return 1.4 + (z + 9) * 0.42;
+    if (z <= 0) return 1.4 - 1.4 * ((z + 9) / 9) ** 2;
+    if (z < 15) return j.drop * (z / 15) ** 0.64;
+    return j.drop + (z - 15) * j.slope;
+  }
   if (z < -5) return -1.1 + (z + 5) * 0.09;
   if (z <= 0) return -1.1 - (z + 5) * 0.22;
   if (z < 5) return -2.2 + ((j.drop + 2.2) * z) / 5;
@@ -44,10 +51,18 @@ export class Ski {
   held = false;
   airTicks = 0;
   tuckTicks = 0;
+  tuckAmount = 0;
   yaw = 0;
   landingAngle = 0;
   landingX = 0;
   contactTick = 0;
+  boostAt: number | undefined;
+  speed: number;
+  activeGrab: Grab | undefined;
+  performedGrabs: Grab[] = [];
+  private grabTicks = 0;
+  private targetYaw = 0;
+  private predicting = false;
   private flightTicks = 0;
   private releaseTick = 0;
   private releaseYaw = 0;
@@ -61,6 +76,19 @@ export class Ski {
   ) {
     this.y = height(j, 0);
     this.angle = tangent(j, 0);
+    this.speed = j.speed;
+    this.activeGrab = j.grab;
+    this.targetYaw = j.showcase || 0;
+  }
+  boost() {
+    if (this.phase !== "run" || this.boostAt !== undefined) return;
+    this.boostAt = this.tick;
+  }
+  selectGrab(grab: Grab) {
+    if (!this.j.showcase || this.activeGrab === grab || this.releaseTick)
+      return;
+    this.activeGrab = grab;
+    this.grabTicks = 0;
   }
   step(pressed: boolean) {
     if (this.phase === "crash") return;
@@ -69,8 +97,10 @@ export class Ski {
     this.tick++;
     const j = this.j;
     if (this.phase === "run") {
+      if (this.boostAt !== undefined)
+        this.speed += (j.speed * 1.36 - this.speed) * 0.088;
       if (pressed) this.charge = Math.min(1, this.charge + dt * 2.8);
-      this.x += j.speed * dt;
+      this.x += this.speed * dt;
       this.manual =
         !j.showcase && release && this.x >= j.lip - 4 && this.charge > 0.05;
       const lip = this.x >= j.lip;
@@ -82,10 +112,12 @@ export class Ski {
         this.vy =
           -j.kick *
           (this.manual ? 0.77 + 0.27 * this.charge : this.auto ? 1 : 0.55);
+        this.vy *= 1 + (this.speed / j.speed - 1) * 0.36;
         this.omega = 0;
         if (j.showcase) {
+          this.targetYaw = j.showcase + (this.boostAt === undefined ? 0 : 180);
           const flight = Object.assign(Object.create(Ski.prototype), this, {
-            j: { ...j, showcase: undefined },
+            predicting: true,
           }) as Ski;
           while (!flight.result) flight.step(false);
           this.flightTicks = flight.airTicks;
@@ -95,12 +127,13 @@ export class Ski {
       if (!pressed) this.charge = 0;
     } else if (this.phase === "air") {
       this.airTicks++;
+      this.tuckAmount += ((pressed ? 1 : 0) - this.tuckAmount) * 0.2;
       this.tuckTicks = pressed
         ? this.tuckTicks + 1
         : j.showcase
           ? this.tuckTicks
           : 0;
-      if (j.showcase) {
+      if (j.showcase && !this.predicting) {
         if (release && this.canReleaseShowcase && !this.releaseTick) {
           this.releaseTick = this.airTicks;
           this.releaseYaw = this.yaw;
@@ -110,15 +143,23 @@ export class Ski {
           const progress = (this.airTicks - this.releaseTick) / remaining;
           this.yaw =
             this.releaseYaw +
-            (j.showcase - this.releaseYaw) * (1 - (1 - progress) ** 2);
+            (this.targetYaw - this.releaseYaw) * (1 - (1 - progress) ** 2);
         } else if (pressed) {
           this.yaw = Math.min(
-            j.showcase,
-            this.yaw + j.showcase / (this.flightTicks * 0.56),
+            this.targetYaw,
+            this.yaw + this.targetYaw / (this.flightTicks * 0.56),
           );
         }
+        const progress = this.airTicks / this.flightTicks;
         this.angle =
-          -12 - 22 * Math.sin((Math.PI * this.airTicks) / this.flightTicks);
+          -17 - 18 * Math.sin(Math.PI * progress) + 27 * progress ** 3;
+        this.grabTicks = this.grabbing ? this.grabTicks + 1 : 0;
+        if (
+          this.grabTicks === 12 &&
+          this.activeGrab &&
+          !this.performedGrabs.includes(this.activeGrab)
+        )
+          this.performedGrabs.push(this.activeGrab);
       } else {
         this.omega +=
           ((pressed ? -240 : 0) - this.omega) * (pressed ? 0.1 : 0.17);
@@ -126,13 +167,13 @@ export class Ski {
       }
       // Limit swept distance and refine first contact on the terrain segment.
       const steps = Math.ceil(
-          (Math.max(j.speed, Math.abs(this.vy) + 1) * dt) / 0.09,
+          (Math.max(this.speed, Math.abs(this.vy) + 1) * dt) / 0.09,
         ),
         h = dt / steps;
       for (let i = 0; i < steps; i++) {
         const ox = this.x,
           oy = this.y;
-        this.x += j.speed * h;
+        this.x += this.speed * h;
         this.y += this.vy * h + 7 * h * h;
         this.vy += 14 * h;
         if (this.vy > 0 && this.y >= height(j, this.x)) {
@@ -148,23 +189,26 @@ export class Ski {
           this.y = height(j, this.x);
           this.landingAngle = tangent(j, this.x);
           this.contactTick = this.tick;
-          this.result = j.showcase
-            ? judge(
-                this.landingAngle +
-                  (this.canReleaseShowcase && this.yaw >= j.showcase * .9
-                    ? -j.showcase + (this.releaseTick ? 0 : 22)
-                    : 60),
-                this.landingAngle,
-                this.combo,
-              )
-            : judge(this.angle, this.landingAngle, this.combo);
+          this.result =
+            j.showcase && !this.predicting
+              ? judge(
+                  this.landingAngle +
+                    (this.canReleaseShowcase && this.yaw >= this.targetYaw * 0.9
+                      ? -this.targetYaw + (this.releaseTick ? 0 : 22)
+                      : 60),
+                  this.landingAngle,
+                  this.combo,
+                )
+              : judge(this.angle, this.landingAngle, this.combo);
+          if (j.showcase && !this.predicting && this.result.grade !== "摔倒")
+            this.result.score += this.performedGrabs.length * 60;
           if (this.result.grade !== "摔倒") this.angle = this.landingAngle;
           this.phase = this.result.grade === "摔倒" ? "crash" : "land";
           break;
         }
       }
     } else {
-      this.x += j.speed * dt;
+      this.x += this.speed * dt;
       this.y = height(j, this.x);
       this.angle = tangent(j, this.x);
     }
@@ -179,5 +223,22 @@ export class Ski {
   }
   get canReleaseShowcase() {
     return this.tuckTicks >= 32;
+  }
+  get releaseWindow() {
+    return this.canReleaseShowcase && this.airTicks >= this.flightTicks * 0.52;
+  }
+  get airProgress() {
+    return this.flightTicks ? this.airTicks / this.flightTicks : 0;
+  }
+  get gripBlend() {
+    return Math.min(
+      1,
+      (this.j.showcase ? this.grabTicks : this.tuckTicks - 7) / 7,
+    );
+  }
+  get spinTarget() {
+    return this.phase === "run"
+      ? (this.j.showcase || 0) + (this.boostAt === undefined ? 0 : 180)
+      : this.targetYaw;
   }
 }
