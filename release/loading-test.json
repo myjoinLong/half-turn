@@ -1,0 +1,17 @@
+{
+  "browser": "134.0.3124.93",
+  "network": "10 Mbps / 40 ms latency, desktop emulation",
+  "results": [
+    {
+      "entry": "cold",
+      "readyMs": 1397,
+      "resourceBytes": 350856
+    },
+    {
+      "entry": "warm",
+      "readyMs": 1165,
+      "resourceBytes": 900
+    }
+  ],
+  "rollbackReadCurrentSettings": true
+}

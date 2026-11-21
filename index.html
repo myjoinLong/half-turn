@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+    />
+    <meta name="theme-color" content="#173930" />
+    <link rel="icon" href="./ski.png" />
+    <title>再翻半圈 · 花式滑雪</title>
+  </head>
+  <body>
+    <main id="app">
+      <header>
+        <span class="mark">◢◭</span>
+        <div><b>再翻半圈</b><small>HALF TURN SKI CLUB</small></div>
+        <button id="menu" aria-label="打开雪场菜单">☰</button>
+      </header>
+      <section id="field" aria-label="雪道，按住收腿，松开展体">
+        <div id="game"></div>
+        <div id="hud">
+          <div>
+            <small id="mode"></small>
+            <h1 id="line"></h1>
+          </div>
+          <div class="points">
+            <small>线路得分</small><strong id="score">0000</strong>
+          </div>
+        </div>
+        <div id="feedback"></div>
+        <div id="meter"></div>
+      </section>
+      <footer>
+        <div class="strip">
+          <span id="jump"></span><span id="progress"></span>
+        </div>
+        <button id="ride">
+          <span class="disc">↗</span
+          ><span><strong id="action"></strong><small id="hint"></small></span
+          ><i>›</i>
+        </button>
+      </footer>
+      <dialog id="sheet"><section id="panel"></section></dialog>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

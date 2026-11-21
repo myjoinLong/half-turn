@@ -1,0 +1,9 @@
+{
+  "engine": "18.2",
+  "platform": "Windows WebKit",
+  "viewport": "375×667 @2x",
+  "canvasTouch": true,
+  "finish": true,
+  "replay": true,
+  "errors": []
+}

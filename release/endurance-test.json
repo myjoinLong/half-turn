@@ -1,0 +1,187 @@
+{
+  "browser": "134.0.3124.93",
+  "wallTimeMs": 1200006,
+  "errors": [],
+  "samples": [
+    {
+      "finishes": 1,
+      "frames": 3464,
+      "slowFrames": 14,
+      "jumpActions": 14,
+      "lastProgress": 1795263816749,
+      "heapBytes": 9757754,
+      "elapsedMs": 60061
+    },
+    {
+      "finishes": 3,
+      "frames": 7010,
+      "slowFrames": 15,
+      "jumpActions": 27,
+      "lastProgress": 1795263890093,
+      "heapBytes": 9898822,
+      "elapsedMs": 120108
+    },
+    {
+      "finishes": 4,
+      "frames": 10595,
+      "slowFrames": 15,
+      "jumpActions": 40,
+      "lastProgress": 1795263926558,
+      "heapBytes": 10786606,
+      "elapsedMs": 180129
+    },
+    {
+      "finishes": 6,
+      "frames": 14183,
+      "slowFrames": 15,
+      "jumpActions": 53,
+      "lastProgress": 1795263999528,
+      "heapBytes": 9353680,
+      "elapsedMs": 240154
+    },
+    {
+      "finishes": 8,
+      "frames": 17679,
+      "slowFrames": 24,
+      "jumpActions": 67,
+      "lastProgress": 1795264072811,
+      "heapBytes": 9449938,
+      "elapsedMs": 300215
+    },
+    {
+      "finishes": 9,
+      "frames": 21193,
+      "slowFrames": 33,
+      "jumpActions": 79,
+      "lastProgress": 1795264109222,
+      "heapBytes": 7845494,
+      "elapsedMs": 360965
+    },
+    {
+      "finishes": 10,
+      "frames": 23119,
+      "slowFrames": 75,
+      "jumpActions": 87,
+      "lastProgress": 1795264150479,
+      "heapBytes": 7713014,
+      "elapsedMs": 420986
+    },
+    {
+      "finishes": 12,
+      "frames": 26552,
+      "slowFrames": 86,
+      "jumpActions": 101,
+      "lastProgress": 1795264243300,
+      "heapBytes": 8045436,
+      "elapsedMs": 482080
+    },
+    {
+      "finishes": 14,
+      "frames": 30010,
+      "slowFrames": 95,
+      "jumpActions": 115,
+      "lastProgress": 1795264317332,
+      "heapBytes": 8581998,
+      "elapsedMs": 542480
+    },
+    {
+      "finishes": 15,
+      "frames": 33564,
+      "slowFrames": 99,
+      "jumpActions": 127,
+      "lastProgress": 1795264353819,
+      "heapBytes": 7902310,
+      "elapsedMs": 602582
+    },
+    {
+      "finishes": 17,
+      "frames": 37066,
+      "slowFrames": 106,
+      "jumpActions": 141,
+      "lastProgress": 1795264427381,
+      "heapBytes": 8752182,
+      "elapsedMs": 662687
+    },
+    {
+      "finishes": 18,
+      "frames": 39635,
+      "slowFrames": 147,
+      "jumpActions": 150,
+      "lastProgress": 1795264464521,
+      "heapBytes": 7910348,
+      "elapsedMs": 722774
+    },
+    {
+      "finishes": 20,
+      "frames": 43163,
+      "slowFrames": 156,
+      "jumpActions": 164,
+      "lastProgress": 1795264550720,
+      "heapBytes": 8228442,
+      "elapsedMs": 782871
+    },
+    {
+      "finishes": 21,
+      "frames": 46650,
+      "slowFrames": 171,
+      "jumpActions": 176,
+      "lastProgress": 1795264587187,
+      "heapBytes": 9008180,
+      "elapsedMs": 843082
+    },
+    {
+      "finishes": 23,
+      "frames": 49420,
+      "slowFrames": 205,
+      "jumpActions": 188,
+      "lastProgress": 1795264660137,
+      "heapBytes": 7679590,
+      "elapsedMs": 903100
+    },
+    {
+      "finishes": 24,
+      "frames": 52931,
+      "slowFrames": 215,
+      "jumpActions": 200,
+      "lastProgress": 1795264707208,
+      "heapBytes": 8020722,
+      "elapsedMs": 965568
+    },
+    {
+      "finishes": 26,
+      "frames": 55865,
+      "slowFrames": 241,
+      "jumpActions": 212,
+      "lastProgress": 1795264791288,
+      "heapBytes": 8140624,
+      "elapsedMs": 1025587
+    },
+    {
+      "finishes": 28,
+      "frames": 59464,
+      "slowFrames": 241,
+      "jumpActions": 226,
+      "lastProgress": 1795264864263,
+      "heapBytes": 8147210,
+      "elapsedMs": 1085597
+    },
+    {
+      "finishes": 29,
+      "frames": 63060,
+      "slowFrames": 241,
+      "jumpActions": 238,
+      "lastProgress": 1795264900744,
+      "heapBytes": 9209264,
+      "elapsedMs": 1145616
+    },
+    {
+      "finishes": 31,
+      "frames": 66299,
+      "slowFrames": 241,
+      "jumpActions": 251,
+      "lastProgress": 1795264973695,
+      "heapBytes": 9306541,
+      "elapsedMs": 1200005
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.wav binary
+*.gif binary
+*.zip binary
+public/THIRD-PARTY-LICENSES.txt -text
+制作方案.md -text

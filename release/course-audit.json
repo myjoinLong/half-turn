@@ -1,0 +1,2130 @@
+[
+  {
+    "id": "tour-0",
+    "name": "初雪山脊",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.43,
+        "score": 540,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.12
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 13.93
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 16.64
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.42,
+        "score": 1200,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.36
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 11.27,
+            "distance": 17.05
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.37,
+            "distance": 19.99
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-1",
+    "name": "林间电台",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.37,
+        "score": 540,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 13.76
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 16.64
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.12
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.35,
+        "score": 1200,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 11.27,
+            "distance": 17.1
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.37,
+            "distance": 19.99
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.36
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-2",
+    "name": "白桦小径",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.35,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.19
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 13.93
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.27
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.32,
+        "score": 1200,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.42
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 11.27,
+            "distance": 17.05
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.86,
+            "distance": 21.49
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-3",
+    "name": "北风垭口",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.33,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 16.69
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.12
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.27
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.32,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.37,
+            "distance": 20.03
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.36
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.86,
+            "distance": 21.49
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-4",
+    "name": "松林决赛",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 47.05,
+        "score": 730,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 16.64
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.27
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.12
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 13.93
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 47.02,
+        "score": 1580,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.37,
+            "distance": 19.99
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.86,
+            "distance": 21.49
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.36
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 11.27,
+            "distance": 17.05
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-5",
+    "name": "鹰翼峡口",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.42,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.57
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.02
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.32
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.38,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.78
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.84,
+            "distance": 21.84
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.32,
+            "distance": 20.34
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.9,
+            "distance": 17.42
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-6",
+    "name": "回声长廊",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.38,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.07
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.32
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.13
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.51
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.38,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.32,
+            "distance": 20.39
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.9,
+            "distance": 17.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.72
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-7",
+    "name": "断崖来信",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.37,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.51
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.32
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.13
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.35,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.84,
+            "distance": 21.84
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.72
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.9,
+            "distance": 17.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.42
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-8",
+    "name": "逐风岭",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.53,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.15
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.13
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.02
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.5,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.9,
+            "distance": 17.46
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.84,
+            "distance": 21.84
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.32,
+            "distance": 20.34
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-9",
+    "name": "峡谷决赛",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 47.02,
+        "score": 760,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.57
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.13
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.02
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 13.01
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 46.98,
+        "score": 1640,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.78
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.32,
+            "distance": 20.34
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.84,
+            "distance": 21.84
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 14.05,
+            "distance": 15.99
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-10",
+    "name": "蓝调时刻",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.45,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.53
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.39
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.88
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.49
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.47,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.65,
+            "distance": 17.81
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.69
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.86,
+            "distance": 19.07
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.76
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-11",
+    "name": "月下接力",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.38,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.44
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 13.39
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 19.01
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.49
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.4,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.73
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 12.97,
+            "distance": 16.35
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.83,
+            "distance": 22.18
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.76
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-12",
+    "name": "星轨长街",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.35,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 19.01
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.39
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.49
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.7
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.37,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.83,
+            "distance": 22.18
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.69
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.76
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.65,
+            "distance": 17.77
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-13",
+    "name": "极夜快线",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.32,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.7
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.39
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 19.01
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.32,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.92
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.65,
+            "distance": 17.77
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.69
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.83,
+            "distance": 22.18
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour-14",
+    "name": "夜光决赛",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 46.88,
+        "score": 760,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.65
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 19.01
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.7
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.39
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.88
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 46.88,
+        "score": 1640,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.92
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.83,
+            "distance": 22.18
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.65,
+            "distance": 17.77
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.69
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.86,
+            "distance": 19.07
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "park-0",
+    "name": "落地小台",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 4.72,
+        "score": 120,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 4.72,
+        "score": 240,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "park-1",
+    "name": "转体中台",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 4.67,
+        "score": 120,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.57
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 4.65,
+        "score": 300,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.78
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "park-2",
+    "name": "长空大台",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 4.62,
+        "score": 150,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 19.01
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 4.62,
+        "score": 300,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.83,
+            "distance": 22.18
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-0",
+    "name": "每日表演 · 01",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.43,
+        "score": 540,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.12
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 13.93
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 16.64
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.42,
+        "score": 1200,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.36
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 11.27,
+            "distance": 17.05
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.37,
+            "distance": 19.99
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-1",
+    "name": "每日表演 · 02",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.37,
+        "score": 540,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 13.76
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 16.64
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.12
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.35,
+        "score": 1200,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 11.27,
+            "distance": 17.1
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.37,
+            "distance": 19.99
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.36
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-2",
+    "name": "每日表演 · 03",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.35,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.19
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 13.93
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.27
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.32,
+        "score": 1200,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.42
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 11.27,
+            "distance": 17.05
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.86,
+            "distance": 21.49
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-3",
+    "name": "每日表演 · 04",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.33,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 16.69
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.12
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.27
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.32,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.37,
+            "distance": 20.03
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.36
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.86,
+            "distance": 21.49
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-4",
+    "name": "每日表演 · 05",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 47.05,
+        "score": 730,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 12.62
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 16.64
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.27
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.12
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 13.93
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 47.02,
+        "score": 1580,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 15.18,
+            "distance": 15.62
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.37,
+            "distance": 19.99
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.86,
+            "distance": 21.49
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 9.11,
+            "distance": 18.36
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 11.27,
+            "distance": 17.05
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-5",
+    "name": "每日表演 · 06",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.42,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.57
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.02
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.32
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.38,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.78
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.84,
+            "distance": 21.84
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.32,
+            "distance": 20.34
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.9,
+            "distance": 17.42
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-6",
+    "name": "每日表演 · 07",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.38,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.07
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.32
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.13
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.51
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.38,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.32,
+            "distance": 20.39
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.9,
+            "distance": 17.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.72
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-7",
+    "name": "每日表演 · 08",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.37,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.51
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.32
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.13
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.35,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.84,
+            "distance": 21.84
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.72
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.9,
+            "distance": 17.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.42
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-8",
+    "name": "每日表演 · 09",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.53,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.15
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.13
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.02
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.5,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.9,
+            "distance": 17.46
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.84,
+            "distance": 21.84
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.32,
+            "distance": 20.34
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-9",
+    "name": "每日表演 · 10",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 47.02,
+        "score": 760,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.57
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.13
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.02
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 18.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 13.01
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 46.98,
+        "score": 1640,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.97,
+            "distance": 18.78
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.42
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.32,
+            "distance": 20.34
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.84,
+            "distance": 21.84
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 14.05,
+            "distance": 15.99
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-10",
+    "name": "每日表演 · 11",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.45,
+        "score": 570,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.53
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.39
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 12.4,
+            "distance": 15.88
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.49
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.47,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.65,
+            "distance": 17.81
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.69
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 8.86,
+            "distance": 19.07
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.76
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-11",
+    "name": "每日表演 · 12",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.38,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.44
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 15.29,
+            "distance": 13.39
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 19.01
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.49
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.4,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.73
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 12.97,
+            "distance": 16.35
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.83,
+            "distance": 22.18
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.76
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-12",
+    "name": "每日表演 · 13",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.35,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 19.01
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.39
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.49
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.7
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.37,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.83,
+            "distance": 22.18
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.69
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.76
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.65,
+            "distance": 17.77
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "daily-13",
+    "name": "每日表演 · 14",
+    "strategies": [
+      {
+        "style": "保守半圈",
+        "seconds": 36.32,
+        "score": 600,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 8.18,
+            "distance": 20.65
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 13.84,
+            "distance": 14.7
+          },
+          {
+            "grade": "干净",
+            "halves": 1,
+            "error": 10.98,
+            "distance": 17.39
+          },
+          {
+            "grade": "完美",
+            "halves": 1,
+            "error": 9.57,
+            "distance": 19.01
+          }
+        ]
+      },
+      {
+        "style": "台沿整圈",
+        "seconds": 36.32,
+        "score": 1260,
+        "landings": [
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 4.43,
+            "distance": 23.92
+          },
+          {
+            "grade": "干净",
+            "halves": 2,
+            "error": 10.65,
+            "distance": 17.77
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 7.29,
+            "distance": 20.69
+          },
+          {
+            "grade": "完美",
+            "halves": 2,
+            "error": 5.83,
+            "distance": 22.18
+          }
+        ]
+      }
+    ]
+  }
+]

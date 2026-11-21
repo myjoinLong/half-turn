@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>再翻半圈 · 私测看板</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #ecebdf;
+      color: #193c32;
+      font:
+        16px/1.55 system-ui,
+        sans-serif;
+    }
+    main {
+      max-width: 920px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+    h1 {
+      margin: 0;
+      border-top: 5px solid #da7443;
+      padding-top: 14px;
+    }
+    p {
+      color: #435d51;
+    }
+    section {
+      padding: 16px;
+      background: #faf8ed;
+      margin: 14px 0;
+    }
+    label {
+      display: inline-block;
+      margin: 6px;
+    }
+    input,
+    select {
+      font: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+    th,
+    td {
+      text-align: left;
+      border-bottom: 1px solid #c8cfbc;
+      padding: 8px 4px;
+    }
+    th {
+      font-size: 14px;
+    }
+    small {
+      color: #5b6c60;
+    }
+  </style>
+  <main>
+    <h1>再翻半圈 · 私测看板</h1>
+    <p>
+      从「滑行设置 →
+      导出私测记录」收集文件，每位参与者只选一份最新导出。每份最多 600
+      条事件。看板按导入样本统计，所有数据仅在当前浏览器内读取。
+    </p>
+    <section>
+      <label
+        >导入记录
+        <input id="files" type="file" accept=".json" multiple /></label
+      ><br /><label
+        >版本
+        <select id="build"></select></label
+      ><label
+        >来源
+        <select id="source"></select></label
+      ><label>首发日期（北京时间） <input id="day" type="date" /></label>
+      <p id="sample">请选择记录。</p>
+    </section>
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>首发三日</th>
+            <th>人数</th>
+            <th>分母</th>
+            <th>比例</th>
+          </tr>
+        </thead>
+        <tbody id="metrics"></tbody>
+      </table>
+    </section>
+    <small
+      >首日取所选日期及其随后两个自然日。D1、D2
+      按首次观测到的开玩日分组，只纳入相应回访日已结束的样本。商店曝光、实际收入和发行渠道汇总以开发者后台为准。</small
+    >
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id),
+      msDay = 86400000,
+      localDay = (t) => Math.floor((t + 28800000) / msDay),
+      dateString = (d) => new Date(d * msDay).toISOString().slice(0, 10);
+    let participants = [];
+    function options(id, values) {
+      const sel = $(id);
+      sel.replaceChildren(new Option("全部", ""));
+      for (const v of [...new Set(values)]) sel.add(new Option(v, v));
+    }
+    function render() {
+      const list = participants.filter(
+        (p) =>
+          (!$("build").value || p.build === $("build").value) &&
+          (!$("source").value || p.source === $("source").value),
+      );
+      const first = Math.floor(Date.parse($("day").value) / msDay),
+        end = first + 3,
+        today = localDay(Date.now());
+      const valid = list.filter((p) =>
+        p.events.some((e) => localDay(e.t) >= first && localDay(e.t) < end),
+      );
+      const windowed = (p) =>
+        p.events.filter((e) => localDay(e.t) >= first && localDay(e.t) < end);
+      const name = (a, n) => a.filter((e) => e.name === n),
+        has = (a, n) => a.some((e) => e.name === n);
+      $("sample").textContent =
+        "窗口内样本 " +
+        valid.length +
+        " 人，导入 " +
+        participants.length +
+        " 份，其中 " +
+        list.filter((p) => p.events.length >= 600).length +
+        " 份已达到事件上限。";
+      const body = $("metrics");
+      body.replaceChildren();
+      function row(title, n, d) {
+        const tr = body.insertRow();
+        for (const v of [
+          title,
+          n,
+          d,
+          d ? ((100 * n) / d).toFixed(1) + "%" : "—",
+        ])
+          tr.insertCell().textContent = v;
+      }
+      function ratio(title, eligible, pass) {
+        const group = valid.map(windowed).filter(eligible);
+        row(title, group.filter(pass).length, group.length);
+      }
+      ratio(
+        "开局后开始滑行",
+        (a) => has(a, "开局"),
+        (a) => has(a, "开始滑行"),
+      );
+      ratio(
+        "首次巡回线路完赛",
+        (a) =>
+          a.some((e) => e.name === "开始滑行" && e.value.startsWith("tour-")),
+        (a) => {
+          const i = a.findIndex(
+            (e) => e.name === "开始滑行" && e.value.startsWith("tour-"),
+          );
+          for (const e of a.slice(i + 1)) {
+            if (e.name === "开局") return false;
+            if (e.name === "完赛" && e.value === a[i].value) return true;
+          }
+          return false;
+        },
+      );
+      ratio(
+        "失误后主动重试",
+        (a) => has(a, "摔倒"),
+        (a) => has(a, "失误后重试"),
+      );
+      ratio(
+        "再次开局滑行",
+        (a) => has(a, "开始滑行"),
+        (a) => name(a, "开始滑行").length >= 2,
+      );
+      ratio(
+        "每日题参与",
+        (a) => has(a, "开始滑行"),
+        (a) => name(a, "开始滑行").some((e) => e.value.startsWith("daily-")),
+      );
+      for (const [a, b] of [
+        ["广告入口曝光", "广告点击"],
+        ["广告点击", "广告展示"],
+        ["广告展示", "广告完播到账"],
+        ["广告完播到账", "开始滑行"],
+      ])
+        ratio(
+          a + " → " + b,
+          (x) => has(x, a),
+          (x) =>
+            x
+              .slice(x.findIndex((e) => e.name === a) + 1)
+              .some((e) => e.name === b),
+        );
+      for (const n of [1, 2]) {
+        const samples = valid
+          .map((p) => name(p.events, "开始滑行").map((e) => localDay(e.t)))
+          .filter(
+            (ds) =>
+              ds.length && ds[0] >= first && ds[0] < end && ds[0] + n < today,
+          );
+        row(
+          "D" + n + " 回访",
+          samples.filter((ds) => ds.includes(ds[0] + n)).length,
+          samples.length,
+        );
+      }
+    }
+    $("files").onchange = async () => {
+      const loaded = [],
+        bad = [];
+      for (const f of $("files").files)
+        try {
+          const p = JSON.parse(await f.text());
+          if (
+            typeof p.build !== "string" ||
+            typeof p.source !== "string" ||
+            !Array.isArray(p.events) ||
+            !p.events.every(
+              (e) =>
+                Number.isFinite(e.t) &&
+                typeof e.name === "string" &&
+                typeof e.value === "string",
+            )
+          )
+            throw Error();
+          p.events.sort((a, b) => a.t - b.t);
+          loaded.push(p);
+        } catch {
+          bad.push(f.name);
+        }
+      participants = loaded;
+      options(
+        "build",
+        loaded.map((p) => p.build),
+      );
+      options(
+        "source",
+        loaded.map((p) => p.source),
+      );
+      const earliest = loaded.reduce(
+        (t, p) => Math.min(t, p.events[0]?.t ?? t),
+        Date.now(),
+      );
+      $("day").value = dateString(localDay(earliest));
+      render();
+      if (bad.length) $("sample").append(" 格式不符 " + bad.join("、"));
+    };
+    options("build", []);
+    options("source", []);
+    $("day").value = dateString(localDay(Date.now()));
+    for (const id of ["build", "source", "day"]) $(id).onchange = render;
+  </script>
+</html>

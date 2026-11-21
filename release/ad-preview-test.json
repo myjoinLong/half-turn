@@ -1,0 +1,8 @@
+{
+  "fixture": "local development host",
+  "earlyClose": true,
+  "duplicateComplete": true,
+  "auroraRestored": true,
+  "ticketsAfterReload": 40,
+  "errors": []
+}

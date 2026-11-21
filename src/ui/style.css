@@ -1,0 +1,271 @@
+:root {
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  color: #193b32;
+  background: #182d29;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(
+      124deg,
+      transparent 0 68px,
+      #ffffff04 69px 70px,
+      transparent 71px 96px
+    ),
+    radial-gradient(ellipse at 50% 40%, #496050, #192c28 75%);
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+#app {
+  width: min(100%, 490px);
+  height: min(100dvh, 960px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: #f2eedb;
+  box-shadow: 0 0 100px #0005;
+  user-select: none;
+  -webkit-user-select: none;
+}
+header {
+  background: #193d34;
+  color: #fff7df;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: max(10px, env(safe-area-inset-top)) 20px 10px;
+  border-bottom: 3px solid #eb703d;
+}
+header b {
+  display: block;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  font-size: 20px;
+  font-style: italic;
+}
+small {
+  display: block;
+  font: 700 10px/1.4 monospace;
+  letter-spacing: 0.12em;
+}
+.mark {
+  font: bold italic 29px/1 system-ui;
+  letter-spacing: -13px;
+  transform: skew(-12deg);
+  padding-right: 12px;
+  color: #f17d45;
+}
+header small {
+  font-size: 8px;
+  color: #d5d7ba;
+}
+header button {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #b3c5a96b;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: #eceacf;
+}
+#field {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+#game,
+#game canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+#hud {
+  position: absolute;
+  inset: 22px 21px auto;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+#hud small {
+  color: #456253;
+}
+h1 {
+  margin: 3px 0;
+  font-size: clamp(23px, 6vw, 33px);
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+.points {
+  text-align: right;
+}
+.points strong {
+  font: bold italic 25px monospace;
+}
+#feedback {
+  position: absolute;
+  top: 26%;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+  font-weight: 900;
+  font-size: 24px;
+  text-shadow: 0 1px 6px #fff7cf;
+}
+#meter {
+  position: absolute;
+  bottom: 13px;
+  right: 17px;
+  color: #315749;
+  font: 700 10px monospace;
+  letter-spacing: 0.1em;
+}
+footer {
+  padding: 12px 17px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid #819284;
+  background: #eeeada;
+}
+.strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: bold 10px monospace;
+  letter-spacing: 0.13em;
+  margin-bottom: 9px;
+}
+#progress {
+  color: #ae4b29;
+}
+#ride {
+  width: 100%;
+  border: 0;
+  background: #21473c;
+  color: #fff6da;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 15px;
+  text-align: left;
+  touch-action: none;
+}
+#ride:active {
+  background: #315a47;
+}
+.disc {
+  border: 1px solid #d0d7bb;
+  border-radius: 50%;
+  padding: 3px 9px;
+  font-size: 24px;
+  color: #f49b68;
+}
+#ride strong {
+  font-size: 18px;
+  letter-spacing: 0.05em;
+}
+#ride small {
+  font: 12px/1.6 system-ui;
+  color: #d1dac1;
+  letter-spacing: 0;
+}
+#ride i {
+  margin-left: auto;
+  font-size: 28px;
+  color: #e19a65;
+}
+dialog {
+  position: absolute;
+  inset: auto 0 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 490px;
+  max-height: 85%;
+  border: 0;
+  border-top: 4px solid #e87843;
+  border-radius: 14px 14px 0 0;
+  background: #f5f1e3;
+  color: inherit;
+  padding: 22px 20px max(22px, env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 55px #152e3233;
+}
+dialog::backdrop {
+  background: #132c28a8;
+}
+dialog h2 {
+  font-size: 26px;
+  margin: 2px 0 12px;
+}
+dialog p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+dialog button {
+  padding: 12px;
+  border: 1px solid #bcc3ad;
+  border-radius: 5px;
+  background: #fffcf0;
+  font-weight: bold;
+}
+dialog button:active {
+  background: #e5e6d4;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.primary {
+  background: #21473c;
+  color: white;
+}
+.back {
+  float: right;
+  border-radius: 50%;
+  padding: 6px 11px;
+}
+#panel h3 {
+  font-size: 15px;
+  margin: 16px 0 6px;
+}
+.swatch {
+  height: 7px;
+  border-radius: 5px;
+  display: block;
+  margin-bottom: 5px;
+}
+.notice {
+  color: #a74325;
+}
+button:focus-visible {
+  outline: 3px solid #ed7f45;
+}
+@media (max-height: 540px) {
+  header {
+    padding: 3px 12px;
+  }
+  footer {
+    padding: 4px 12px;
+  }
+  .strip {
+    margin-bottom: 2px;
+  }
+  #ride {
+    padding: 4px 10px;
+  }
+  #hud {
+    top: 8px;
+  }
+}
