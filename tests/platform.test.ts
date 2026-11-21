@@ -63,3 +63,42 @@ test("older local save migrates, purchase and confirmed reward survive reload", 
   assert.equal(read().wear[0], 1);
   delete (globalThis as any).localStorage;
 });
+
+test("an ad that never loads returns to the game and a late load cannot open it", async (t) => {
+  let timeout = () => {};
+  let loaded = () => {};
+  let shows = 0,
+    destroyed = 0;
+  t.mock.method(
+    globalThis,
+    "setTimeout",
+    (callback: () => void, delay: number) => {
+      assert.equal(delay, 6000);
+      timeout = callback;
+      return 0;
+    },
+  );
+  const host = {
+    createRewardedVideoAd: () => ({
+      onClose: () => {},
+      onError: () => {},
+      load: () =>
+        new Promise<void>((resolve) => {
+          loaded = resolve;
+        }),
+      show: async () => {
+        shows++;
+      },
+      destroy: () => {
+        destroyed++;
+      },
+    }),
+  };
+  const request = playRewarded("test", host, () => {});
+  timeout();
+  assert.equal(await request, "empty");
+  loaded();
+  await Promise.resolve();
+  assert.equal(shows, 0);
+  assert.equal(destroyed, 1);
+});

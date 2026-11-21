@@ -13,6 +13,33 @@ import { gateOffset, height, Ski } from "../src/sim/ski";
 import { opening, parks, tours } from "../src/content/routes";
 import { grabOrder } from "../src/content/tricks";
 import { clipTree, visibleTreeHeight } from "../src/scenes/forest";
+import { visibleSnowRuns } from "../src/scenes/snow";
+
+test("continuous snow runs split at the obscured side of a crest", () => {
+  const profile = [
+    { x: 2, y: 0 },
+    { x: 4, y: -4 },
+    { x: 6, y: 5 },
+    { x: 8, y: 6 },
+    { x: 10, y: 7 },
+  ];
+  assert.deepEqual(visibleSnowRuns(profile, 0, -3), [
+    [0, 1],
+    [2, 4],
+  ]);
+  assert.deepEqual(
+    visibleSnowRuns(
+      [
+        { x: -2, y: 0 },
+        { x: 0, y: 0 },
+        { x: 2, y: 0 },
+      ],
+      0,
+      -2,
+    ),
+    [[0, 2]],
+  );
+});
 
 test("snow blocks tree roots behind a crest while the visible crown remains", () => {
   const eye: V3 = [0, -4, 0];

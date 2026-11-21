@@ -10,6 +10,7 @@ import {
 import { buildRider } from "./rider";
 import { nearClip, near, paintFaces, placeAboveSnow } from "./geometry";
 import { clipTree, visibleTreeHeight } from "./forest";
+import { visibleSnowRuns } from "./snow";
 
 type Vec = [number, number, number];
 type Point = [number, number];
@@ -130,15 +131,10 @@ export function drawDescent(
     view[2] = Math.max(near, view[2]);
     return screen(view);
   }
-  function worldPoly(vertices: Vec[], color: string, edge = false) {
+  function worldPoly(vertices: Vec[], color: string) {
     const visible = nearClip(vertices.map(camera));
     if (visible.length < 3) return;
     polygon(c, visible.map(screen), color);
-    if (edge) {
-      c.strokeStyle = color;
-      c.lineWidth = 0.65;
-      c.stroke();
-    }
   }
   function worldLine(a: Vec, b: Vec, color: string, width: number) {
     let p = camera(a),
@@ -151,7 +147,7 @@ export function drawDescent(
     }
     line(c, screen(p), screen(q), color, width);
   }
-  const start = s.x - distance + 2.2;
+  const start = eye[0] - 2.6;
   const bands = [start];
   let cursor = start;
   while (cursor < s.x + 223) {
@@ -159,42 +155,38 @@ export function drawDescent(
     bands.push(cursor);
   }
   const terrainBreaks = [0, span];
+  const takeoffs: number[] = [];
   for (const [offset, jump] of [
     [-priorLength, previous],
     [0, j],
     [span, upcoming],
   ] as const) {
-    if (jump)
+    if (jump) {
+      takeoffs.push(offset + jump.lip);
       terrainBreaks.push(
         offset + jump.lip - (jump.showcase ? 9 : 5),
         offset + jump.lip,
         offset + jump.lip + (jump.showcase ? 15 : 5),
       );
+    }
   }
   for (const position of terrainBreaks)
     if (position > start && position < cursor) bands.push(position);
+  for (const lip of takeoffs)
+    for (const mark of [lip - 3.6, lip - 0.52, lip - 0.14])
+      if (mark > start && mark < cursor) bands.push(mark);
   bands.sort((a, b) => a - b);
   const ribbon = (x: number, p: Surface, offset: number): Vec => [
     x,
     p.y,
     p.center + p.half * offset,
   ];
-  const foreground = surface(start);
-  const nearLeft = project(...ribbon(start, foreground, -2.8)),
-    nearRight = project(...ribbon(start, foreground, 2.8));
-  polygon(
-    c,
-    [
-      nearLeft,
-      nearRight,
-      [Math.max(w, nearRight[0]), h],
-      [Math.min(0, nearLeft[0]), h],
-    ],
-    night ? "#a1bdd2" : "#b6d2d3",
-  );
-  const nightSnow = night
-    ? ["#9bb8d2", "#b2cbe1", "#c0d6e6"]
-    : ["#bfd9dd", "#d7e8e6", "#ecf1de"];
+  const bank = c.createLinearGradient(0, h * 0.24, w * 0.21, h);
+  bank.addColorStop(0, night ? "#a5c0d8" : "#c5d8d8");
+  bank.addColorStop(1, night ? "#8caccc" : "#acc9ca");
+  const piste = c.createLinearGradient(w * 0.74, h * 0.21, 0, h);
+  piste.addColorStop(0, night ? "#e2f0fc" : "#f6f8ec");
+  piste.addColorStop(1, night ? "#a8c8e7" : "#c9e0de");
   const surfaces = bands.map(surface);
   const snowEdges = bands.map((x, i) => {
     const p = surfaces[i];
@@ -205,55 +197,71 @@ export function drawDescent(
       right: p.center + p.half * 2.8,
     };
   });
-  for (let i = bands.length - 1; i > 0; i--) {
-    const a = bands[i - 1],
-      b = bands[i],
-      p = surfaces[i - 1],
-      q = surfaces[i];
-    if (b - a < 1e-6) continue;
-    const altitudeShift = Math.max(
-      -2,
-      Math.min(3, ((q.y - p.y) / (b - a)) * 2),
-    );
-    const snow =
-      nightSnow[altitudeShift > 1 ? 0 : altitudeShift < -0.2 ? 2 : 1];
-    worldPoly(
-      [
-        ribbon(a, p, -2.8),
-        ribbon(b, q, -2.8),
-        ribbon(b, q, 2.8),
-        ribbon(a, p, 2.8),
-      ],
-      night ? "#53728e" : "#92afb0",
-    );
-    worldPoly(
-      [ribbon(a, p, -1), ribbon(b, q, -1), ribbon(b, q, 1), ribbon(a, p, 1)],
-      snow,
-      true,
-    );
-    worldPoly(
-      [
-        ribbon(a, p, -1),
-        ribbon(b, q, -1),
-        ribbon(b, q, -0.87),
-        ribbon(a, p, -0.87),
-      ],
-      night ? "#7196b8" : "#acc9ca",
-    );
-    worldPoly(
-      [
-        ribbon(a, p, 0.86),
-        ribbon(b, q, 0.86),
-        ribbon(b, q, 1),
-        ribbon(a, p, 1),
-      ],
-      night ? "#dce8f3" : "#fcf6df",
-    );
-    if (p.local < p.jump.lip && p.local > p.jump.lip - 5)
-      worldPoly(
-        [ribbon(a, p, -1), ribbon(b, q, -1), ribbon(b, q, 1), ribbon(a, p, 1)],
-        "#faa651",
+  function paintRibbon(
+    first: number,
+    last: number,
+    left: number,
+    right: number,
+    fill: CanvasGradient | string,
+  ) {
+    if (first >= last) return;
+    c.beginPath();
+    for (let i = first + 1; i <= last; i++) {
+      const a = bands[i - 1],
+        b = bands[i],
+        p = surfaces[i - 1],
+        q = surfaces[i];
+      const face = [
+        ribbon(a, p, left),
+        ribbon(b, q, left),
+        ribbon(b, q, right),
+        ribbon(a, p, right),
+      ];
+      const points = nearClip(face.map(camera)).map(screen);
+      if (points.length < 3) continue;
+      // Neighboring strips share an edge in one fill, so antialiasing never strokes the mesh grid.
+      c.moveTo(...points[0]);
+      for (const point of points.slice(1)) c.lineTo(...point);
+      c.closePath();
+    }
+    c.fillStyle = fill;
+    c.fill();
+  }
+  for (const [first, last] of visibleSnowRuns(
+    snowEdges,
+    eye[0],
+    eye[1],
+  ).reverse()) {
+    paintRibbon(first, last, -2.8, 2.8, bank);
+    paintRibbon(first, last, -1, 1, piste);
+    for (const lip of takeoffs) {
+      if (bands[last] < lip - 3.6 || bands[first] > lip - 0.14) continue;
+      const begin = bands.findIndex((x) => x >= lip - 3.6);
+      const stripe = bands.findIndex((x) => x >= lip - 0.52);
+      const end = bands.findIndex((x) => x >= lip - 0.14);
+      if (begin < 0 || stripe < 0 || end < 0) continue;
+      paintRibbon(
+        Math.max(first, begin),
+        Math.min(last, stripe),
+        -0.99,
+        -0.9,
+        "#e4a661",
       );
+      paintRibbon(
+        Math.max(first, begin),
+        Math.min(last, stripe),
+        0.9,
+        0.99,
+        "#e4a661",
+      );
+      paintRibbon(
+        Math.max(first, stripe),
+        Math.min(last, end),
+        -0.99,
+        0.99,
+        "#f4b362",
+      );
+    }
   }
 
   const objects: { depth: number; draw: () => void }[] = [];
@@ -351,13 +359,6 @@ export function drawDescent(
     const x = k * 8 - passed,
       road = surface(x),
       seed = Math.abs(Math.sin(k * 54.1));
-    const z = road.center + (seed * 1.35 - 0.65) * road.half;
-    worldLine(
-      [x, road.y - 0.04, z],
-      [x + 1.35, snowHeight(x + 1.35) - 0.04, z],
-      "#8caead",
-      0.7,
-    );
     for (const side of [-1, 1]) {
       // Keep the full crown outside the riding line, the chase camera and kicker shoulders.
       const takeoff = road.jump.lip;
@@ -510,18 +511,18 @@ export function drawDescent(
   objects.sort((a, b) => b.depth - a.depth).forEach((object) => object.draw());
 
   const intensity = Math.min(1, Math.max(rush, (s.speed - 16) / 18));
-  if (s.tick && (!air || rush > 0) && !lite) {
-    for (let i = 0; i < 22; i++) {
+  if (s.tick && rush > 0.32 && !lite) {
+    for (let i = 0; i < 10; i++) {
       const f = (i * 0.381 + s.tick * (0.008 + 0.012 * intensity)) % 1;
       const edge = i % 2 ? -1 : 1;
-      const x = w * (0.5 + f * 0.61 * edge),
+      const x = w * (0.5 + (0.38 + f * 0.22) * edge),
         y = h * (0.37 + f * (0.25 + (i % 6) * 0.075));
       line(
         c,
         [x, y],
         [x + edge * (6 + intensity * 18) * f, y + (8 + intensity * 19) * f],
-        "rgba(236,250,255," + intensity * 0.52 * f + ")",
-        rush > 0.35 ? 1.8 : 0.8,
+        "rgba(236,250,255," + intensity * 0.29 * f + ")",
+        1.15,
       );
     }
   }

@@ -188,9 +188,10 @@ function sleeve(
     cross(along, Math.abs(along[2]) > 0.85 ? [1, 0, 0] : [0, 0, 1]),
   );
   const other = cross(along, side);
+  const sides = 8;
   const ring = (center: V3, radius: number) =>
-    Array.from({ length: 6 }, (_, i) => {
-      const angle = (i * Math.PI) / 3;
+    Array.from({ length: sides }, (_, i) => {
+      const angle = (i * Math.PI * 2) / sides;
       return add(
         center,
         mul(
@@ -202,8 +203,8 @@ function sleeve(
   const a = ring(start, width),
     b = ring(end, finish),
     mid = average([start, end]);
-  for (let i = 0; i < 6; i++) {
-    const next = (i + 1) % 6;
+  for (let i = 0; i < sides; i++) {
+    const next = (i + 1) % sides;
     outward(
       faces,
       [a[i], a[next], b[next], b[i]],
@@ -222,11 +223,12 @@ function capsule(
   color: string,
   accent?: string,
 ) {
-  const rows = [-0.93, -0.61, 0, 0.61, 0.93];
+  const rows = [-0.96, -0.76, -0.42, 0, 0.42, 0.76, 0.96];
+  const sides = 10;
   const rings = rows.map((y) =>
-    Array.from({ length: 8 }, (_, i) => {
+    Array.from({ length: sides }, (_, i) => {
       const r = Math.sqrt(1 - y * y),
-        angle = i * Math.PI * 0.25;
+        angle = (i * Math.PI * 2) / sides;
       return add(center, [
         Math.cos(angle) * r * size[0],
         y * size[1],
@@ -235,9 +237,10 @@ function capsule(
     }),
   );
   for (let row = 1; row < rings.length; row++)
-    for (let i = 0; i < 8; i++) {
-      const next = (i + 1) % 8;
-      const tint = accent && row === 3 && (i === 0 || i === 7) ? accent : color;
+    for (let i = 0; i < sides; i++) {
+      const next = (i + 1) % sides;
+      const tint =
+        accent && row === 4 && (i === 0 || i === sides - 1) ? accent : color;
       outward(
         faces,
         [
@@ -285,7 +288,7 @@ export function buildRider(s: Ski, wear: number[], detail = true): Face[] {
   const faces: Face[] = [];
   const jacket = renderColor(suitColors[wear[1]]);
   const board = renderColor(boardColors[wear[0]]);
-  const sole = deckOutline.map(([x, y, z]): V3 => [x, y + 1.3, z]);
+  const sole = deckOutline.map(([x, y, z]): V3 => [x, y + 1.15, z]);
   const within: V3 = [0, -0.65, 0];
   // Longitudinal strips keep the curved deck tessellated without filling across the lifted tips.
   for (let i = 1; i <= 5; i++) {
@@ -309,7 +312,7 @@ export function buildRider(s: Ski, wear: number[], detail = true): Face[] {
       faces,
       [deckOutline[i], deckOutline[next], sole[next], sole[i]],
       within,
-      "#e1ebf2",
+      "#a7bdca",
     );
   }
 
@@ -317,57 +320,28 @@ export function buildRider(s: Ski, wear: number[], detail = true): Face[] {
     const foot: V3 = [front ? 9 : -9, -3, 0];
     const heel: V3 = [foot[0] - 0.9, -3, -2.35],
       toe: V3 = [foot[0] + 1.5, -3, 2.25];
-    sleeve(faces, heel, toe, 1.65, 1.4, "#263341", "#a0adbf");
+    sleeve(faces, heel, toe, 1.65, 1.4, "#273849");
     sleeve(faces, [foot[0], -1.55, 0], foot, 3.7, 3.25, "#283d55");
     const knee = joint(front ? p.frontKnee : p.rearKnee, front ? 1.7 : -1.9);
     const thigh = joint(p.hips, front ? 2.9 : -2.9);
     const ankle: V3 = [foot[0], -4.2, 0];
     sleeve(faces, thigh, knee, 3.95, 2.95, front ? "#3e5068" : "#324155");
-    sleeve(
-      faces,
-      knee,
-      ankle,
-      2.95,
-      2.12,
-      front ? "#3b4e65" : "#2a3a4b",
-      detail ? "#6c7c91" : undefined,
-    );
+    sleeve(faces, knee, ankle, 2.95, 2.12, front ? "#3b4e65" : "#2a3a4b");
   }
 
   const hips = joint(p.hips),
     shoulders = joint(p.shoulders);
-  sleeve(
-    faces,
-    hips,
-    shoulders,
-    5.65,
-    5.3,
-    jacket,
-    detail ? "#ecb77a" : undefined,
-  );
+  const waist = mix3(hips, shoulders, 0.38);
+  const chest = mix3(hips, shoulders, 0.76);
+  sleeve(faces, hips, waist, 5.15, 4.65, jacket);
+  sleeve(faces, waist, chest, 4.65, 6.12, jacket);
+  sleeve(faces, chest, shoulders, 6.12, 5.18, jacket);
   if (detail) {
     const collar = mix3(hips, shoulders, 0.88);
     sleeve(faces, collar, add(shoulders, [0, -2.4, 0]), 5.3, 3.7, "#20364a");
-    const patch = mix3(hips, shoulders, 0.47);
-    sleeve(
-      faces,
-      add(patch, [1.0, 0, 4.9]),
-      add(patch, [1.7, -3.8, 5.0]),
-      1.1,
-      1,
-      "#e9ac6b",
-    );
     const packTop = add(mix3(hips, shoulders, 0.83), [-4.2, 0.4, 0]);
     const packBase = add(mix3(hips, shoulders, 0.23), [-3.9, 0.1, 0]);
     sleeve(faces, packBase, packTop, 3.65, 3.92, "#253a4c", "#72879b");
-    sleeve(
-      faces,
-      add(packBase, [-3.18, -1, -0.8]),
-      add(packTop, [-3.35, 1, -0.8]),
-      0.63,
-      0.55,
-      "#f7b77c",
-    );
   }
   const selected = s.visualGrab && grip[s.visualGrab];
   const strength = selected ? s.visualGrip : 0;
@@ -402,41 +376,33 @@ export function buildRider(s: Ski, wear: number[], detail = true): Face[] {
       );
     }
     sleeve(faces, shoulder, elbow, 2.98, 2.36, jacket);
-    sleeve(
-      faces,
-      elbow,
-      hand,
-      2.36,
-      1.57,
-      jacket,
-      detail ? "#e7a970" : undefined,
-    );
+    sleeve(faces, elbow, hand, 2.36, 1.57, jacket);
     const wrist = mix3(elbow, hand, 0.81);
-    sleeve(
-      faces,
-      wrist,
-      hand,
-      1.85,
-      1.8,
-      "#27384a",
-      detail ? "#bd8556" : undefined,
-    );
+    sleeve(faces, wrist, hand, 1.85, 1.8, "#27384a");
     const next = mix3(wrist, hand, 1.23);
     sleeve(faces, hand, next, 1.85, 1.32, "#e5ae6c");
   }
   const neck = add(shoulders, [1, -2.2, 0]);
   const head = add(neck, [2.2, -5.1, 0]);
   sleeve(faces, shoulders, neck, 2.8, 2.45, "#b57e57");
-  capsule(faces, head, [5.45, 6.35, 4.75], "#263c59", "#617a9b");
-  const visor = add(head, [3.7, 1.05, 0]);
+  capsule(faces, head, [5.45, 6.35, 4.75], "#263c59", "#4d6483");
+  const visor = add(head, [4.9, 1.05, 0]);
   sleeve(
     faces,
-    add(visor, [0, 0, -3.75]),
-    add(visor, [0, 0, 3.75]),
-    1.7,
-    1.67,
-    "#edac60",
-    "#fff3ba",
+    add(visor, [-0.6, 0, -4]),
+    add(visor, [-0.6, 0, 4]),
+    1.83,
+    1.83,
+    "#162b41",
+  );
+  sleeve(
+    faces,
+    add(visor, [0.5, -0.2, -3.35]),
+    add(visor, [0.5, -0.2, 3.35]),
+    1.26,
+    1.26,
+    "#ecaa60",
+    "#ffe6a7",
   );
   if (detail)
     sleeve(

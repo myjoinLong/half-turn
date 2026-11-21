@@ -1014,7 +1014,7 @@ function closet(post: boolean, cat = 0, msg = "") {
   context.fillStyle = ["#ffffeb", "#ffe5ae", "#abe4df"][outfit[2]];
   for (let i = 0; i < 12; i++)
     context.fillRect(83 + i * 6, 111 + (i % 4) * 2, 8, 2);
-  rider(context, 180, 113, 1.98, posing, outfit);
+  rider(context, 180, 115, 1.98, posing, outfit);
   let g = grid();
   g.classList.add("outfit-tabs");
   ["雪板", "雪服", "雪迹"].forEach((l, i) =>

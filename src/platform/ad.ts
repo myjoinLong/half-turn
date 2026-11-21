@@ -11,6 +11,8 @@ declare global {
   }
 }
 let busy = false;
+const presentationTimeout = 6000;
+const playbackTimeout = 150000;
 export function watch(kind: "tickets" | "aurora", shown: () => void) {
   const id =
     kind === "tickets"
@@ -38,7 +40,7 @@ export async function playRewarded(
         active = false;
         resolve(result);
       };
-      timer = setTimeout(() => settle("empty"), 150000);
+      timer = setTimeout(() => settle("empty"), presentationTimeout);
       instance.onError(() => settle("empty"));
       instance.onClose((v) => {
         if (opening) settle(v?.isEnded === true ? "done" : "cancel");
@@ -49,7 +51,11 @@ export async function playRewarded(
           if (active) {
             opening = true;
             await instance.show();
-            if (active) shown();
+            if (active) {
+              clearTimeout(timer);
+              timer = setTimeout(() => settle("empty"), playbackTimeout);
+              shown();
+            }
           }
         })
         .catch(() => settle("empty"));
