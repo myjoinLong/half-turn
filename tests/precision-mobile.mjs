@@ -17,9 +17,9 @@ const errors = [],
 await mkdir("release/store", { recursive: true });
 try {
   for (const viewport of [
-    { width: 320, height: 568 },
-    { width: 390, height: 844 },
-    { width: 430, height: 932 },
+    { width: 568, height: 320 },
+    { width: 844, height: 390 },
+    { width: 932, height: 430 },
   ]) {
     const context = await browser.newContext({
       viewport,
@@ -32,6 +32,14 @@ try {
     const cdp = await context.newCDPSession(page);
     await page.goto(url, { timeout: 60000 });
     await page.waitForSelector("canvas");
+    await page.evaluate(() => {
+      const hint = document.querySelector("#hint");
+      window.landingFeedback = "";
+      new MutationObserver(() => {
+        if (/^(完美|干净)落地/.test(hint.textContent))
+          window.landingFeedback = hint.textContent;
+      }).observe(hint, { childList: true });
+    });
     const ride = page.locator("#ride");
     const buttonNames = ["boost", "brake", "grab-toggle", "ride"];
     const buttons = {};
@@ -80,6 +88,7 @@ try {
             ? []
             : [{ x: x + dx, y: y + dy }],
       });
+    await page.exposeFunction("qaReleaseTouch", () => send("touchEnd"));
     const speed = async () =>
       parseInt(await page.locator("#speed").textContent(), 10);
     async function wait(what, check, limit = 5000) {
@@ -90,8 +99,8 @@ try {
       } while (Date.now() - start < limit);
       throw Error(what + " " + (await page.locator("#app").innerText()));
     }
-    if (viewport.width === 390)
-      await page.screenshot({ path: "release/store/精修-单手操控.png" });
+    if (viewport.width === 844)
+      await page.screenshot({ path: "release/store/横屏-开场.png" });
     const base = await speed();
     await send("touchStart");
     await send("touchMove", 0, -38);
@@ -111,6 +120,23 @@ try {
       async () =>
         (await page.locator("#brake").getAttribute("aria-pressed")) === "false",
     );
+    await page.evaluate(() => {
+      const cue = document.querySelector("#feedback");
+      const trick = document.querySelector("#trick");
+      window.releaseCueSeen = false;
+      const observer = new MutationObserver(async () => {
+        if (
+          cue.textContent.includes("现在松手") &&
+          trick.textContent.startsWith("抓板尾")
+        ) {
+          observer.disconnect();
+          await window.qaReleaseTouch();
+          window.releaseCueSeen = true;
+        }
+      });
+      observer.observe(cue, { childList: true });
+      observer.observe(trick, { childList: true });
+    });
     await send("touchStart");
     await wait(
       "空中选定抓板",
@@ -122,16 +148,11 @@ try {
     await wait("空中横滑换抓板", async () =>
       (await page.locator("#trick").textContent()).startsWith("抓板尾"),
     );
-    await wait("提示松手", async () =>
-      (await page.locator("#feedback").textContent()).includes("现在松手"),
-    );
-    if (viewport.width === 390)
-      await page.screenshot({ path: "release/store/精修-雪板抓握.png" });
-    await send("touchEnd");
-    await wait("完美落地", async () =>
-      (await page.locator("#hint").textContent()).includes("完美落地"),
-    );
-    if (viewport.width === 390) {
+    await wait("按提示松手", () => page.evaluate(() => window.releaseCueSeen));
+    if (viewport.width === 844)
+      await page.screenshot({ path: "release/store/横屏-抓板.png" });
+    await wait("平稳落地", () => page.evaluate(() => !!window.landingFeedback));
+    if (viewport.width === 844) {
       await page.locator("#menu").tap();
       await page
         .getByRole("button", { name: "从松林山起步", exact: true })
@@ -160,7 +181,7 @@ try {
           bounds.bottom - bounds.top > 80,
         JSON.stringify(bounds),
       );
-      await page.screenshot({ path: "release/store/精修-角色与装备.png" });
+      await page.screenshot({ path: "release/store/横屏-角色与装备.png" });
     }
     results.push({
       viewport,

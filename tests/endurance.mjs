@@ -14,7 +14,7 @@ const browser = await chromium.launch({
 });
 try {
   const p = await browser.newPage({
-    viewport: { width: 360, height: 740 },
+    viewport: { width: 740, height: 360 },
     isMobile: true,
     hasTouch: true,
   });
@@ -50,10 +50,10 @@ try {
       stats.frames++;
       if (ts - previous > 50) stats.slowFrames++;
       previous = ts;
-      const dialog = document.querySelector("dialog");
-      if (dialog.open) {
+      const screen = document.querySelector("#screen");
+      if (!screen.hidden) {
         key(false);
-        const again = [...dialog.querySelectorAll("button")].find(
+        const again = [...screen.querySelectorAll("button")].find(
           (b) => b.textContent === "再滑一趟",
         );
         if (again) {

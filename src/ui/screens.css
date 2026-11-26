@@ -1,0 +1,231 @@
+#app #screen:not([hidden]) {
+  --page-gutter: clamp(14px, 3vw, 44px);
+  --page-left: max(var(--page-gutter), env(safe-area-inset-left));
+  --page-right: max(var(--page-gutter), env(safe-area-inset-right));
+  --page-top: env(safe-area-inset-top, 0px);
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  overflow: hidden;
+  color: #fff4da;
+  background:
+    radial-gradient(ellipse at 16% 0%, #26454b 0%, transparent 64%),
+    radial-gradient(ellipse at 94% 24%, #233c4a 0%, transparent 55%), #101f29;
+}
+#app[data-fullscreen="true"] > :is(#field, header, footer) {
+  visibility: hidden;
+}
+#app #screen #panel {
+  width: 100%;
+  max-width: 1320px;
+  height: 100%;
+  max-height: none;
+  grid-auto-rows: max-content;
+  align-content: start;
+  margin: 0 auto;
+  padding: 0 var(--page-right) max(16px, env(safe-area-inset-bottom))
+    var(--page-left);
+  gap: clamp(9px, 2.3dvh, 20px);
+}
+#app #screen .resort-mast {
+  min-height: calc(57px + var(--page-top));
+  margin: 0 calc(-1 * var(--page-right)) 0 calc(-1 * var(--page-left));
+  padding: calc(5px + var(--page-top)) var(--page-right) 5px var(--page-left);
+  background: #101f29f7;
+  gap: clamp(5px, 1.2vw, 16px);
+}
+#app #screen .resort-mast h2 {
+  font-size: clamp(19px, 3.1vw, 30px);
+}
+#app #screen .resort-tabs {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+}
+#app #screen .resort-tabs button {
+  position: relative;
+  min-width: 44px;
+  padding: 6px clamp(6px, 1.3vw, 15px);
+  border-color: transparent;
+  background: transparent;
+  white-space: nowrap;
+  color: #d3e3e1;
+}
+#app #screen .resort-tabs [aria-current="page"] {
+  border-color: #dcbf864c;
+  background: #433d34c7;
+  color: #ffe1a2;
+}
+#app #screen .return-to-slope {
+  flex: none;
+  border-color: #b99a624f;
+  background: #243740;
+  color: #ffe0a6;
+  white-space: nowrap;
+}
+#app #screen :is(button, canvas) {
+  scroll-margin-block: 64px 10px;
+}
+#app #screen .resort-home {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: clamp(11px, 2.5vw, 35px);
+}
+#app #screen .resort-home .current-course {
+  min-height: clamp(124px, 47dvh, 360px);
+  text-align: start;
+  padding: clamp(12px, 2.25vw, 26px);
+}
+#app #screen .current-course strong {
+  font-size: clamp(22px, 4.4vw, 48px);
+}
+#app #screen .resort-home .scenic-grid .scenic-button {
+  min-height: clamp(60px, 19dvh, 162px);
+  text-align: start;
+}
+#app #screen .resort-home .season-launch {
+  border-color: #dfbc77;
+}
+#app #screen .resort-home h3 {
+  margin: 2px 0 0;
+  color: #f6dfb2;
+}
+#app #screen .resort-home .profile-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#app #screen .profile-grid .resort-row {
+  text-align: start;
+  gap: 0;
+}
+#app #screen .course-spread {
+  grid-template-columns: minmax(0, 1fr) clamp(132px, 24%, 268px);
+  gap: clamp(9px, 2vw, 24px);
+}
+#app #screen .course-view {
+  max-height: min(65dvh, 560px);
+  object-fit: contain;
+}
+#app #screen .course-tools {
+  grid-template-columns: 1fr;
+}
+#app #screen .outfit-preview {
+  max-height: min(49dvh, 360px);
+}
+#app #screen .turntable {
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
+  display: flex;
+  gap: 4px;
+}
+#app #screen .turntable button {
+  display: grid;
+  width: 44px;
+  place-items: center;
+  padding: 0;
+  background: #142b37f0;
+  border-color: #9bb7b5a1;
+  color: #ffe0a6;
+  font-size: 22px;
+}
+#app #sheet {
+  inset: 0;
+  width: min(
+    calc(
+      100% - 2 *
+        max(16px, env(safe-area-inset-left), env(safe-area-inset-right))
+    ),
+    420px
+  );
+  height: fit-content;
+  margin: auto;
+  border-radius: 16px;
+}
+#app[data-waiting-for-landscape="true"] #sheet,
+#app[data-waiting-for-landscape="true"] #sheet::backdrop {
+  visibility: hidden;
+}
+#app .on-slope-menu {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto;
+  gap: 6px;
+}
+#app #pause-ski {
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  pointer-events: auto;
+  border: 1px solid #adc6c67b;
+  border-radius: 10px;
+  background: #173342ec;
+  color: #ffdc9e;
+  font-size: 18px;
+}
+@media (max-width: 640px) {
+  #app #screen .resort-mast {
+    min-height: calc(51px + var(--page-top));
+    padding-block: calc(3px + var(--page-top)) 3px;
+  }
+  #app #screen .resort-mast h2 {
+    font-size: 18px;
+  }
+  #app #screen .resort-mast button {
+    font-size: 12px;
+  }
+  #app #screen .resort-mast .resort-nav {
+    font-size: 26px;
+  }
+  #app #screen .resort-home .scenic-button strong {
+    line-height: 1.2;
+  }
+  #app #screen .resort-home .scenic-grid .scenic-button {
+    min-height: 57px;
+  }
+  #app #screen .resort-home :is(.resort-column, .grid) {
+    gap: 7px;
+  }
+  #app #screen .resort-home .profile-grid .resort-row {
+    padding-block: 4px;
+  }
+}
+@media (max-width: 530px) {
+  #app #screen .resort-mast {
+    flex-wrap: wrap;
+  }
+  #app #screen .resort-tabs {
+    order: 1;
+    flex: 1 0 100%;
+  }
+}
+
+/* Post-tutorial sleek semi-transparent ride action pill */
+#app.taught #ride {
+  background: rgba(244, 198, 122, 0.76);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px rgba(10, 24, 36, 0.26);
+}
+.daily-goals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+.daily-goal-chip {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cfe0ea;
+}
+.daily-goal-chip.done {
+  background: rgba(114, 214, 179, 0.18);
+  border-color: rgba(114, 214, 179, 0.55);
+  color: #dffef2;
+}
+.reward-button.accent-cta {
+  border-color: rgba(255, 198, 120, 0.65);
+  background: linear-gradient(135deg, rgba(242, 169, 92, 0.28), rgba(232, 106, 51, 0.24));
+}

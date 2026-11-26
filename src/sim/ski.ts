@@ -70,6 +70,30 @@ export function judge(angle: number, slope: number, combo: number) {
   return { grade, score, halves, error, combo: a <= 25 ? combo + 1 : 0 };
 }
 export type Result = ReturnType<typeof judge>;
+export function releaseForecast(ski: Ski): Result | undefined {
+  if (ski.phase !== "air" || ski.j.showcase) return;
+  let { x, y, vy, omega, angle } = ski;
+  for (let frame = 0; frame < 240; frame++) {
+    omega *= 0.83;
+    angle += omega * dt;
+    const endX = x + ski.speed * dt;
+    const endY = y + vy * dt + 7 * dt * dt;
+    if (vy + 14 * dt > 0 && endY >= height(ski.j, endX)) {
+      let lower = 0,
+        upper = dt;
+      for (let i = 0; i < 10; i++) {
+        const t = (lower + upper) / 2;
+        if (y + vy * t + 7 * t * t >= height(ski.j, x + ski.speed * t))
+          upper = t;
+        else lower = t;
+      }
+      return judge(angle, tangent(ski.j, x + ski.speed * upper), ski.combo);
+    }
+    x = endX;
+    y = endY;
+    vy += 14 * dt;
+  }
+}
 export class Ski {
   x = 0;
   y = 0;

@@ -15,7 +15,12 @@
       <header>
         <span class="mark">◢◭</span>
         <div><b>再翻半圈</b></div>
-        <button id="menu" aria-label="打开雪场菜单">雪场</button>
+        <div class="on-slope-menu">
+          <button id="pause-ski" type="button" aria-label="暂停滑行">Ⅱ</button>
+          <button id="menu" type="button" aria-label="打开雪场菜单">
+            雪场
+          </button>
+        </div>
       </header>
       <section id="field" aria-label="雪道，按住收腿，松开展体">
         <div id="game"></div>
@@ -30,6 +35,10 @@
           </div>
         </div>
         <div id="feedback"></div>
+        <aside id="duel" hidden>
+          <strong id="duel-gap"></strong>
+          <small id="duel-rank"></small>
+        </aside>
         <div id="trick"></div>
         <div id="meter"></div>
         <div
@@ -66,7 +75,17 @@
           ><i>›</i>
         </button>
       </footer>
-      <dialog id="sheet"><section id="panel"></section></dialog>
+      <aside id="rotate-screen" aria-labelledby="rotate-title" hidden>
+        <div class="rotate-device" aria-hidden="true"></div>
+        <h2 id="rotate-title">横过手机，继续滑行</h2>
+        <p>横屏可以同时看清旗门、跳台和落坡。</p>
+      </aside>
+      <section id="screen" aria-labelledby="screen-title" hidden>
+        <section id="panel"></section>
+      </section>
+      <dialog id="sheet" aria-labelledby="overlay-title">
+        <section id="overlay-panel"></section>
+      </dialog>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

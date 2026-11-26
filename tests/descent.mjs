@@ -17,7 +17,7 @@ const url = process.env.SKI_URL || "http://127.0.0.1:4187";
 await mkdir("release/store", { recursive: true });
 try {
   const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
+    viewport: { width: 844, height: 390 },
     hasTouch: true,
     isMobile: true,
   });
@@ -33,7 +33,7 @@ try {
     page.evaluate(() => JSON.parse(localStorage.getItem("half-turn.ski.v1")));
   const testKey = (key, pressed) => page.keyboard[pressed ? "down" : "up"](key);
   const shot = (name) =>
-    page.screenshot({ path: "release/store/雪道重做-" + name + ".png" });
+    page.screenshot({ path: "release/store/横屏滑行-" + name + ".png" });
   async function wait(check, ms = 15000) {
     for (let elapsed = 0; elapsed < ms; elapsed += 120) {
       if (await check()) return;
@@ -74,8 +74,8 @@ try {
   await wait(async () => (await speed()) > initialSpeed * 1.35, 4000);
   const boostedSpeed = await speed();
   assert.ok(boostedSpeed > initialSpeed * 1.35);
-  await shot("冲刺");
   await touch("touchEnd");
+  await shot("冲刺");
   await wait(async () => (await text("action")) === "侧滑卸力");
   await shot("倒地");
   await touch("touchStart");
@@ -128,7 +128,10 @@ try {
       window.qaDriving = true;
       function drive() {
         if (!window.qaDriving) return;
-        if (document.querySelector("dialog").open) {
+        if (
+          !document.querySelector("#screen").hidden ||
+          document.querySelector("#sheet").open
+        ) {
           if (holding) emit("Space", " ", false);
           return;
         }
@@ -199,10 +202,15 @@ try {
     ),
   );
   await click("赛后衣柜");
-  await click("看视频，再领 40 张雪票");
-  assert.match(await page.locator("#panel").innerText(), /暂无可用视频/);
-  coverage.push("每日表演赛、衣柜、无广告返回");
-  await page.setViewportSize({ width: 320, height: 568 });
+  assert.ok(
+    await page.getByRole("heading", { name: "衣柜与收藏" }).isVisible(),
+  );
+  assert.equal(
+    await page.getByRole("button", { name: "看视频，再领 40 张雪票" }).count(),
+    0,
+  );
+  coverage.push("每日表演赛、衣柜、未配置广告时隐藏入口");
+  await page.setViewportSize({ width: 568, height: 320 });
   assert.equal(
     await page.evaluate(() => document.body.scrollWidth > innerWidth),
     false,

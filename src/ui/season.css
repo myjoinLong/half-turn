@@ -1,0 +1,156 @@
+#duel:not([hidden]) {
+  position: absolute;
+  z-index: 2;
+  top: 119px;
+  right: max(11px, env(safe-area-inset-right));
+  display: grid;
+  max-width: 190px;
+  gap: 3px;
+  padding: 6px 9px;
+  border: 1px solid #8eacac80;
+  border-radius: 8px;
+  background: #142e3de8;
+  color: #f5e1b1;
+  pointer-events: none;
+}
+#duel strong {
+  font-size: 13px;
+}
+#duel small {
+  color: #c6dfe3;
+  letter-spacing: 0;
+  font-size: 10px;
+}
+#app #panel .season-launch {
+  border-color: #e2c18c;
+}
+#app #panel .season-stations {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+#app #panel .season-stations .scenic-button {
+  min-height: clamp(100px, 39vh, 225px);
+}
+#app #panel .season-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#app #panel .race-actions {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+#app #panel .race-spread {
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+}
+.race-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 3px;
+  color: #e5f1e9;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.race-table th {
+  padding: 3px 3px;
+  color: #b4d0d2;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.race-table td {
+  padding: 4px 5px;
+  background: #284553a6;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.race-table td:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.race-table td:last-child {
+  border-radius: 0 6px 6px 0;
+  font-weight: 850;
+  color: #f9d7a4;
+}
+.race-table tr.race-player td {
+  color: #ffdfa9;
+  background: #694e34b8;
+  font-weight: 800;
+}
+#app #panel .podium {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 112px;
+  border: 1px solid #997c56;
+  border-radius: 13px;
+  background: radial-gradient(ellipse at 50% 30%, #604e34, #142e3c 77%);
+  color: #ffe3b6;
+  text-align: center;
+}
+.award-badge {
+  display: block;
+  width: 100px;
+  height: auto;
+}
+#app #panel .honor-card .award-badge {
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  width: 65px;
+}
+#app #panel .podium b {
+  font:
+    850 23px/1.1 "Songti SC",
+    "SimSun",
+    serif;
+  margin-bottom: 4px;
+}
+#app
+  #screen[data-layout="season"]
+  .scenic-button:not(.season-stations .scenic-button) {
+  min-height: 77px;
+}
+@media (orientation: landscape) and (max-width: 620px) {
+  #duel:not([hidden]) {
+    top: 109px;
+    padding: 4px 6px;
+  }
+  #duel strong {
+    font-size: 11px;
+  }
+  .race-table td {
+    padding: 3px 2px;
+    font-size: 11px;
+  }
+  #app #panel .race-spread {
+    gap: 8px;
+  }
+  #app #panel .race-spread .resort-column {
+    gap: 6px;
+  }
+  #app #panel .podium {
+    min-height: 78px;
+    grid-template-columns: auto auto;
+    align-items: center;
+    justify-content: center;
+  }
+  #app #panel .award-badge {
+    width: 76px;
+  }
+  #app #panel .podium b {
+    font-size: 17px;
+    margin: 0;
+  }
+  #app #panel .race-actions button {
+    padding-inline: 6px;
+  }
+  #app #panel .season-stations .scenic-button {
+    padding-inline: 7px;
+  }
+}
+@media (orientation: portrait) {
+  #app #panel .season-stations,
+  #app #panel .race-spread {
+    grid-template-columns: 1fr;
+  }
+  #app #panel .race-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

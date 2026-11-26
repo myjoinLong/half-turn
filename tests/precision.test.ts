@@ -14,6 +14,77 @@ import { opening, parks, tours } from "../src/content/routes";
 import { grabOrder } from "../src/content/tricks";
 import { clipTree, visibleTreeHeight } from "../src/scenes/forest";
 import { visibleSnowRuns } from "../src/scenes/snow";
+import { SnowEffects } from "../src/scenes/snow-effects";
+import { trailAppearance } from "../src/scenes/trail-art";
+import { boardGear, deckMotif } from "../src/content/gear";
+
+test("deck prints follow the deck's transform and do not change snow contact", () => {
+  const ski = new Ski(parks[0].jumps[0]);
+  for (const [index, item] of boardGear.entries()) {
+    const mesh = buildRider(ski, [index, 0, 0]);
+    const deck = mesh.find((face) => face.decals)!;
+    assert.equal(deck.decals?.length, deckMotif(item.motif).length);
+    assert.ok(mesh.length > buildRider(ski, [index, 0, 0], false).length);
+    const translate = ([x, y, z]: V3): V3 => [x + 19, y + 2.5, z + 4];
+    const placed = placeAboveSnow(mesh, translate, () => 0, []);
+    const plain = placeAboveSnow(
+      mesh.map(({ points, color }) => ({ points, color })),
+      translate,
+      () => 0,
+      [],
+    );
+    assert.equal(plain.lift, placed.lift);
+    const painted = placed.faces.find((face) => face.decals)!;
+    for (const [i, decal] of painted.decals!.entries()) {
+      assert.equal(decal.color, item.accent);
+      for (const [j, [u, v]] of deckMotif(item.motif)[i].entries()) {
+        assert.ok(u >= 0 && u <= 100 && v >= 0 && v <= 100);
+        const [x, y, z] = translate(deck.decals![i].points[j]);
+        assert.deepEqual(decal.points[j], [x, y - placed.lift, z]);
+        assert.equal(decal.points[j][1], painted.points[0][1]);
+      }
+    }
+  }
+});
+
+test("snow effects follow the fixed step, keep distinct coatings and bound the low-detail budget", () => {
+  const ski = new Ski(parks[0].jumps[0], true);
+  const regular = new SnowEffects();
+  const equipped = new SnowEffects();
+  const replay = new SnowEffects();
+  const lite = new SnowEffects();
+  let largestLandingBurst = 0;
+  let lifted = false;
+  for (let tick = 1; tick <= 360; tick++) {
+    ski.braking = tick <= 40;
+    ski.step(false);
+    regular.record(ski, [0, 0, 0], false);
+    equipped.record(ski, [3, 6, 7], false);
+    replay.record(ski, [3, 6, 7], false);
+    lite.record(ski, [3, 6, 7], true);
+    const snapshot = equipped.flakes.length;
+    equipped.record(ski, [3, 6, 7], false);
+    assert.equal(equipped.flakes.length, snapshot);
+    assert.deepEqual(equipped.flakes, replay.flakes);
+    assert.ok(lite.flakes.length <= 30);
+    assert.ok(equipped.flakes.length <= 82);
+    if (ski.phase === "air") {
+      lifted = true;
+      assert.ok(!equipped.marks.some((mark) => mark.tick === tick));
+    }
+    if (ski.contactTick === tick)
+      largestLandingBurst = equipped.flakes.filter(
+        (flake) => flake.birth === tick,
+      ).length;
+  }
+  assert.ok(lifted);
+  assert.equal(largestLandingBurst, 21);
+  assert.notDeepEqual(regular.flakes, equipped.flakes);
+  assert.equal(
+    new Set(Array.from({ length: 8 }, (_, i) => trailAppearance(i).shape)).size,
+    8,
+  );
+});
 
 test("continuous snow runs split at the obscured side of a crest", () => {
   const profile = [

@@ -11,7 +11,7 @@ const browser = await chromium.launch({
 });
 try {
   const page = await browser.newPage({
-    viewport: { width: 390, height: 844 },
+    viewport: { width: 844, height: 390 },
     isMobile: true,
     hasTouch: true,
   });
@@ -28,8 +28,8 @@ try {
       await page.locator("#menu").dispatchEvent("click");
       await click("巡回赛 · 选山");
       await click(mountain);
-      const entry = page.locator(".route-list button").nth(index);
-      const label = (await entry.textContent()).trim();
+      const entry = page.locator(".route-list .resort-row").nth(index);
+      const label = (await entry.getAttribute("aria-label")).trim();
       const match = label.match(/^(.+?)\s+(\d+) 米$/);
       assert.ok(match, label);
       await entry.dispatchEvent("click");

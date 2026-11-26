@@ -21,7 +21,7 @@ export type Route = {
   name: string;
   mountain: number;
   jumps: Jump[];
-  mode: "tour" | "park" | "daily" | "show" | "intro";
+  mode: "tour" | "park" | "daily" | "show" | "intro" | "match";
 };
 export const mountains = ["松林山", "峡谷山", "夜光山"];
 const names = [
@@ -133,10 +133,3 @@ export function daily(date = new Date()): Route {
     mode: "daily",
   };
 }
-export const boards = ["朱砂", "海盐", "明黄", "冰蓝", "梅紫", "墨绿"],
-  suits = ["松针", "岩橙", "靛蓝", "桑莓"],
-  trails = ["细雪", "晨光", "冰晶"];
-export const boardColors = [
-    0xf56537, 0xfff1ce, 0xf7ba36, 0x70d8e4, 0xcb87cf, 0x268d78,
-  ],
-  suitColors = [0x19483e, 0xaa4d30, 0x3a527e, 0x83445f];

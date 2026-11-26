@@ -1,3 +1,5 @@
+import type { Reward } from "./rewards";
+
 type Ad = {
   onClose(f: (v: { isEnded?: boolean }) => void): void;
   onError(f: () => void): void;
@@ -13,12 +15,18 @@ declare global {
 let busy = false;
 const presentationTimeout = 6000;
 const playbackTimeout = 150000;
-export function watch(kind: "tickets" | "aurora", shown: () => void) {
-  const id =
-    kind === "tickets"
-      ? import.meta.env.VITE_HALF_TURN_TICKETS_AD
-      : import.meta.env.VITE_HALF_TURN_AURORA_AD;
-  return playRewarded(id, window.tap, shown);
+function slot(kind: Reward) {
+  return kind === "aurora"
+    ? import.meta.env.VITE_HALF_TURN_AURORA_AD
+    : import.meta.env.VITE_HALF_TURN_TICKETS_AD;
+}
+export function adAvailable(kind: Reward) {
+  return (
+    !!slot(kind) && typeof window.tap?.createRewardedVideoAd === "function"
+  );
+}
+export function watch(kind: Reward, shown: () => void) {
+  return playRewarded(slot(kind), window.tap, shown);
 }
 export async function playRewarded(
   id: string | undefined,

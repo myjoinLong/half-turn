@@ -1,4 +1,5 @@
 import { simVersion, courseVersion } from "../sim/ski";
+import type { SeasonSave } from "../sim/season";
 export type Clip = {
   jump: number;
   edges: number[];
@@ -35,6 +36,13 @@ const initial = () => ({
   taught: false,
   openingSeen: false,
   passes: 0,
+  firstSeenAt: 0,
+  adDay: { day: 0, count: 0 },
+  adLastAt: 0,
+  adFeatures: { day: 0, counts: {} as Record<string, number> },
+  dailyGoals: { day: 0, runs: 0, daily: false, closet: false },
+  favorites: [[], [], []] as number[][],
+  season: { active: null, honors: {} } as SeasonSave,
   events: [] as { name: string; t: number; value: string }[],
 });
 export type Save = ReturnType<typeof initial>;
@@ -45,7 +53,17 @@ export function read(): Save {
     const raw = localStorage.getItem(key);
     if (!raw || volatile) return memory;
     const s = JSON.parse(raw);
-    return { ...initial(), ...s, version: 1 };
+    const base = initial();
+    return {
+      ...base,
+      ...s,
+      adFeatures: {
+        day: s.adFeatures?.day ?? 0,
+        counts: { ...(s.adFeatures?.counts ?? {}) },
+      },
+      dailyGoals: { ...base.dailyGoals, ...(s.dailyGoals ?? {}) },
+      version: 1,
+    };
   } catch {
     return memory;
   }
@@ -77,6 +95,21 @@ export function credit(s: Save, id: string, n: number) {
 export function medal(score: number) {
   return score >= 1150 ? 3 : score >= 650 ? 2 : score >= 250 ? 1 : 0;
 }
+export function beijingDay(now = Date.now()) {
+  return Math.floor((now + 8 * 3600000) / 86400000);
+}
+export function markDailyGoal(
+  s: Save,
+  kind: "run" | "daily" | "closet",
+  now = Date.now(),
+) {
+  const day = beijingDay(now);
+  if (s.dailyGoals.day !== day)
+    s.dailyGoals = { day, runs: 0, daily: false, closet: false };
+  if (kind === "run") s.dailyGoals.runs++;
+  else if (kind === "daily") s.dailyGoals.daily = true;
+  else s.dailyGoals.closet = true;
+}
 export function finish(
   id: string,
   route: string,
@@ -86,6 +119,7 @@ export function finish(
 ) {
   return change((s) => {
     if (!credit(s, id, 20)) return;
+    markDailyGoal(s, route.startsWith("daily-") ? "daily" : "run");
     if (route === "aurora") s.passes = Math.max(0, s.passes - 1);
     const prev = s.records[route];
     if (

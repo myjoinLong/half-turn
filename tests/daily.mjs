@@ -12,7 +12,7 @@ const browser = await chromium.launch({
 });
 try {
   const p = await browser.newPage({
-    viewport: { width: 375, height: 812 },
+    viewport: { width: 812, height: 375 },
     isMobile: true,
     hasTouch: true,
   });

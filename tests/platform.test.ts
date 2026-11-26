@@ -2,6 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { playRewarded } from "../src/platform/ad";
 import { read, change, credit } from "../src/platform/save";
+import {
+  rewardOffer,
+  claimReward,
+  ticketCooldownLeft,
+  softTierReward,
+} from "../src/platform/rewards";
+import { outfitForRival, rivals } from "../src/content/season-routes";
+
 test("ad lifecycle: missing slot, no fill, early close, reentry and duplicate callbacks", async () => {
   let close: (r: { isEnded: boolean }) => void = () => {},
     fail = () => {},
@@ -36,6 +44,7 @@ test("ad lifecycle: missing slot, no fill, early close, reentry and duplicate ca
   assert.equal(destroys, 3);
   assert.ok(shown >= 2);
 });
+
 test("older local save migrates, purchase and confirmed reward survive reload", () => {
   const store = new Map<string, string>();
   Object.defineProperty(globalThis, "localStorage", {
@@ -101,4 +110,81 @@ test("an ad that never loads returns to the game and a late load cannot open it"
   await Promise.resolve();
   assert.equal(shows, 0);
   assert.equal(destroyed, 1);
+});
+
+test("soft-tier ticket rewards (+60/+40/+25 with 60s cooldown) and decoupled aurora/feature ads", () => {
+  const now = Date.parse("2026-11-22T12:00:00Z");
+  const save = read();
+  save.firstSeenAt = now - 59999;
+  save.records = { "tour-0": { score: 0, clips: [], sim: 1, course: 1 } };
+  save.ledger = {};
+  for (let i = 1; i <= 8; i++) save.ledger["run-" + i] = 20;
+  save.adDay = { day: 0, count: 0 };
+  save.adLastAt = 0;
+  save.adFeatures = { day: 0, counts: {} };
+  save.passes = 0;
+  save.tickets = 0;
+
+  // Under 60s first-session guard blocks ads
+  assert.equal(rewardOffer(save, "aurora", "", now), null);
+  save.firstSeenAt--;
+
+  // Soft tier progression: 1-3 -> 60, 4-6 -> 40, 7+ -> 25 with 60s cooldown
+  assert.equal(softTierReward(0), 60);
+  assert.equal(softTierReward(3), 40);
+  assert.equal(softTierReward(6), 25);
+
+  let expectedTotal = 0;
+  for (let i = 1; i <= 6; i++) {
+    const offer = rewardOffer(save, "tickets", "run-" + i, now + i * 1000)!;
+    assert.ok(offer);
+    assert.equal(offer.amount, i <= 3 ? 60 : 40);
+    assert.equal(claimReward(save, offer), true);
+    assert.equal(claimReward(save, offer), false); // idempotent
+    expectedTotal += offer.amount;
+  }
+  assert.equal(save.tickets, expectedTotal); // 3*60 + 3*40 = 300
+
+  // 7th ticket ad requires 60s cooldown after 6th
+  const t6 = now + 6000;
+  assert.ok(ticketCooldownLeft(save, t6 + 10000) > 0);
+  assert.equal(rewardOffer(save, "tickets", "run-7", t6 + 10000), null);
+  const seventh = rewardOffer(save, "tickets", "run-7", t6 + 60000)!;
+  assert.ok(seventh);
+  assert.equal(seventh.amount, 25);
+  assert.equal(claimReward(save, seventh), true);
+
+  // Aurora is independent of ticket ad count
+  const aurora = rewardOffer(save, "aurora", "", t6 + 10000)!;
+  assert.ok(aurora);
+  assert.equal(claimReward(save, aurora), true);
+  assert.equal(save.passes, 1);
+
+  // Wardrobe deficit top-up (<= 80) and season double/retry
+  assert.equal(rewardOffer(save, "topup", "0/1", t6, 90), null);
+  const topup = rewardOffer(save, "topup", "0/1", t6, 45)!;
+  assert.ok(topup);
+  assert.equal(claimReward(save, topup), true);
+  assert.equal(save.tickets, expectedTotal + 25 + 45);
+
+  const retry = rewardOffer(save, "seasonRetry", "m1/qualifying", t6)!;
+  assert.ok(retry);
+  assert.equal(claimReward(save, retry), true);
+  assert.equal(rewardOffer(save, "seasonRetry", "m1/qualifying", t6), null);
+
+  const dbl = rewardOffer(save, "seasonDouble", "pine/1", t6, 100)!;
+  assert.ok(dbl);
+  assert.equal(claimReward(save, dbl), true);
+  assert.equal(save.tickets, expectedTotal + 25 + 45 + 100);
+});
+
+test("all 7 season rivals have distinct high-contrast showcase outfits with non-default trails", () => {
+  const seen = new Set<string>();
+  for (let i = 0; i < rivals.length; i++) {
+    const outfit = outfitForRival(i);
+    assert.equal(outfit.length, 3);
+    assert.ok(outfit[2] > 0, "rival should use a non-default snow trail");
+    seen.add(outfit.join("-"));
+  }
+  assert.equal(seen.size, rivals.length);
 });

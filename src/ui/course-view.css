@@ -1,0 +1,24 @@
+.course-view {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 13px;
+  border: 1px solid #557786;
+  background: #132d3b;
+}
+#app #panel .course-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+#app #panel .inspect-route {
+  text-align: center;
+  color: #ffe0a6;
+}
+#app #panel .course-tools {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+#app #panel .course-tools button {
+  text-align: center;
+  padding-inline: 5px;
+}

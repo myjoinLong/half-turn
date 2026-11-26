@@ -12,7 +12,7 @@ const browser = await chromium.launch({
 });
 try {
   const page = await browser.newPage({
-    viewport: { width: 390, height: 844 },
+    viewport: { width: 844, height: 390 },
     isMobile: true,
     hasTouch: true,
   });
@@ -46,7 +46,7 @@ try {
   }
   await page.locator("#menu").click();
   await page.getByRole("button", { name: "滑行设置" }).click();
-  await page.getByRole("button", { name: "声音 · 开", exact: true }).click();
+  await page.getByRole("switch", { name: "声音", checked: true }).click();
   const before = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("half-turn.ski.v1")),
   );

@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 const browser = await webkit.launch();
 try {
   const p = await browser.newPage({
-    viewport: { width: 375, height: 667 },
+    viewport: { width: 667, height: 375 },
     deviceScaleFactor: 2,
     isMobile: true,
     hasTouch: true,
@@ -38,7 +38,7 @@ try {
   const report = {
     engine: browser.version(),
     platform: "Windows WebKit",
-    viewport: "375×667 @2x",
+    viewport: "667×375 @2x",
     canvasTouch: true,
     finish: true,
     replay: true,

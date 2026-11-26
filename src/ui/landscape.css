@@ -1,0 +1,316 @@
+#rotate-screen:not([hidden]) {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 26px;
+  text-align: center;
+  color: #ffebc8;
+  background: linear-gradient(145deg, #142f3af5, #0c1c28);
+}
+#rotate-screen h2,
+#rotate-screen p {
+  margin: 0;
+}
+#rotate-screen p {
+  font-size: 14px;
+  color: #c0d7d4;
+}
+.rotate-device {
+  width: 70px;
+  height: 40px;
+  border: 2px solid #eac898;
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 4px #131f2d;
+  background: linear-gradient(145deg, #284653 50%, #81aeba 51%, #4e7280 75%);
+}
+.resort-spread,
+.resort-column {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  align-content: start;
+}
+#app #panel .catalog-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+#app #panel .page-controls {
+  display: flex;
+  justify-self: end;
+  align-items: center;
+  gap: 6px;
+  color: #c5dcdb;
+  font-size: 12px;
+  white-space: nowrap;
+}
+#app #panel .page-controls button {
+  min-width: 44px;
+  padding: 0;
+  text-align: center;
+  font-size: 23px;
+}
+
+@media (orientation: landscape) {
+  #app {
+    --hud-left: max(11px, env(safe-area-inset-left));
+    --hud-right: max(11px, env(safe-area-inset-right));
+    --hud-bottom: max(7px, env(safe-area-inset-bottom));
+    --hud-top: max(3px, env(safe-area-inset-top));
+    width: min(100%, 1600px);
+    height: 100dvh;
+  }
+  #app #field {
+    position: absolute;
+    inset: 0;
+  }
+  #app > header {
+    position: absolute;
+    z-index: 4;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: var(--hud-top) var(--hud-right) 5px var(--hud-left);
+    background: linear-gradient(#0b202aee, #0e25319c 80%, #0e253100);
+    border: 0;
+    pointer-events: none;
+  }
+  #app > header b {
+    font-size: clamp(19px, 2.7vw, 26px);
+  }
+  #app #menu {
+    min-width: 68px;
+    min-height: 44px;
+    padding-inline: 13px;
+    pointer-events: auto;
+    border-color: #adc6c67b;
+    border-radius: 10px;
+    background: #173342ec;
+  }
+  #app #field::before {
+    background: linear-gradient(
+      #14293736,
+      transparent 32%,
+      transparent 73%,
+      #0f263696
+    );
+  }
+  #app #hud {
+    inset: calc(var(--hud-top) + 55px) var(--hud-right) auto var(--hud-left);
+  }
+  #app #hud :is(h1, strong) {
+    font-size: clamp(21px, 3vw, 35px);
+  }
+  #app #hud h1 {
+    line-height: 1.05;
+  }
+  #app > footer {
+    position: absolute;
+    z-index: 4;
+    inset: auto var(--hud-right) var(--hud-bottom) var(--hud-left);
+    display: grid;
+    grid-template-columns: minmax(238px, clamp(238px, 33vw, 344px)) minmax(
+        170px,
+        clamp(170px, 38vw, 368px)
+      );
+    grid-template-areas: "stat ride" "controls ride";
+    justify-content: space-between;
+    gap: 0 12px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    pointer-events: none;
+  }
+  #app > footer .strip {
+    grid-area: stat;
+    margin: 0;
+    padding: 5px 8px 0;
+    line-height: 1.1;
+    border: 1px solid #8cb4b650;
+    border-bottom: 0;
+    border-radius: 11px 11px 0 0;
+    background: #102c3af0;
+  }
+  #app #freestyle-controls {
+    grid-area: controls;
+    margin: 0;
+    padding: 3px 7px 5px;
+    border: 1px solid #8cb4b650;
+    border-top: 0;
+    border-radius: 0 0 11px 11px;
+    background: #102c3af0;
+  }
+  #app #speed-row {
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+  }
+  #app #speed {
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  #app #freestyle-controls .pedals {
+    gap: 4px;
+  }
+  #app #freestyle-controls .pedals button {
+    min-width: 46px;
+    min-height: 46px;
+    padding-inline: 4px;
+    pointer-events: auto;
+    border-radius: 6px;
+  }
+  #app #ride {
+    grid-area: ride;
+    min-height: 49px;
+    height: auto;
+    align-self: stretch;
+    padding: 5px 12px;
+    border-radius: 11px;
+    clip-path: none;
+    pointer-events: auto;
+    border: 1px solid #ffe3ad;
+    box-shadow: 0 5px 20px #0b1b35a0;
+  }
+  #app #ride strong {
+    font-size: clamp(15px, 2.5vw, 21px);
+  }
+  #app #ride small {
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+  #app #trick {
+    bottom: calc(var(--hud-bottom) + 104px);
+    right: var(--hud-right);
+    left: auto;
+    transform: none;
+  }
+  #app #meter {
+    bottom: calc(var(--hud-bottom) + 78px);
+    right: var(--hud-right);
+  }
+  #app #feedback {
+    inset: 28% auto auto 50%;
+    width: max-content;
+    max-width: 62%;
+    transform: translateX(-50%);
+    font-size: clamp(18px, 3.6vw, 30px);
+  }
+  #app #grab-choices {
+    inset: auto var(--hud-right) calc(var(--hud-bottom) + 83px) auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: min(530px, calc(100% - var(--hud-right) - var(--hud-left)));
+  }
+  #app #panel {
+    gap: 9px;
+    padding-bottom: 12px;
+  }
+  #app #panel .resort-mast {
+    min-height: 51px;
+    padding-block: 3px;
+  }
+  #app #panel h2 {
+    font-size: clamp(20px, 3.6vw, 28px);
+  }
+  #app #panel .resort-spread {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 12px;
+  }
+  #app #panel .resort-home {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  }
+  #app #panel .resort-home .current-course {
+    min-height: clamp(128px, 47vh, 235px);
+  }
+  #app #panel .scenic-grid .scenic-button {
+    min-height: 68px;
+  }
+  #app #panel .profile-grid .resort-row {
+    min-height: 46px;
+  }
+  #app #panel .result-spread .score-card {
+    height: clamp(145px, 52vh, 250px);
+  }
+  #app #panel .mountain-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  #app #panel .mountain-grid .scenic-button {
+    min-height: clamp(130px, 48vh, 240px);
+  }
+  #app #panel .intro-spread .scenic-button {
+    min-height: clamp(124px, 43vh, 215px);
+  }
+  #app #panel .mountain-grid .scenic-button strong {
+    font-size: clamp(19px, 3vw, 34px);
+  }
+  #app
+    #screen:is(
+      [data-layout="routes"],
+      [data-layout="records"],
+      [data-layout="settings"],
+      [data-layout="practice"]
+    )
+    .route-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #app #screen[data-layout="practice"] #panel > .scenic-button,
+  #app #screen[data-layout="mountains"] #panel > .scenic-button {
+    min-height: 70px;
+  }
+  #app #screen[data-layout="medals"] .medal-shelf {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #app #panel .closet-spread {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+  #app #panel .gear-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  #app #panel .outfit-preview {
+    max-height: min(128px, 23vh);
+  }
+  #app #panel .catalog-filter {
+    flex-wrap: wrap;
+  }
+  #app #panel .gear-actions button {
+    padding-inline: 3px;
+  }
+  #app #panel .closet-spread > .resort-column:first-child {
+    position: sticky;
+    top: 57px;
+    align-self: start;
+  }
+}
+@media (orientation: landscape) and (max-width: 640px) {
+  #app #panel {
+    padding-inline: 9px;
+  }
+  #app #panel .resort-mast {
+    margin-inline: -9px;
+  }
+  #app #panel .closet-spread {
+    grid-template-columns: minmax(0, 0.65fr) minmax(0, 1.35fr);
+  }
+  #app #panel .gear-grid strong,
+  #app #panel .gear-grid small {
+    padding-inline: 4px;
+  }
+  #app #panel .closet-spread > .resort-column:first-child {
+    position: static;
+  }
+  #app #panel .resort-row {
+    padding-inline-start: 8px;
+  }
+  #app #panel .resort-home .scenic-grid .scenic-button {
+    min-height: 60px;
+  }
+  #app #panel .resort-home .profile-grid .resort-row {
+    min-height: 44px;
+  }
+}

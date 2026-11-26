@@ -1,0 +1,387 @@
+#app {
+  --resort-ink: #0e2029;
+  --resort-well: #152d37;
+  --resort-line: #36515a;
+  --resort-gold: #f2cc91;
+  --resort-muted: #bad0d1;
+}
+#app #sheet {
+  --sheet-height: calc(
+    100dvh - max(20px, env(safe-area-inset-top)) -
+      max(8px, env(safe-area-inset-bottom))
+  );
+  position: fixed;
+  inset: auto 0 max(8px, env(safe-area-inset-bottom));
+  width: min(calc(100% - 16px), 470px);
+  max-width: none;
+  max-height: var(--sheet-height);
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid #52717a;
+  border-radius: 22px;
+  color: #fff4da;
+  background:
+    radial-gradient(ellipse at 0 0, #25454c, transparent 465px),
+    var(--resort-ink);
+  box-shadow: 0 24px 64px #040c12b0;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+#app #sheet::backdrop {
+  background: #05131caa;
+  backdrop-filter: blur(5px);
+}
+#app :is(#panel, #overlay-panel) {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 17px;
+  max-height: calc(var(--sheet-height) - 2px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #537079 var(--resort-ink);
+  touch-action: pan-y;
+}
+#app :is(#panel, #overlay-panel) .resort-mast {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  margin: 0 -16px;
+  padding: 5px 14px;
+  border-bottom: 1px solid #55707670;
+  background: #112631fa;
+}
+#app :is(#panel, #overlay-panel) h2 {
+  margin: 0 auto 0 0;
+  font:
+    850 clamp(22px, 6vw, 31px) / 1.2 "Noto Serif SC",
+    "Songti SC",
+    SimSun,
+    serif;
+  letter-spacing: 0.045em;
+}
+#app :is(#panel, #overlay-panel) h3 {
+  margin: 4px 0 -4px;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+}
+#app :is(#panel, #overlay-panel) p {
+  margin: 0;
+  color: var(--resort-muted);
+  line-height: 1.5;
+}
+#app :is(#panel, #overlay-panel) .resort-wallet {
+  width: fit-content;
+  padding: 5px 11px;
+  border: 1px solid #9b815d84;
+  border-radius: 20px;
+  background: #221c1c62;
+  color: #ffdeaa;
+  font-size: 12px;
+  font-weight: 730;
+}
+#app :is(#panel, #overlay-panel) .grid {
+  gap: 9px;
+  margin: 0;
+}
+#app :is(#panel, #overlay-panel) button {
+  min-height: 44px;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--resort-line);
+  border-radius: 11px;
+  background: var(--resort-well);
+  color: #f9f2df;
+  font:
+    730 14px/1.32 system-ui,
+    sans-serif;
+  touch-action: manipulation;
+}
+#app :is(#panel, #overlay-panel) button.primary {
+  border-color: #ffd79e;
+  background: linear-gradient(112deg, #ffdfad, #eac184);
+  color: #252525;
+}
+#app :is(#panel, #overlay-panel) button:active:not(:disabled) {
+  filter: brightness(1.22);
+}
+#app :is(#panel, #overlay-panel) button:focus-visible {
+  outline: 2px solid #ffe1a6;
+  outline-offset: -3px;
+}
+#app :is(#panel, #overlay-panel) button:disabled {
+  color: var(--resort-muted);
+  opacity: 0.7;
+}
+#app :is(#panel, #overlay-panel) .resort-nav {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  padding: 0;
+  font: 400 27px/1 system-ui;
+}
+#app :is(#panel, #overlay-panel) .scenic-button,
+#app :is(#panel, #overlay-panel) .score-card {
+  position: relative;
+  display: grid;
+  isolation: isolate;
+  align-items: end;
+  overflow: hidden;
+  width: 100%;
+  min-height: 106px;
+  padding: 13px;
+  border: 1px solid #7b929099;
+  border-radius: 13px;
+  background: #193a43;
+  color: #fff8e7;
+}
+#app :is(#panel, #overlay-panel) .scenic-button::after,
+#app :is(#panel, #overlay-panel) .score-card::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(
+    6deg,
+    #071820fb 0%,
+    #1023319c 52%,
+    transparent 100%
+  );
+  content: "";
+}
+.scenic-art {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#app :is(#panel, #overlay-panel) .scenic-button span {
+  display: grid;
+  gap: 4px;
+}
+#app :is(#panel, #overlay-panel) .scenic-button strong {
+  font-size: 15px;
+}
+#app :is(#panel, #overlay-panel) .scenic-button small,
+#app :is(#panel, #overlay-panel) .score-card small {
+  color: #d6edeb;
+  font-size: 11px;
+  font-weight: 680;
+}
+#app :is(#panel, #overlay-panel) .current-course {
+  min-height: clamp(123px, 19vh, 177px);
+  border-color: #ecd09a;
+}
+#app :is(#panel, #overlay-panel) .current-course strong,
+#app :is(#panel, #overlay-panel) .mountain-grid .scenic-button strong {
+  font:
+    850 25px/1.1 "Noto Serif SC",
+    "Songti SC",
+    SimSun,
+    serif;
+  letter-spacing: 0.05em;
+}
+#app :is(#panel, #overlay-panel) .current-course strong::after {
+  margin-left: 0.4em;
+  color: var(--resort-gold);
+  content: "↗";
+}
+#app :is(#panel, #overlay-panel) .scenic-grid .scenic-button {
+  min-height: 90px;
+  padding: 9px 10px;
+}
+#app :is(#panel, #overlay-panel) .mountain-grid,
+#app :is(#panel, #overlay-panel) .route-list {
+  grid-template-columns: 1fr;
+}
+#app :is(#panel, #overlay-panel) .mountain-grid .scenic-button {
+  min-height: clamp(94px, 15vh, 138px);
+}
+#app :is(#panel, #overlay-panel) .resort-row {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  align-content: center;
+  min-height: 56px;
+  padding-right: 29px;
+}
+#app :is(#panel, #overlay-panel) .resort-row::after {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  translate: 0 -50%;
+  color: #d6b77c;
+  font-size: 20px;
+  content: "›";
+}
+#app :is(#panel, #overlay-panel) .resort-row small,
+#app :is(#panel, #overlay-panel) .gear-detail small,
+#app :is(#panel, #overlay-panel) .gear-grid small {
+  color: var(--resort-muted);
+  font-size: 11px;
+  font-weight: 640;
+}
+#app :is(#panel, #overlay-panel) .resort-row[role="switch"] {
+  padding-right: 56px;
+}
+#app :is(#panel, #overlay-panel) .resort-row[role="switch"]::after {
+  width: 37px;
+  height: 20px;
+  border: 1px solid #668089;
+  border-radius: 15px;
+  background: radial-gradient(circle at 10px 50%, #c0d3d4 5px, transparent 6px)
+    #192e37;
+  content: "";
+}
+#app :is(#panel, #overlay-panel) .resort-row[aria-checked="true"]::after {
+  background: radial-gradient(circle at 27px 50%, #f0ffe9 5px, transparent 6px)
+    #3c796c;
+}
+#app :is(#panel, #overlay-panel) .score-card {
+  min-height: 150px;
+  align-content: end;
+  gap: 6px;
+}
+#app :is(#panel, #overlay-panel) .score-card em {
+  color: #ffe0a4;
+  font:
+    italic 900 38px/1 system-ui,
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+#app :is(#panel, #overlay-panel) .reward-button {
+  color: #f9dfac;
+  border-color: #c5a670;
+}
+#app :is(#panel, #overlay-panel) .resort-status {
+  padding: 8px 12px;
+  border-left: 3px solid #f1bf7a;
+  border-radius: 4px;
+  background: #333631;
+  color: #ffdfad;
+}
+#app :is(#panel, #overlay-panel) .medal-1 {
+  border-left: 3px solid #cb8c72;
+}
+#app :is(#panel, #overlay-panel) .medal-2 {
+  border-left: 3px solid #c1d8e5;
+}
+#app :is(#panel, #overlay-panel) .medal-3 {
+  border-left: 3px solid #ffd480;
+}
+#app :is(#panel, #overlay-panel) .fitting-stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #547078;
+  border-radius: 14px;
+  background:
+    radial-gradient(ellipse at 55% 50%, #70928b, transparent 65%),
+    repeating-radial-gradient(
+      ellipse at 50% 104%,
+      #b3d7d529 0 1px,
+      transparent 2px 18px
+    ),
+    linear-gradient(140deg, #20394c, #3b5152 55%, #182932);
+}
+#app :is(#panel, #overlay-panel) .outfit-preview {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(150px, 23vh);
+  object-fit: contain;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+#app :is(#panel, #overlay-panel) .fitting-stage small {
+  position: absolute;
+  left: 10px;
+  bottom: 9px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: #132b36e8;
+  color: #e7f3ed;
+  font-size: 11px;
+}
+#app :is(#panel, #overlay-panel) .outfit-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+#app :is(#panel, #overlay-panel) .outfit-tabs button,
+#app :is(#panel, #overlay-panel) .gear-actions button,
+#app :is(#panel, #overlay-panel) .catalog-filter button {
+  text-align: center;
+}
+#app :is(#panel, #overlay-panel) button[aria-pressed="true"] {
+  border-color: #eac891;
+  background: #293832;
+  color: #ffe0a6;
+}
+#app :is(#panel, #overlay-panel) .gear-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border: 1px solid #476772;
+  border-radius: 12px;
+  padding: 10px;
+  gap: 4px;
+  background: #172f3b;
+}
+#app :is(#panel, #overlay-panel) .gear-detail strong {
+  font:
+    800 19px/1.24 "Songti SC",
+    SimSun,
+    serif;
+  letter-spacing: 0.045em;
+}
+#app :is(#panel, #overlay-panel) .gear-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 8px;
+  margin-top: 5px;
+}
+#app :is(#panel, #overlay-panel) .catalog-filter {
+  display: flex;
+  gap: 7px;
+}
+#app :is(#panel, #overlay-panel) .catalog-filter button {
+  border-radius: 20px;
+  font-size: 12px;
+}
+#app :is(#panel, #overlay-panel) .gear-grid button {
+  display: grid;
+  gap: 3px;
+  overflow: hidden;
+  padding: 0 0 9px;
+}
+#app :is(#panel, #overlay-panel) .gear-grid strong,
+#app :is(#panel, #overlay-panel) .gear-grid small {
+  padding: 0 9px;
+}
+.gear-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 3px;
+  border-bottom: 1px solid #51727c80;
+}
+@media (max-width: 340px) {
+  #app :is(#panel, #overlay-panel) {
+    gap: 9px;
+    padding-right: 11px;
+    padding-left: 11px;
+  }
+  #app :is(#panel, #overlay-panel) .resort-mast {
+    margin: 0 -11px;
+  }
+  #app :is(#panel, #overlay-panel) .scenic-grid .scenic-button small {
+    font-size: 10px;
+  }
+}

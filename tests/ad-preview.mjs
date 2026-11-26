@@ -1,5 +1,4 @@
 import { chromium } from "playwright-core";
-import { markOpeningSeen } from "./career-fixture.mjs";
 import { spawn } from "node:child_process";
 import assert from "node:assert/strict";
 import { writeFile } from "node:fs/promises";
@@ -46,14 +45,23 @@ try {
     args: ["--disable-gpu"],
   });
   const p = await browser.newPage({
-    viewport: { width: 375, height: 812 },
+    viewport: { width: 812, height: 375 },
     hasTouch: true,
     isMobile: true,
   });
   const errors = [];
   p.on("pageerror", (e) => errors.push(e.message));
-  await markOpeningSeen(p);
   await p.addInitScript(() => {
+    const key = "half-turn.ski.v1";
+    if (!localStorage.getItem(key))
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          openingSeen: true,
+          firstSeenAt: Date.now() - 61000,
+          lite: true,
+        }),
+      );
     window.tap = {
       createRewardedVideoAd: ({ adUnitId }) => {
         let close, error;
@@ -74,56 +82,70 @@ try {
   await p.goto(url, { timeout: 90000 });
   await p.waitForSelector("canvas");
   const button = (name) => p.getByRole("button", { name, exact: true }).click();
-  const open = async () => {
+  const mountainMenu = async () => {
     await p.locator("#menu").click();
     await button("巡回赛 · 选山");
-    await button("看视频，用极光灯光滑一趟");
+  };
+  const show = async (name, unit) => {
+    await button(name);
     await p.waitForFunction(() => !!window.testAd);
+    assert.ok(await p.getByRole("dialog", { name: "激励视频" }).isVisible());
+    assert.ok(await p.locator("#screen").isVisible());
+    assert.equal(await p.evaluate(() => window.testAd.adUnitId), unit);
   };
   const save = () =>
     p.evaluate(() => JSON.parse(localStorage.getItem("half-turn.ski.v1")));
-  await open();
+  const aurora = "看视频，用极光灯光滑一趟";
+  const tickets = "看视频，再领 40 张雪票";
+  const complete = () =>
+    p.evaluate(() => {
+      const callback = window.testAd.close;
+      callback({ isEnded: true });
+      callback({ isEnded: true });
+    });
+  await mountainMenu();
+  assert.equal(await p.getByRole("button", { name: aurora }).count(), 0);
+  await button("回到雪道");
+  await p.keyboard.press("Space");
+  await p
+    .getByRole("heading", { name: "冲过终点" })
+    .waitFor({ timeout: 120000 });
+  const base = (await save()).tickets;
+  assert.ok(base >= 20);
+  await show(tickets, "local-test-tickets");
+  await p.evaluate(() => window.testAd.error());
+  await p.getByText("暂无可用视频，请稍后再试。", { exact: true }).waitFor();
+  assert.equal((await save()).tickets, base);
+  await show(tickets, "local-test-tickets");
+  await complete();
+  await p.getByText("已领取 40 张雪票", { exact: true }).waitFor();
+  assert.equal((await save()).tickets, base + 40);
+  assert.equal(await p.getByRole("button", { name: tickets }).count(), 0);
+  await button("雪场菜单");
+  await button("巡回赛 · 选山");
+  await show(aurora, "local-test-aurora");
   await p.evaluate(() => window.testAd.close({ isEnded: false }));
   await p.getByText("视频已关闭。", { exact: true }).waitFor();
   assert.equal((await save()).passes, 0);
-  await button("看视频，用极光灯光滑一趟");
-  await p.waitForFunction(() => !!window.testAd);
-  await p.evaluate(() => {
-    const a = window.testAd;
-    a.close({ isEnded: true });
-    a.close({ isEnded: true });
-  });
+  await show(aurora, "local-test-aurora");
+  await complete();
   await p.getByRole("heading", { name: "极光巡游" }).waitFor();
   assert.equal((await save()).passes, 1);
   await p.reload();
   await p.getByRole("heading", { name: "极光巡游" }).waitFor();
   assert.equal((await save()).passes, 1);
-  await p.locator("#menu").click();
-  await button("练习公园");
-  await button("落地小台");
-  await p.keyboard.press("Space");
-  await p
-    .getByRole("heading", { name: "练习完成" })
-    .waitFor({ timeout: 30000 });
-  await button("赛后衣柜");
-  await button("看视频，再领 40 张雪票");
-  await p.waitForFunction(() => !!window.testAd);
-  await p.evaluate(() => {
-    const a = window.testAd;
-    a.close({ isEnded: true });
-    a.close({ isEnded: true });
-  });
-  await p.getByText("已领取 40 张雪票", { exact: true }).waitFor();
-  assert.equal((await save()).tickets, 40);
-  await p.reload();
-  assert.equal((await save()).tickets, 40);
+  assert.equal((await save()).tickets, base + 40);
+  assert.equal((await save()).adDay.count, 2);
   assert.deepEqual(errors, []);
   const result = {
     fixture: "local development host",
+    firstCourseAdFree: true,
+    emptyAdReturnedToResult: true,
     earlyClose: true,
     duplicateComplete: true,
     auroraRestored: true,
-    ticketsAfterReload: 40,
+    ticketBonusAfterReload: 40,
+    totalClaims: 2,
     errors,
   };
   console.log(result);
