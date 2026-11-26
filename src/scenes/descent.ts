@@ -787,10 +787,18 @@ export function drawDescent(
       }
     }
   }
-  function placeRider(s: Ski, outfit: number[], opacity = 1) {
+  function placeRider(
+    s: Ski,
+    outfit: number[],
+    opacity = 1,
+    pos?: { x: number; y: number; lateral: number; depthBias?: number },
+  ) {
     const j = s.j;
     const air = s.phase === "air";
-    const boardZ = surface(s.x).center + s.lateral;
+    const rx = pos ? pos.x : s.x;
+    const ry = pos ? pos.y : s.y;
+    const rLat = pos ? pos.lateral : s.lateral;
+    const boardZ = surface(rx).center + rLat;
     const airborne = air
       ? j.showcase
         ? s.airProgress
@@ -847,15 +855,15 @@ export function drawDescent(
         const xx = x * cosPitch - yy * sinPitch;
         const dy = x * sinPitch + yy * cosPitch;
         return [
-          s.x + xx * cosYaw - zz * sinYaw,
-          s.y + dy,
+          rx + xx * cosYaw - zz * sinYaw,
+          ry + dy,
           boardZ + xx * sinYaw + zz * cosYaw,
         ];
       },
       snowHeight,
-      terrainBreaks.filter((x) => Math.abs(x - s.x) < 3),
+      terrainBreaks.filter((x) => Math.abs(x - rx) < 3),
     );
-    atDepth([s.x, s.y - rig.lift - 0.66, boardZ], () => {
+    atDepth([rx + (pos?.depthBias ?? 0), ry - rig.lift - 0.66, boardZ], () => {
       c.save();
       c.globalAlpha = opacity;
       paintFaces(c, rig.faces, camera, screen);
@@ -876,46 +884,48 @@ export function drawDescent(
       return null;
     return { screen: projected, scale: focal / view[2] };
   };
-  // Staggered side-by-side starting grid offsets (visible right at tick=0, smoothly merge over first 42 ticks)
+  // Staggered side-by-side starting grid + persistent lane spread so riders never clump, clip, or pop-out
   const gridSlots: [number, number][] = [
     [1.8, -2.85],
     [1.4, 2.55],
     [2.3, 5.15],
   ];
+  const laneSpread = [-0.85, 0.85, 1.65];
   rivals.forEach((rv, rvIdx) => {
     const rSki = rv.ski;
-    const blend = stage === 0 ? Math.max(0, 1 - rSki.tick / 42) : 0;
+    const rawBlend = stage === 0 ? Math.max(0, 1 - rSki.tick / 42) : 0;
+    const smoothBlend = rawBlend * rawBlend * (3 - 2 * rawBlend);
     const [gxOff, gzOff] = gridSlots[rvIdx % gridSlots.length];
-    const visX = rSki.x + gxOff * blend;
-    const visLat = rSki.lateral + gzOff * blend;
+    const spread = laneSpread[rvIdx % laneSpread.length];
+    const visX = rSki.x + gxOff * smoothBlend;
     if (Math.abs(visX - s.x) >= 38) return;
     const rSurf = surface(visX);
+    const maxLat = Math.max(1.2, rSurf.half - 0.85);
+    const rawLat = rSki.lateral + gzOff * smoothBlend + spread * (1 - smoothBlend);
+    const visLat = Math.max(-maxLat, Math.min(maxLat, rawLat));
     const lateral = rSurf.center + visLat;
-    const visY = blend > 0.01 ? rSurf.y : rSki.y;
+    const visY = rSki.y + (rSurf.y - rSki.y) * smoothBlend;
+    if (visibleTreeHeight(eye, snowEdges, visX, lateral) < visY - 0.65) return;
     const separation = Math.hypot(visX - s.x, lateral - boardZ);
-    if (
-      separation <= 0.9 ||
-      visibleTreeHeight(eye, snowEdges, visX, lateral) < visY - 0.65
-    )
-      return;
-    const rivalAlpha = Math.min(0.95, Math.max(0.65, (separation - 0.7) * 0.55));
-    const displaySki =
-      blend > 0.001
-        ? Object.assign(Object.create(Object.getPrototypeOf(rSki)), rSki, {
-            x: visX,
-            y: visY,
-            lateral: visLat,
-          })
-        : rSki;
-    placeRider(displaySki, rv.wear, rivalAlpha);
+    const prox = Math.max(0, Math.min(1, (separation - 0.35) / 1.65));
+    const smoothProx = prox * prox * (3 - 2 * prox);
+    const rivalAlpha = 0.32 + smoothProx * 0.63;
+    placeRider(rSki, rv.wear, rivalAlpha, {
+      x: visX,
+      y: visY,
+      lateral: visLat,
+      depthBias: (rvIdx + 1) * 0.002,
+    });
     if (rSki.tick > 0) rv.effects?.draw(c, effectProject, snowHeight, night, lite);
-    if (rv.name && separation > 1.4) {
+    const nameT = Math.max(0, Math.min(1, (separation - 0.95) / 0.85));
+    const nameAlpha = nameT * nameT * (3 - 2 * nameT) * rivalAlpha;
+    if (rv.name && nameAlpha > 0.03) {
       const vTag = camera([visX, visY - 2.55, lateral]);
       if (vTag[2] > 2.6) {
         const [tx, ty] = screen(vTag);
-        atDepth([visX, visY - 2.55, lateral], () => {
+        atDepth([visX + (rvIdx + 1) * 0.002, visY - 2.55, lateral], () => {
           c.save();
-          c.globalAlpha = Math.min(0.94, rivalAlpha);
+          c.globalAlpha = Math.min(0.94, nameAlpha);
           c.font = '700 11px "Microsoft YaHei", sans-serif';
           const tw = c.measureText(rv.name!).width + 14;
           c.fillStyle = "rgba(11, 26, 39, 0.8)";
