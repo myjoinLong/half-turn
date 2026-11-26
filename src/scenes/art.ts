@@ -145,6 +145,31 @@ export function panorama(
   c.beginPath();
   c.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
   c.fill();
+  // Diagonal volumetric sunbeams / aurora light shafts streaming across the valley
+  c.save();
+  for (let i = 0; i < 4; i++) {
+    const spread = (i - 1.5) * w * 0.14;
+    const bx = sunX - w * 0.24 + spread;
+    const ray = c.createLinearGradient(sunX, sunY, bx, h * 0.88);
+    ray.addColorStop(
+      0,
+      aurora || night
+        ? "rgba(142, 246, 228, 0.14)"
+        : canyon
+          ? "rgba(255, 206, 146, 0.18)"
+          : "rgba(255, 236, 178, 0.19)",
+    );
+    ray.addColorStop(1, "rgba(255, 255, 255, 0)");
+    c.fillStyle = ray;
+    c.beginPath();
+    c.moveTo(sunX - sunRadius * 0.3, sunY);
+    c.lineTo(sunX + sunRadius * 0.3, sunY);
+    c.lineTo(bx + w * 0.085, h * 0.88);
+    c.lineTo(bx - w * 0.085, h * 0.88);
+    c.closePath();
+    c.fill();
+  }
+  c.restore();
 
   for (let i = 0; i < 6; i++) {
     const x = noise(i + 9) * w,
