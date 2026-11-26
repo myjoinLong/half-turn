@@ -2,6 +2,7 @@ import type { Jump } from "../content/routes";
 import {
   gateOffset,
   height,
+  releaseForecast,
   roadCenter,
   roadWidth,
   sectionEnd,
@@ -61,6 +62,13 @@ export type Callout = {
   gold: boolean;
 };
 
+export type VisibleRival = {
+  ski: Ski;
+  wear: number[];
+  name?: string;
+  effects?: SnowEffects;
+};
+
 export function drawDescent(
   c: CanvasRenderingContext2D,
   w: number,
@@ -74,9 +82,7 @@ export function drawDescent(
   steady: boolean,
   cameraY: number,
   effects?: SnowEffects,
-  rival?: Ski,
-  rivalWear: number[] = [15, 11, 7],
-  rivalEffects?: SnowEffects,
+  rivals: VisibleRival[] = [],
   callout?: Callout,
 ) {
   const j = s.j;
@@ -143,9 +149,10 @@ export function drawDescent(
     right[0] * forward[1],
   ];
   const flightFocus = air ? Math.min(1, s.airTicks / 20) * s.tuckAmount : 0;
+  const feverBoost = s.fever ? 0.05 : 0;
   const focal =
     Math.min(w * 1.08, h * (wide ? 1.17 : 0.8)) *
-    (1 - rush * 0.1 + flightFocus * 0.04);
+    (1 - rush * 0.12 - feverBoost + flightFocus * 0.04);
   function camera([x, y, z]: Vec): Vec {
     const v: Vec = [x - eye[0], y - eye[1], z - eye[2]];
     return [-dot(v, right), dot(v, down), dot(v, forward)];
@@ -402,16 +409,161 @@ export function drawDescent(
     const lip = offset + jump.lip;
     if (lip >= start && lip < s.x + 150) {
       const road = surface(lip);
-      for (const side of [-1, 1])
-        gatePole(
-          lip,
-          road.center + side * (road.half - 0.35),
-          road.y,
-          "#ef8951",
-        );
+      for (const side of [-1, 1]) {
+        const edgeZ = road.center + side * (road.half - 0.35);
+        gatePole(lip, edgeZ, road.y, "#ef8951");
+        // Safety striped kicker bolster pad & fluttering banner on both sides
+        if (!lite) {
+          const padZ = road.center + side * (road.half + 0.45);
+          atDepth([lip - 1.4, road.y - 0.45, padZ], () => {
+            worldPoly(
+              [
+                [lip - 3.2, road.y, padZ],
+                [lip, road.y, padZ],
+                [lip, road.y - 0.85, padZ],
+                [lip - 3.2, road.y - 0.65, padZ],
+              ],
+              side === -1 ? "#e65c3e" : "#2fa8a0",
+            );
+            worldPoly(
+              [
+                [lip - 2.1, road.y - 0.05, padZ],
+                [lip - 1.1, road.y - 0.05, padZ],
+                [lip - 1.1, road.y - 0.72, padZ],
+                [lip - 2.1, road.y - 0.66, padZ],
+              ],
+              "#f6f9fb",
+            );
+          });
+        }
+        // Night/Aurora Winter-Olympics stadium spotlight beams sweeping upward from kicker sides!
+        if (night && !lite) {
+          const lampZ = road.center + side * (road.half + 1.4);
+          const vBase = camera([lip, road.y - 0.3, lampZ]);
+          if (vBase[2] > 2.5) {
+            const [bx, by] = screen(vBase);
+            const beamLen = Math.min(h * 0.72, (focal / vBase[2]) * 18);
+            const sway = Math.sin(s.tick * 0.03 + side * 1.4) * 18;
+            const tx = bx - side * beamLen * 0.34 + sway;
+            const ty = by - beamLen;
+            atDepth([lip, road.y - 1.2, lampZ], () => {
+              c.save();
+              const beam = c.createLinearGradient(bx, by, tx, ty);
+              beam.addColorStop(0, "rgba(235, 252, 255, 0.34)");
+              beam.addColorStop(0.5, "rgba(142, 232, 255, 0.14)");
+              beam.addColorStop(1, "rgba(142, 232, 255, 0)");
+              c.fillStyle = beam;
+              c.beginPath();
+              c.moveTo(bx - 3, by);
+              c.lineTo(bx + 3, by);
+              c.lineTo(tx + 38, ty);
+              c.lineTo(tx - 38, ty);
+              c.closePath();
+              c.fill();
+              c.fillStyle = "#fff8dc";
+              c.beginPath();
+              c.arc(bx, by, Math.max(2.5, Math.min(6, (focal / vBase[2]) * 0.25)), 0, Math.PI * 2);
+              c.fill();
+              c.restore();
+            });
+          }
+        }
+      }
+    }
+    // Wooden alpine distance signpost along the outer verge before each jump
+    if (!lite && !night) {
+      const signX = offset + Math.max(12, jump.lip - 34);
+      if (signX > start + 2 && signX < s.x + 125) {
+        const sr = surface(signX);
+        const sz = sr.center - (sr.half + 1.85);
+        atDepth([signX, sr.y - 0.9, sz], () => {
+          worldLine([signX, sr.y + 0.04, sz], [signX, sr.y - 1.85, sz], "#6b4f3a", 3);
+          worldPoly(
+            [
+              [signX, sr.y - 1.85, sz - 0.55],
+              [signX, sr.y - 1.85, sz + 0.55],
+              [signX, sr.y - 1.22, sz + 0.55],
+              [signX, sr.y - 1.22, sz - 0.55],
+            ],
+            "#e8c382",
+          );
+        });
+      }
     }
   }
 
+  // Cross-piste 3D FINISH gantry archway at the end of the final section
+  if (stage === jumps.length - 1) {
+    const finishX = span - 2.5;
+    if (finishX > start + 2 && finishX < s.x + 150) {
+      const fr = surface(finishX);
+      const zl = fr.center - (fr.half + 0.9);
+      const zr = fr.center + (fr.half + 0.9);
+      const archH = 4.6;
+      atDepth([finishX, fr.y - archH * 0.5, fr.center], () => {
+        // Left & right steel gantry pillars
+        worldLine([finishX, fr.y + 0.05, zl], [finishX, fr.y - archH, zl], "#182d40", 5.5);
+        worldLine([finishX, fr.y + 0.05, zr], [finishX, fr.y - archH, zr], "#182d40", 5.5);
+        // Overhead FINISH banner beam
+        worldPoly(
+          [
+            [finishX, fr.y - archH - 0.15, zl - 0.3],
+            [finishX, fr.y - archH - 0.15, zr + 0.3],
+            [finishX, fr.y - archH + 1.05, zr + 0.3],
+            [finishX, fr.y - archH + 1.05, zl - 0.3],
+          ],
+          "#132739",
+        );
+        // Glowing golden-cyan trim strip on the banner
+        worldLine(
+          [finishX, fr.y - archH + 1.02, zl - 0.25],
+          [finishX, fr.y - archH + 1.02, zr + 0.25],
+          "#ffd678",
+          2.6,
+        );
+        worldLine(
+          [finishX, fr.y - archH - 0.12, zl - 0.25],
+          [finishX, fr.y - archH - 0.12, zr + 0.25],
+          "#7cf4d8",
+          2,
+        );
+        // Checkered finish line painted on the snow
+        worldLine(
+          [finishX, fr.y - 0.04, fr.center - fr.half],
+          [finishX, fr.y - 0.04, fr.center + fr.half],
+          "#ffd678",
+          3.2,
+        );
+        // Crisp "FINISH" label centered on overhead beam
+        const vMid = camera([finishX, fr.y - archH + 0.45, fr.center]);
+        if (vMid[2] > 2.5) {
+          const [mx, my] = screen(vMid);
+          const fsz = Math.max(9, Math.min(24, Math.round((focal / vMid[2]) * 0.52)));
+          c.save();
+          c.font = `800 ${fsz}px "Microsoft YaHei", sans-serif`;
+          c.textAlign = "center";
+          c.textBaseline = "middle";
+          c.fillStyle = "#ffe5a0";
+          c.fillText("FINISH · 终点", mx, my);
+          c.restore();
+        }
+      });
+      // Finish-line golden-cyan celebratory confetti burst as player crosses!
+      if (!lite && s.x >= finishX - 6) {
+        const burstAge = Math.min(1, Math.max(0, (s.x - (finishX - 6)) / 12));
+        for (let i = 0; i < 18; i++) {
+          const cfZ = fr.center + Math.sin(i * 17.3) * fr.half * 0.95;
+          const cfY = fr.y - 1.2 - ((i * 0.61 + burstAge * 3.2) % 3.8);
+          const vCf = camera([finishX, cfY, cfZ]);
+          if (vCf[2] > 2) {
+            const [cx, cy] = screen(vCf);
+            c.fillStyle = ["#ffd678", "#7cf4d8", "#ff8d5c", "#ffffff"][i % 4];
+            c.fillRect(cx - 2.5, cy - 2.5, 5, 5);
+          }
+        }
+      }
+    }
+  }
   const passed = jumps
     .slice(0, stage)
     .reduce((sum, jump) => sum + sectionEnd(jump), 0);
@@ -539,6 +691,59 @@ export function drawDescent(
     c.fillRect(-radius, -radius, radius * 2, radius * 2);
     c.restore();
   }
+  // Expanding snow-surface landing shockwave ring on clean / perfect stomp
+  if (
+    !lite &&
+    s.result &&
+    s.result.grade !== "摔倒" &&
+    s.tick >= s.contactTick &&
+    s.tick - s.contactTick < 24
+  ) {
+    const wt = (s.tick - s.contactTick) / 24;
+    const isPerf = s.result.grade === "完美";
+    const r = 18 + wt * (isPerf ? 72 : 52);
+    c.save();
+    c.translate(...shadow);
+    c.scale(1, 0.3);
+    c.beginPath();
+    c.arc(0, 0, r, 0, Math.PI * 2);
+    c.strokeStyle = isPerf ? "#ffd878" : "#78f2dc";
+    c.lineWidth = (isPerf ? 5 : 3.5) * (1 - wt);
+    c.globalAlpha = (1 - wt) * 0.85;
+    c.stroke();
+    c.restore();
+  }
+  // Floating glowing aerial target ring above big-air / showcase jump apexes
+  if (!lite && (j.showcase || j.drop >= 4.5)) {
+    const ringX = j.lip + (j.showcase ? 14 : 9.5);
+    if (ringX > eye[0] + 2 && ringX < s.x + 110) {
+      const lipRoad = surface(j.lip);
+      const ringY = lipRoad.y - (j.showcase ? 5.6 : 3.4);
+      const ringZ = lipRoad.center;
+      const view = camera([ringX, ringY, ringZ]);
+      if (view[2] > 2.2) {
+        const [rx, ry] = screen(view);
+        const rad = Math.min(72, Math.max(10, (focal / view[2]) * (j.showcase ? 2.1 : 1.55)));
+        const passedRing = s.x > ringX + 1.5;
+        atDepth([ringX, ringY, ringZ], () => {
+          c.save();
+          c.beginPath();
+          c.ellipse(rx, ry, rad * 0.88, rad, 0, 0, Math.PI * 2);
+          c.strokeStyle = passedRing ? "#7cf4d8" : "#ffd678";
+          c.lineWidth = passedRing ? 2.2 : 3.4;
+          c.globalAlpha = passedRing ? 0.35 : 0.78;
+          c.stroke();
+          c.beginPath();
+          c.ellipse(rx, ry, rad * 0.88, rad, 0, 0, Math.PI * 2);
+          c.strokeStyle = "#ffffff";
+          c.lineWidth = 1.1;
+          c.globalAlpha = passedRing ? 0.2 : 0.55;
+          c.stroke();
+          c.restore();
+        });
+      }
+    }
+  }
   function placeRider(s: Ski, outfit: number[], opacity = 1) {
     const j = s.j;
     const air = s.phase === "air";
@@ -628,20 +833,107 @@ export function drawDescent(
       return null;
     return { screen: projected, scale: focal / view[2] };
   };
-  if (rival && rival.tick && Math.abs(rival.x - s.x) < 34) {
-    const lateral = surface(rival.x).center + rival.lateral;
-    const separation = Math.hypot(rival.x - s.x, lateral - boardZ);
+  for (const rv of rivals) {
+    const rSki = rv.ski;
+    if (!rSki.tick || Math.abs(rSki.x - s.x) >= 38) continue;
+    const lateral = surface(rSki.x).center + rSki.lateral;
+    const separation = Math.hypot(rSki.x - s.x, lateral - boardZ);
     if (
-      separation > 1.25 &&
-      visibleTreeHeight(eye, snowEdges, rival.x, lateral) >= rival.y - 0.65
-    ) {
-      const rivalAlpha = Math.min(0.9, Math.max(0.45, (separation - 1.15) * 0.42));
-      placeRider(rival, rivalWear, rivalAlpha);
-      rivalEffects?.draw(c, effectProject, snowHeight, night, true);
+      separation <= 1.2 ||
+      visibleTreeHeight(eye, snowEdges, rSki.x, lateral) < rSki.y - 0.65
+    )
+      continue;
+    const rivalAlpha = Math.min(0.94, Math.max(0.48, (separation - 1.1) * 0.45));
+    placeRider(rSki, rv.wear, rivalAlpha);
+    rv.effects?.draw(c, effectProject, snowHeight, night, lite);
+    if (rv.name && separation > 2.2) {
+      const vTag = camera([rSki.x, rSki.y - 2.55, lateral]);
+      if (vTag[2] > 3.2) {
+        const [tx, ty] = screen(vTag);
+        atDepth([rSki.x, rSki.y - 2.55, lateral], () => {
+          c.save();
+          c.globalAlpha = Math.min(0.9, rivalAlpha);
+          c.font = '700 11px "Microsoft YaHei", sans-serif';
+          const tw = c.measureText(rv.name!).width + 14;
+          c.fillStyle = "rgba(11, 26, 39, 0.76)";
+          c.beginPath();
+          c.roundRect(tx - tw / 2, ty - 10, tw, 19, 9.5);
+          c.fill();
+          c.strokeStyle = "rgba(255, 214, 126, 0.55)";
+          c.lineWidth = 1;
+          c.stroke();
+          c.textAlign = "center";
+          c.textBaseline = "middle";
+          c.fillStyle = "#ffe5a8";
+          c.fillText(rv.name!, tx, ty);
+          c.restore();
+        });
+      }
     }
   }
   effects?.draw(c, effectProject, snowHeight, night, lite);
   objects.sort((a, b) => b.depth - a.depth).forEach((object) => object.draw());
+
+  // Airborne safe-landing halo ring directly around the snowboard
+  if (air && s.airTicks > 8) {
+    const forecast = s.j.showcase
+      ? s.releaseWindow
+        ? { grade: "完美", halves: Math.round(s.spinTarget / 180) }
+        : s.canReleaseShowcase
+          ? { grade: "干净", halves: Math.round(s.spinTarget / 180) }
+          : undefined
+      : releaseForecast(s);
+    if (
+      forecast &&
+      forecast.halves > 0 &&
+      (forecast.grade === "完美" || forecast.grade === "干净")
+    ) {
+      const [rx, ry] = project(s.x, s.y - 0.6, boardZ);
+      const isPerfect = forecast.grade === "完美";
+      const pulse = 1 + 0.08 * Math.sin(s.tick * 0.45);
+      c.save();
+      c.translate(rx, ry);
+      c.scale(pulse, pulse);
+      c.beginPath();
+      c.arc(0, 0, isPerfect ? 34 : 30, 0, Math.PI * 2);
+      c.strokeStyle = isPerfect
+        ? "rgba(255, 214, 102, 0.92)"
+        : "rgba(96, 232, 186, 0.8)";
+      c.lineWidth = isPerfect ? 3.2 : 2.4;
+      c.stroke();
+      c.font = '800 13px "Microsoft YaHei", sans-serif';
+      c.textAlign = "center";
+      c.lineWidth = 3;
+      c.strokeStyle = "rgba(10, 24, 36, 0.88)";
+      const cue = isPerfect ? "松手完美！" : "可稳落";
+      c.strokeText(cue, 0, -40);
+      c.fillStyle = isPerfect ? "#ffe082" : "#9cf7d8";
+      c.fillText(cue, 0, -40);
+      c.restore();
+    }
+  }
+
+  // Gate-hit speed surge burst ring & micro-callout
+  const gateAge = s.tick - s.lastGateTick;
+  if (gateAge >= 0 && gateAge < 34) {
+    const t = gateAge / 34;
+    const [gx, gy] = project(s.x, s.y - 0.8, boardZ);
+    c.save();
+    c.globalAlpha = 1 - t;
+    c.beginPath();
+    c.arc(gx, gy, 16 + t * 28, 0, Math.PI * 2);
+    c.strokeStyle = "#62f0df";
+    c.lineWidth = 2.6 * (1 - t);
+    c.stroke();
+    c.font = '800 14px "Microsoft YaHei", sans-serif';
+    c.textAlign = "center";
+    c.lineWidth = 3;
+    c.strokeStyle = "rgba(10, 24, 36, 0.85)";
+    c.strokeText("穿门加速 +25", gx, gy - 22 - t * 22);
+    c.fillStyle = "#9cfaf0";
+    c.fillText("穿门加速 +25", gx, gy - 22 - t * 22);
+    c.restore();
+  }
 
   if (callout && callout.age < 1250) {
     const t = callout.age / 1250;
@@ -672,20 +964,79 @@ export function drawDescent(
     c.restore();
   }
 
-  const intensity = Math.min(1, Math.max(rush, (s.speed - 16) / 18));
-  if (s.tick && (rush > 0.24 || s.speed > 18.8) && !lite) {
-    for (let i = 0; i < 10; i++) {
+  // Subtle sun-catching snow crystal sparkles on the foreground piste
+  if (!lite) {
+    c.save();
+    for (let i = 0; i < 14; i++) {
+      const sx = s.x + 5 + ((i * 7.3 + Math.floor(s.x * 0.4) * 3.1) % 36);
+      const sp = surface(sx);
+      const sz = sp.center + Math.sin(i * 19.7 + Math.floor(sx)) * sp.half * 0.9;
+      const shimmer = 0.5 + 0.5 * Math.sin(s.tick * 0.22 + i * 2.1);
+      if (shimmer < 0.72) continue;
+      const pt = project(sx, sp.y - 0.04, sz);
+      if (pt[0] < 8 || pt[0] > w - 8 || pt[1] < h * 0.35 || pt[1] > h - 8) continue;
+      c.fillStyle = night
+        ? `rgba(182, 238, 255, ${(shimmer - 0.7) * 2.2})`
+        : `rgba(255, 255, 245, ${(shimmer - 0.7) * 2.5})`;
+      c.fillRect(pt[0] - 1, pt[1] - 1, 2.2, 2.2);
+    }
+    c.restore();
+  }
+
+  const intensity = Math.min(1, Math.max(rush, s.fever ? 0.85 : 0, (s.speed - 16) / 18));
+  if (s.tick && (rush > 0.24 || s.fever || s.speed > 18.8) && !lite) {
+    const count = s.fever ? 14 : 10;
+    for (let i = 0; i < count; i++) {
       const f = (i * 0.381 + s.tick * (0.008 + 0.012 * intensity)) % 1;
       const edge = i % 2 ? -1 : 1;
       const x = w * (0.5 + (0.38 + f * 0.22) * edge),
-        y = h * (0.37 + f * (0.25 + (i % 6) * 0.075));
+        y = h * (0.34 + f * (0.28 + (i % 6) * 0.075));
+      const col = s.fever && i % 2 === 0
+        ? "rgba(116,246,228," + intensity * 0.42 * f + ")"
+        : "rgba(236,250,255," + intensity * 0.3 * f + ")";
       line(
         c,
         [x, y],
-        [x + edge * (6 + intensity * 18) * f, y + (8 + intensity * 19) * f],
-        "rgba(236,250,255," + intensity * 0.29 * f + ")",
-        1.15,
+        [x + edge * (7 + intensity * 20) * f, y + (8 + intensity * 20) * f],
+        col,
+        s.fever ? 1.5 : 1.15,
       );
     }
+  }
+  if (s.fever) {
+    c.save();
+    c.font = '800 13px "Microsoft YaHei", sans-serif';
+    c.textAlign = "center";
+    const bx = w * 0.5, by = 30;
+    c.fillStyle = "rgba(13, 38, 52, 0.78)";
+    c.beginPath();
+    c.roundRect(bx - 64, by - 12, 128, 24, 12);
+    c.fill();
+    c.strokeStyle = "#76f2dc";
+    c.lineWidth = 1.4;
+    c.stroke();
+    c.fillStyle = "#9efbe9";
+    c.fillText("极速热流 ×1.2", bx, by + 4);
+    c.restore();
+  }
+  // Foreground cinematic bokeh drifting snow / aurora dust for spatial depth
+  if (!lite) {
+    c.save();
+    for (let i = 0; i < 16; i++) {
+      const speedX = 1.4 + (i % 4) * 0.55;
+      const speedY = 0.8 + (i % 3) * 0.45;
+      const fx = (((i * 97.3 - s.tick * speedX) % w) + w) % w;
+      const fy = (((i * 63.7 + s.tick * speedY) % h) + h) % h;
+      const r = 1.4 + (i % 4) * 0.9;
+      c.fillStyle = night
+        ? i % 3 === 0
+          ? "rgba(140, 246, 224, 0.28)"
+          : "rgba(220, 242, 255, 0.26)"
+        : "rgba(255, 252, 244, 0.34)";
+      c.beginPath();
+      c.arc(fx, fy, r, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.restore();
   }
 }

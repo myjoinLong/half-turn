@@ -9,7 +9,7 @@ import {
   type Round,
 } from "../sim/season";
 import { simVersion, courseVersion } from "../sim/ski";
-import { change, credit, markDailyGoal } from "./save";
+import { change, credit, creditAurora, markDailyGoal } from "./save";
 
 export type RaceSlot = { meetId: string; round: Round; index: number };
 
@@ -36,7 +36,6 @@ export function retryLastRun(meetId: string, round: Round) {
   change((save) => {
     const meet = save.season.active;
     if (!meet || meet.id !== meetId || !meet[round].length) return;
-    // Only allow retrying the most recent completed run of the current or just-eliminated round.
     if (round === "qualifying" && meet.final.length > 0) return;
     meet[round].pop();
     updated = meet;
@@ -82,8 +81,14 @@ export function settleRace(slot: RaceSlot, run: Attempt) {
       course: courseVersion,
     };
     const reward = trophyTickets(placing.rank) - trophyTickets(previous?.rank);
-    if (reward > 0 && credit(save, "podium/" + id + "/" + placing.rank, reward))
+    if (reward > 0 && credit(save, "podium/" + id + "/" + placing.rank, reward)) {
       bonus = reward;
+      creditAurora(
+        save,
+        "podium-aurora/" + id + "/" + placing.rank,
+        Math.max(10, Math.round(reward * 0.25)),
+      );
+    }
   });
   return { meeting: save.season.active, recorded, bonus };
 }

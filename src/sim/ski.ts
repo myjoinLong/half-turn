@@ -52,29 +52,37 @@ export function tangent(j: Jump, x: number) {
     Math.PI
   );
 }
-export function judge(angle: number, slope: number, combo: number) {
+export function judge(
+  angle: number,
+  slope: number,
+  combo: number,
+  extraTolerance = 0,
+) {
   const diff = angle - slope,
     halves = Math.round(Math.abs(diff) / 180),
     error = diff - Math.round(diff / 180) * 180,
     a = Math.abs(error);
-  const grade = a <= 10 ? "完美" : a <= 25 ? "干净" : a <= 40 ? "勉强" : "摔倒";
+  const pLim = 10 + extraTolerance * 0.45;
+  const cLim = 25 + extraTolerance * 0.75;
+  const mLim = 40 + extraTolerance;
+  const grade = a <= pLim ? "完美" : a <= cLim ? "干净" : a <= mLim ? "勉强" : "摔倒";
   const score =
     grade === "摔倒"
       ? 0
       : Math.round(
           halves *
             100 *
-            ((a <= 10 ? 1.5 : a <= 25 ? 1.2 : 1) +
-              (a <= 25 ? Math.min(combo, 5) * 0.1 : 0)),
+            ((a <= pLim ? 1.5 : a <= cLim ? 1.2 : 1) +
+              (a <= cLim ? Math.min(combo, 5) * 0.1 : 0)),
         );
-  return { grade, score, halves, error, combo: a <= 25 ? combo + 1 : 0 };
+  return { grade, score, halves, error, combo: a <= cLim ? combo + 1 : 0 };
 }
 export type Result = ReturnType<typeof judge>;
 export function releaseForecast(ski: Ski): Result | undefined {
   if (ski.phase !== "air" || ski.j.showcase) return;
   let { x, y, vy, omega, angle } = ski;
   for (let frame = 0; frame < 240; frame++) {
-    omega *= 0.83;
+    omega *= 0.83 - ski.skills[1] * 0.02;
     angle += omega * dt;
     const endX = x + ski.speed * dt;
     const endY = y + vy * dt + 7 * dt * dt;
@@ -87,7 +95,9 @@ export function releaseForecast(ski: Ski): Result | undefined {
           upper = t;
         else lower = t;
       }
-      return judge(angle, tangent(ski.j, x + ski.speed * upper), ski.combo);
+      const pred = judge(angle, tangent(ski.j, x + ski.speed * upper), ski.combo, ski.skills[2] * 3);
+      if (ski.fever && pred.grade !== "摔倒") pred.score = Math.round(pred.score * 1.2);
+      return pred;
     }
     x = endX;
     y = endY;
@@ -116,6 +126,9 @@ export class Ski {
   braking = false;
   gateIndex = 0;
   gateHits = 0;
+  lastGateTick = -999;
+  fever = false;
+  skills: readonly [number, number, number] = [0, 0, 0];
   gateTouches: { index: number; side: number; tick: number }[] = [];
   recoverTick = 0;
   boostAt: number | undefined;
@@ -138,7 +151,9 @@ export class Ski {
     public auto = false,
     public combo = 0,
     entrySpeed = j.speed,
+    skills: readonly [number, number, number] = [0, 0, 0],
   ) {
+    this.skills = skills;
     this.y = height(j, 0);
     this.angle = tangent(j, 0);
     this.speed = entrySpeed;
@@ -207,7 +222,7 @@ export class Ski {
           this.lateral + this.lean * this.speed * dt * 0.36,
         ),
       );
-      if (pressed) this.charge = Math.min(1, this.charge + dt * 2.8);
+      if (pressed) this.charge = Math.min(1, this.charge + dt * (2.8 + this.skills[0] * 0.45));
       this.x += this.speed * dt;
       for (
         let i = Math.max(0, this.gateIndex - 1);
@@ -226,8 +241,17 @@ export class Ski {
       }
       const gate = j.trail?.gates[this.gateIndex];
       if (gate !== undefined && this.x >= gate * j.lip) {
-        if (Math.abs(this.lateral - gateOffset(j, this.gateIndex)) < 2.45)
+        if (Math.abs(this.lateral - gateOffset(j, this.gateIndex)) < 2.45) {
           this.gateHits++;
+          this.lastGateTick = this.tick;
+          if (this.gateHits >= 3 && !this.fever) {
+            this.fever = true;
+            if (!this.braking)
+              this.speed = Math.min(j.speed * 1.66, this.speed + 2.4);
+          } else if (!this.braking) {
+            this.speed = Math.min(j.speed * 1.58, this.speed + 1.8);
+          }
+        }
         this.gateIndex++;
       }
       this.manual =
@@ -238,8 +262,10 @@ export class Ski {
       this.angle = tangent(j, this.x - 0.005);
       if (this.manual || lip) {
         this.phase = "air";
+        const powerBoost = this.manual ? 1 + this.skills[0] * 0.05 : 1;
         this.vy =
           -j.kick *
+          powerBoost *
           (this.manual ? 0.77 + 0.27 * this.charge : this.auto ? 1 : 0.55);
         this.vy *= 1 + (this.speed / j.speed - 1) * 0.36;
         this.omega = 0;
@@ -290,8 +316,11 @@ export class Ski {
         )
           this.performedGrabs.push(this.activeGrab);
       } else {
-        this.omega +=
-          ((pressed ? -240 : 0) - this.omega) * (pressed ? 0.1 : 0.17);
+        const spinSpeed = -240 * (1 + this.skills[1] * 0.08);
+        const damp = pressed
+          ? 0.1 + this.skills[1] * 0.012
+          : 0.17 + this.skills[1] * 0.02;
+        this.omega += ((pressed ? spinSpeed : 0) - this.omega) * damp;
         this.angle += this.omega * dt;
         this.yaw = -this.angle;
       }
@@ -335,9 +364,11 @@ export class Ski {
                   this.landingAngle,
                   this.combo,
                 )
-              : judge(this.angle, this.landingAngle, this.combo);
+              : judge(this.angle, this.landingAngle, this.combo, this.skills[2] * 3);
           if (j.showcase && !this.predicting && this.result.grade !== "摔倒")
             this.result.score += this.performedGrabs.length * 60;
+          if (this.fever && this.result.grade !== "摔倒")
+            this.result.score = Math.round(this.result.score * 1.2);
           if (this.result.grade !== "摔倒") this.angle = this.landingAngle;
           this.phase = this.result.grade === "摔倒" ? "crash" : "land";
           break;

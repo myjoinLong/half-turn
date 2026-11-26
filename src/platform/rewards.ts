@@ -1,4 +1,5 @@
-import { beijingDay, credit, type Save } from "./save";
+import type { GearCurrency } from "../content/gear";
+import { beijingDay, credit, creditAurora, type Save } from "./save";
 
 export type Reward =
   | "tickets"
@@ -9,21 +10,28 @@ export type Reward =
   | "seasonDouble";
 
 export const ticketCooldownMs = 60000;
-export const topupMaxDeficit = 80;
+export const topupMaxDeficit = 100;
+export const topupMaxAuroraDeficit = 25;
 export const featureDailyLimits: Record<
   Exclude<Reward, "tickets" | "aurora">,
   number
 > = {
-  topup: 2,
+  topup: 3,
   trial: 3,
   seasonRetry: 3,
   seasonDouble: 3,
 };
 
 export function softTierReward(dailyCount: number) {
-  if (dailyCount < 3) return 60;
-  if (dailyCount < 6) return 40;
-  return 25;
+  if (dailyCount < 3) return 80;
+  if (dailyCount < 6) return 60;
+  return 40;
+}
+
+export function softTierAuroraBonus(dailyCount: number) {
+  if (dailyCount < 3) return 12;
+  if (dailyCount < 6) return 8;
+  return 5;
 }
 
 export function ticketRewardFor(save: Save, now = Date.now()) {
@@ -49,6 +57,7 @@ export function rewardOffer(
   run = "",
   now = Date.now(),
   amount = 0,
+  currency: GearCurrency = "coins",
 ) {
   const day = beijingDay(now);
   if (
@@ -68,46 +77,102 @@ export function rewardOffer(
     )
       return null;
     const count = save.adDay.day === day ? save.adDay.count : 0;
-    return { kind, run, key, day, offeredAt: now, amount: softTierReward(count) };
+    return {
+      kind,
+      run,
+      key,
+      day,
+      offeredAt: now,
+      amount: softTierReward(count),
+      auroraAmount: softTierAuroraBonus(count),
+      currency: "coins" as GearCurrency,
+    };
   }
 
   if (kind === "aurora") {
     const key = "ad/aurora/" + day;
     if (save.passes || Object.hasOwn(save.ledger, key)) return null;
-    return { kind, run, key, day, offeredAt: now, amount: 0 };
+    return {
+      kind,
+      run,
+      key,
+      day,
+      offeredAt: now,
+      amount: 0,
+      auroraAmount: 0,
+      currency: "aurora" as GearCurrency,
+    };
   }
 
   const used = featureCount(save, kind, day);
   if (used >= featureDailyLimits[kind]) return null;
 
   if (kind === "topup") {
-    const key = "ad/topup/" + run;
+    const key = "ad/topup/" + currency + "/" + run;
+    const maxDef =
+      currency === "aurora" ? topupMaxAuroraDeficit : topupMaxDeficit;
     if (
       !run ||
       amount <= 0 ||
-      amount > topupMaxDeficit ||
+      amount > maxDef ||
       Object.hasOwn(save.ledger, key)
     )
       return null;
-    return { kind, run, key, day, offeredAt: now, amount };
+    return {
+      kind,
+      run,
+      key,
+      day,
+      offeredAt: now,
+      amount: currency === "coins" ? amount : 0,
+      auroraAmount: currency === "aurora" ? amount : 0,
+      currency,
+    };
   }
 
   if (kind === "trial") {
     const key = "ad/trial/" + day + "/" + used + "/" + (run || "gear");
     if (Object.hasOwn(save.ledger, key)) return null;
-    return { kind, run, key, day, offeredAt: now, amount: 0 };
+    return {
+      kind,
+      run,
+      key,
+      day,
+      offeredAt: now,
+      amount: 0,
+      auroraAmount: 0,
+      currency: "coins" as GearCurrency,
+    };
   }
 
   if (kind === "seasonRetry") {
     const key = "ad/seasonRetry/" + run;
     if (!run || Object.hasOwn(save.ledger, key)) return null;
-    return { kind, run, key, day, offeredAt: now, amount: 0 };
+    return {
+      kind,
+      run,
+      key,
+      day,
+      offeredAt: now,
+      amount: 0,
+      auroraAmount: 0,
+      currency: "coins" as GearCurrency,
+    };
   }
 
   // seasonDouble
   const key = "ad/seasonDouble/" + run;
   if (!run || amount <= 0 || Object.hasOwn(save.ledger, key)) return null;
-  return { kind, run, key, day, offeredAt: now, amount };
+  return {
+    kind,
+    run,
+    key,
+    day,
+    offeredAt: now,
+    amount,
+    auroraAmount: Math.max(8, Math.round(amount * 0.25)),
+    currency: "coins" as GearCurrency,
+  };
 }
 
 export function claimReward(
@@ -119,10 +184,13 @@ export function claimReward(
     offer.kind,
     offer.run,
     offer.offeredAt,
-    offer.amount,
+    offer.currency === "aurora" ? offer.auroraAmount : offer.amount,
+    offer.currency,
   );
   if (check?.key !== offer.key || save.adDay.day > offer.day) return false;
   if (!credit(save, offer.key, offer.amount)) return false;
+  if (offer.auroraAmount > 0)
+    creditAurora(save, offer.key + "/aurora", offer.auroraAmount);
 
   if (offer.kind === "tickets") {
     if (save.adDay.day !== offer.day) save.adDay = { day: offer.day, count: 0 };

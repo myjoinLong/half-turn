@@ -1,10 +1,17 @@
-// Procedural WebAudio soundscape for carving snow, high-speed wind, and combo chimes.
+// Procedural WebAudio soundscape: snow carving, high-speed wind, chimes & subtle alpine ambient BGM.
 export class SnowAudio {
   private ctx: AudioContext | null = null;
   private carveGain: GainNode | null = null;
   private carveFilter: BiquadFilterNode | null = null;
   private windGain: GainNode | null = null;
   private windFilter: BiquadFilterNode | null = null;
+  private bgmFilter: BiquadFilterNode | null = null;
+  private bgmGain: GainNode | null = null;
+  private bgmTimer: number | null = null;
+  private bgmStep = 0;
+  private bgmMode: "off" | "lobby" | "run" = "off";
+  private bgmAir = false;
+  private bgmFever = false;
 
   unlock() {
     if (typeof window === "undefined") return;
@@ -45,16 +52,81 @@ export class SnowAudio {
         windSrc.connect(windFilter).connect(windGain).connect(ctx.destination);
         windSrc.start();
 
+        const bgmFilter = ctx.createBiquadFilter();
+        bgmFilter.type = "lowpass";
+        bgmFilter.frequency.value = 1100;
+        const bgmGain = ctx.createGain();
+        bgmGain.gain.value = 0;
+        bgmFilter.connect(bgmGain).connect(ctx.destination);
+
         this.ctx = ctx;
         this.carveGain = carveGain;
         this.carveFilter = carveFilter;
         this.windGain = windGain;
         this.windFilter = windFilter;
+        this.bgmFilter = bgmFilter;
+        this.bgmGain = bgmGain;
+        this.startBgmLoop();
       } catch {
         return;
       }
     }
     if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
+  }
+
+  private startBgmLoop() {
+    if (this.bgmTimer !== null || typeof window === "undefined") return;
+    // Nordic alpine pentatonic chill-pulse (D minor / F major ambient)
+    const lobbyNotes = [293.66, 349.23, 440.0, 523.25, 440.0, 349.23, 392.0, 329.63];
+    const runNotes = [293.66, 440.0, 523.25, 587.33, 523.25, 440.0, 392.0, 440.0];
+    const bassNotes = [146.83, 146.83, 174.61, 174.61, 130.81, 130.81, 110.0, 130.81];
+    this.bgmTimer = window.setInterval(() => {
+      if (!this.ctx || !this.bgmFilter || this.ctx.state !== "running" || this.bgmMode === "off")
+        return;
+      const now = this.ctx.currentTime;
+      const step = this.bgmStep++ % 8;
+      const isRun = this.bgmMode === "run";
+      const freq = (isRun ? runNotes : lobbyNotes)[step] * (this.bgmFever ? 1.122 : 1);
+
+      // Gentle melodic pluck
+      const osc = this.ctx.createOscillator();
+      const env = this.ctx.createGain();
+      osc.type = isRun ? "triangle" : "sine";
+      osc.frequency.setValueAtTime(freq, now);
+      const peak = isRun ? 0.024 : 0.016;
+      env.gain.setValueAtTime(0.0001, now);
+      env.gain.exponentialRampToValueAtTime(peak, now + 0.025);
+      env.gain.exponentialRampToValueAtTime(0.0001, now + (isRun ? 0.24 : 0.42));
+      osc.connect(env).connect(this.bgmFilter);
+      osc.start(now);
+      osc.stop(now + (isRun ? 0.26 : 0.45));
+
+      // Warm sub-bass pulse on even steps while riding
+      if (isRun && step % 2 === 0) {
+        const bass = this.ctx.createOscillator();
+        const bEnv = this.ctx.createGain();
+        bass.type = "sine";
+        bass.frequency.setValueAtTime(bassNotes[step], now);
+        bEnv.gain.setValueAtTime(0.0001, now);
+        bEnv.gain.exponentialRampToValueAtTime(0.032, now + 0.02);
+        bEnv.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+        bass.connect(bEnv).connect(this.bgmFilter);
+        bass.start(now);
+        bass.stop(now + 0.32);
+      }
+    }, 340);
+  }
+
+  updateBgm(enabled: boolean, mode: "off" | "lobby" | "run", air = false, fever = false) {
+    this.bgmMode = enabled ? mode : "off";
+    this.bgmAir = air;
+    this.bgmFever = fever;
+    if (!this.ctx || !this.bgmGain || !this.bgmFilter) return;
+    const now = this.ctx.currentTime;
+    const targetGain = !enabled || mode === "off" ? 0 : mode === "run" ? 0.9 : 0.65;
+    const targetCut = air ? 420 : fever ? 2400 : mode === "run" ? 1500 : 950;
+    this.bgmGain.gain.setTargetAtTime(targetGain, now, 0.12);
+    this.bgmFilter.frequency.setTargetAtTime(targetCut, now, 0.1);
   }
 
   update(
@@ -112,5 +184,22 @@ export class SnowAudio {
       osc.start(now + idx * 0.045);
       osc.stop(now + idx * 0.045 + 0.3);
     });
+  }
+
+  playGateChime(enabled: boolean, hits: number) {
+    if (!enabled || !this.ctx || this.ctx.state !== "running") return;
+    const now = this.ctx.currentTime;
+    const freq = 587.33 * (1 + Math.min(5, Math.max(0, hits - 1)) * 0.12);
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.25, now + 0.08);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.045, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    osc.connect(gain).connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.18);
   }
 }

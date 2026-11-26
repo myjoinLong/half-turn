@@ -61,14 +61,14 @@ export function trailName(j: Jump) {
 }
 function jumps(p: number[], mountain: number, line = 0) {
   return p.map((n, i) => ({
-    lip: line === 0 && i === 0 ? 46 : 204 + n * 14 + (line % 5) * 15 + i * 3,
+    lip: line === 0 && i === 0 ? 46 : 114 + n * 10 + (line % 5) * 9 + i * 4,
     speed: 15 + mountain * 1.6 + n * 0.65,
     kick: 7.3 + n * 0.6,
     slope: 0.19 + n * 0.018,
     drop: 3.4 + mountain * 1.5 + n * 0.55,
     trail: {
       ...terrain[n],
-      runout: 58 + n * 5,
+      runout: 44 + n * 4,
       gates: i === 0 && line === 0 ? [0.35] : [0.22, 0.46, 0.68],
     },
     grab: (["nose", "tail", "indy"] as const)[(mountain + i) % 3],

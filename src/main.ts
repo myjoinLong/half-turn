@@ -30,9 +30,12 @@ import {
   log,
   finish,
   credit,
+  creditAurora,
   medal,
   beijingDay,
+  riderRank,
   markDailyGoal,
+  claimDailyBonus,
   volatile,
   type Clip,
 } from "./platform/save";
@@ -42,16 +45,19 @@ import {
   claimReward,
   ticketCooldownLeft,
   topupMaxDeficit,
+  topupMaxAuroraDeficit,
   type Reward,
 } from "./platform/rewards";
-import { gearCatalog, gearKinds } from "./content/gear";
+import { gearCatalog, gearKinds, currencyName, type GearCurrency } from "./content/gear";
 import { trailSample } from "./scenes/trail-art";
 import { SnowAudio } from "./scenes/audio";
 import { scenicArt, gearArt, type ScenicFeature } from "./ui/artwork";
+import { generatePosterDataUrl, type PosterInput } from "./ui/poster";
 import { grabs, grabOrder, type Grab } from "./content/tricks";
 import { RideGesture } from "./ui/gesture";
 import { courseView } from "./ui/course-view";
-import { stations, outfitForRival } from "./content/season-routes";
+import { stations, rivals as rivalNames, outfitForRival } from "./content/season-routes";
+import { fields } from "./content/season-field";
 import { RivalRide } from "./sim/rival";
 import {
   compareSplit,
@@ -151,6 +157,7 @@ type ActiveRace = {
   rival: RivalRide;
   rivalId: number;
   rivalWear: number[];
+  pack: { ride: RivalRide; wear: number[]; name: string; passed: boolean }[];
   name: string;
   targetSplits: number[];
   splitRank?: number;
@@ -176,11 +183,16 @@ function set(id: string, t: string) {
 }
 function spawn(entrySpeed = route.jumps[index].speed) {
   sectionEntrySpeed = entrySpeed;
+  const activeSkills: [number, number, number] =
+    route.mode === "daily" || route.mode === "intro"
+      ? [0, 0, 0]
+      : read().skills;
   scene.ski = new Ski(
     route.jumps[index],
     route.mode === "intro" || (careerTutorial && index === 0),
     combo,
     entrySpeed,
+    activeSkills,
   );
   scene.jumps = route.jumps;
   scene.stage = index;
@@ -207,6 +219,7 @@ function close() {
   resetControls();
   settings();
 }
+let tourPaceRival: { ride: RivalRide; wear: number[]; beaten: boolean } | undefined;
 function start(r: Route, activeRace?: ActiveRace) {
   if (r.mode === "show" && !read().passes) {
     selectMountain();
@@ -215,7 +228,25 @@ function start(r: Route, activeRace?: ActiveRace) {
   close();
   route = r;
   race = activeRace;
-  scene.rival = race?.rival;
+  tourPaceRival = undefined;
+  if (!race && r.mode === "tour" && (read().taught || r.id !== tours[0].id)) {
+    const idx = Math.max(0, tours.indexOf(r));
+    const wear = outfitForRival((idx + r.mountain * 2) % 7);
+    tourPaceRival = {
+      ride: new RivalRide(r, 17 + idx * 13),
+      wear,
+      beaten: false,
+    };
+    scene.rival = tourPaceRival.ride;
+    scene.rivalWear = wear;
+    scene.rivals = [
+      { ride: tourPaceRival.ride, wear, name: rivalNames[(idx + r.mountain * 2) % 7] },
+    ];
+  } else {
+    scene.rival = race?.rival;
+    scene.rivals = race?.pack ?? [];
+    scene.rivals = race?.pack ?? [];
+  }
   careerTutorial = r.id === tours[0].id && !read().taught;
   index = total = combo = 0;
   clips = [];
@@ -355,19 +386,11 @@ function hud() {
     "feedback",
     countdown > 0
       ? String(Math.ceil(countdown / 1000))
-      : r
-        ? crash
-          ? "摔进雪里 · 压板起身"
-          : s.tick - s.contactTick < 76
-            ? r.grade === "摔倒"
-              ? "重新站稳"
-              : r.grade + "落地  +" + r.score
-            : ""
-        : forecast &&
-            forecast.score > 0 &&
-            (forecast.grade === "完美" || forecast.grade === "干净")
-          ? "可松手 · 预计 +" + forecast.score
-          : "",
+      : forecast &&
+          forecast.score > 0 &&
+          (forecast.grade === "完美" || forecast.grade === "干净")
+        ? "可松手 · 预计 +" + forecast.score
+        : "",
   );
   set(
     "meter",
@@ -409,15 +432,9 @@ function openingHud(s: Ski, trick: string) {
     "feedback",
     countdown > 0
       ? String(Math.ceil(countdown / 1000))
-      : phase === "land"
-        ? s.result?.grade === "摔倒"
-          ? "重新站稳"
-          : landed + " " + spin + "°"
-        : phase === "crash" || phase === "recover"
-          ? "先侧滑卸力，再撑地起身"
-          : phase === "air" && held && s.releaseWindow && s.grabbing
-            ? "现在松手！"
-            : "",
+      : phase === "air" && held && s.releaseWindow && s.grabbing
+        ? "现在松手！"
+        : "",
   );
   set(
     "action",
@@ -707,7 +724,12 @@ function step() {
     clipHeld = held;
   }
   const phase = s.phase;
+  const prevGates = s.gateHits;
   s.step(held);
+  if (s.gateHits > prevGates) {
+    snowAudio.playGateChime(read().sound, s.gateHits);
+    if (read().vibrate) navigator.vibrate?.(10);
+  }
   if (phase === "run" && s.phase === "air") {
     gestureBrake = false;
     updateBrake();
@@ -783,13 +805,20 @@ function step() {
 }
 scene.drive = (delta) => {
   const activeRun = !document.hidden && !paused && playing && !portraitPhone.matches && countdown <= 0;
+  const soundOn = read().sound && !document.hidden;
   snowAudio.update(
-    read().sound,
+    soundOn,
     activeRun && !replay,
     scene.ski?.speed ?? 0,
     scene.ski?.phase === "air",
     Boolean(scene.ski?.braking),
     scene.ski?.phase === "crash" || scene.ski?.phase === "recover",
+  );
+  snowAudio.updateBgm(
+    soundOn,
+    activeRun ? "run" : pageOpen() ? "lobby" : "off",
+    scene.ski?.phase === "air",
+    Boolean(scene.ski?.fever),
   );
   if (document.hidden || paused || !playing || portraitPhone.matches) return;
   if (countdown > 0) {
@@ -808,7 +837,22 @@ scene.drive = (delta) => {
   while (acc >= 1000 / 60 && playing && !paused) {
     acc -= 1000 / 60;
     const skier = scene.ski;
-    if (!replay) race?.rival.step();
+    if (!replay) {
+      if (race) {
+        const myDist = rideDistance();
+        for (const member of race.pack) {
+          const wasAhead = member.ride.distance > myDist + 0.5;
+          member.ride.step();
+          if (wasAhead && !member.passed && member.ride.distance < myDist - 0.5) {
+            member.passed = true;
+            scene.showCallout("超越 " + member.name, "继续保持冲刺！", true);
+            snowAudio.playGateChime(read().sound, 4);
+          }
+        }
+      } else {
+        tourPaceRival?.ride.step();
+      }
+    }
     step();
     scene.recordEffects(skier);
   }
@@ -855,6 +899,10 @@ function advance() {
     const hadBonus = Object.hasOwn(read().ledger, bonusKey);
     const save = finish(runId, route.id, clips, total, route.mode === "tour");
     firstMedalBonus = !hadBonus && save.ledger[bonusKey] === 40;
+    if (tourPaceRival && total >= Math.max(200, tourPaceRival.ride.score)) {
+      tourPaceRival.beaten = true;
+      change((s) => credit(s, "pace/" + runId, 30));
+    }
   }
   if (route.id === tours[0].id) change((s) => (s.taught = true));
   log("完赛", route.id);
@@ -877,6 +925,7 @@ function view(list: Clip[], back: () => void, course = route) {
   const previous = { route, index, total, ski: scene.ski, playing };
   close();
   scene.rival = undefined;
+  scene.rivals = [];
   route = course;
   total = 0;
   scene.mountain = course.mountain;
@@ -1119,8 +1168,10 @@ function result(message = "") {
     route.mode === "tour"
       ? ["完成线路", "铜牌", "银牌", "金牌"][medal(total)]
       : "",
-    isPark ? "" : "完赛 +20 雪票",
-    firstMedalBonus ? "首次摘牌 +40 雪票" : "",
+    isPark ? "" : "完赛 +20 雪币",
+    route.mode === "show" ? "极光夜滑 +15 极光券" : route.mode === "daily" ? "每日同题 +8 极光券" : "",
+    firstMedalBonus ? "首次摘牌 +40 雪币 · +6 极光券" : "",
+    tourPaceRival?.beaten ? "超越领跑 +30 雪币" : "",
     recoveryCount ? "重新站稳 " + recoveryCount + " 次" : "",
   ]
     .filter(Boolean)
@@ -1143,21 +1194,50 @@ function result(message = "") {
     );
   if (r && r.sim === simVersion && r.course === courseVersion)
     btn(g, "纪录回看 · " + r.score, () => view(r.clips, () => result()));
+  btn(g, "生成战绩海报", () =>
+    showPoster(
+      {
+        title: route.name,
+        subtitle:
+          route.mode === "daily"
+            ? "每日同题表演赛 · " + route.id.replace("daily-", "第 ") + " 期"
+            : mountains[route.mountain] + " · " + route.jumps.length + " 座跳台",
+        score: total,
+        badge:
+          route.mode === "tour"
+            ? ["完赛纪录", "铜牌达成", "银牌达成", "金牌达成"][medal(total)]
+            : route.mode === "show"
+              ? "极光高台"
+              : "花式完赛",
+        rankTitle: riderRank(save),
+        mountain: route.mountain,
+        aurora: route.mode === "show",
+        wear: save.wear,
+        extraLine: tourPaceRival?.beaten ? "超越同场领跑滑手 · +30 雪币" : undefined,
+      },
+      () => result(),
+    ),
+  );
   btn(g, "赛后衣柜", () => closet(true));
   btn(g, "雪场菜单", menu);
   if (route.mode === "tour") {
     const target = gearCatalog[save.target[0]][save.target[1]];
-    if (target && !save.owned[save.target[0]].includes(save.target[1]))
+    if (target && !save.owned[save.target[0]].includes(save.target[1])) {
+      const curBal = target.currency === "aurora" ? save.auroraTickets : save.tickets;
+      const unit = currencyName(target.currency);
       wallet(
-        "雪票 " +
+        "雪币 " +
           save.tickets +
-          " 张　·　" +
+          " · 极光券 " +
+          save.auroraTickets +
+          "　｜　" +
           target.name +
-          (save.tickets < target.price
-            ? " 还差 " + (target.price - save.tickets) + " 张"
+          (curBal < target.price
+            ? " 还差 " + (target.price - curBal) + " " + unit
             : " 可兑换"),
         choices,
       );
+    }
     const ticketOffer = adAvailable("tickets")
       ? rewardOffer(save, "tickets", runId)
       : null;
@@ -1165,17 +1245,48 @@ function result(message = "") {
       if (!message) log("广告入口曝光", "tickets");
       rowButton(
         choices,
-        "看视频，再领 " + ticketOffer.amount + " 张雪票",
-        ticketOffer.amount >= 60 ? "今日高额阶梯奖励" : "自选奖励",
+        "看视频，领 +" +
+          ticketOffer.amount +
+          " 雪币 · +" +
+          ticketOffer.auroraAmount +
+          " 极光券",
+        ticketOffer.amount >= 80 ? "今日高额双币阶梯" : "自选双币补给",
         () => reward("tickets", result),
       ).classList.add("reward-button", "accent-cta");
     } else if (adAvailable("tickets")) {
       const waitMs = ticketCooldownLeft(save);
       if (waitMs > 0)
-        statusNote("下次雪票视频冷却中（约 " + Math.ceil(waitMs / 1000) + " 秒）", choices);
+        statusNote("下次补给视频冷却中（约 " + Math.ceil(waitMs / 1000) + " 秒）", choices);
     }
   }
 }
+function showPoster(info: PosterInput, back: () => void) {
+  const dataUrl = generatePosterDataUrl(info);
+  page("战绩分享海报", "长按或点击下方按钮保存 16:9 高清战绩图", back, "home");
+  const wrap = document.createElement("div");
+  wrap.className = "poster-preview-wrap";
+  const img = document.createElement("img");
+  img.src = dataUrl;
+  img.alt = info.title + "战绩海报";
+  img.className = "poster-preview-img";
+  wrap.append(img);
+  panel.append(wrap);
+  const actions = grid();
+  btn(
+    actions,
+    "保存海报图片 (.png)",
+    () => {
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "再翻半圈-" + info.title + "-" + info.score + "分.png";
+      a.click();
+    },
+    true,
+  );
+  btn(actions, "返回", back);
+}
+
+let lobbyAngle = 0.455;
 function menu() {
   if (route.mode === "intro") {
     page("极光大跳台", "从高台起跳，试着把转体、抓板和落地接成一套动作。");
@@ -1186,101 +1297,360 @@ function menu() {
   }
   const save = read();
   page("雪场", "", undefined, "home");
-  const [current, activities] = panelColumns("resort-home");
-  wallet(
-    "雪票 " + save.tickets + " 张" + (volatile ? "　·　浏览器存储不可用" : ""),
-    current,
-  );
-  artButton(
-    current,
-    "返回雪道",
-    route.name + " · 当前线路",
-    route.mountain,
-    resume,
-    route.mode === "show",
-  ).classList.add("current-course");
-  rowButton(
-    current,
-    "衣柜与收藏",
-    "已收集 " + save.owned.flat().length + " / " + gearCatalog.flat().length,
-    () => closet(false),
-  );
+  const [heroCol, deckCol] = panelColumns("resort-lobby");
+
+  // Top compact status & dual-currency bar on left column
+  const statusBar = document.createElement("div");
+  statusBar.className = "lobby-status";
+  const rankBadge = document.createElement("span");
+  rankBadge.className = "rank-pill";
+  rankBadge.textContent = riderRank(save);
+  const coinPill = document.createElement("span");
+  coinPill.className = "curr-pill coins";
+  coinPill.textContent = "雪币 " + save.tickets;
+  const auroraPill = document.createElement("span");
+  auroraPill.className = "curr-pill aurora";
+  auroraPill.textContent = "✦ 极光券 " + save.auroraTickets;
+  statusBar.append(rankBadge, coinPill, auroraPill);
+  heroCol.append(statusBar);
+
+  // Live 2x Retina 3D Rider Showcase Stage
+  const stage = document.createElement("div");
+  stage.className = "lobby-stage";
+  const cv = document.createElement("canvas");
+  cv.width = 720;
+  cv.height = 310;
+  cv.className = "lobby-rider-canvas";
+  cv.ariaLabel = "当前滑手三维展示舞台，点击可旋转";
+  const stageCtx = cv.getContext("2d")!;
+  const posing = new Ski(parks[0].jumps[0]);
+  posing.angle = 0;
+  const outfit = save.wear;
+  function drawStage(clock: number) {
+    stageCtx.setTransform(2, 0, 0, 2, 0, 0);
+    stageCtx.clearRect(0, 0, 360, 155);
+    const bg = stageCtx.createLinearGradient(0, 0, 0, 155);
+    bg.addColorStop(0, "#10283d");
+    bg.addColorStop(0.7, "#1a3f54");
+    bg.addColorStop(1, "#275468");
+    stageCtx.fillStyle = bg;
+    stageCtx.fillRect(0, 0, 360, 155);
+    // Aurora crown spotlight
+    const spot = stageCtx.createRadialGradient(180, 56, 10, 180, 74, 130);
+    spot.addColorStop(0, "rgba(130, 244, 218, 0.24)");
+    spot.addColorStop(0.55, "rgba(128, 198, 240, 0.10)");
+    spot.addColorStop(1, "rgba(16, 40, 61, 0)");
+    stageCtx.fillStyle = spot;
+    stageCtx.fillRect(0, 0, 360, 155);
+    // Snow pedestal ellipse
+    stageCtx.fillStyle = "rgba(218, 242, 248, 0.16)";
+    stageCtx.beginPath();
+    stageCtx.ellipse(180, 136, 92, 13, 0, 0, Math.PI * 2);
+    stageCtx.fill();
+    trailSample(stageCtx, outfit[2], 168, 134, 136, clock);
+    rider(stageCtx, 180, 134, 2.55, posing, outfit, lobbyAngle);
+  }
+  drawStage(0);
+  cv.onclick = () => {
+    lobbyAngle = (lobbyAngle + Math.PI / 5) % (Math.PI * 2);
+    drawStage(0);
+  };
+  const gearTag = document.createElement("small");
+  gearTag.className = "stage-gear-tag";
+  gearTag.textContent =
+    (gearCatalog[0][outfit[0]]?.name ?? "") +
+    " · " +
+    (gearCatalog[1][outfit[1]]?.name ?? "") +
+    " · " +
+    (gearCatalog[2][outfit[2]]?.name ?? "") +
+    "　(点人物旋转)";
+  stage.append(cv, gearTag);
+  heroCol.append(stage);
+  if (!save.steady && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const t0 = performance.now();
+    let prev = t0;
+    function tickStage(now: number) {
+      if (!cv.isConnected || screenPage.hidden) return;
+      if (now - prev > 55) {
+        drawStage(now - t0);
+        prev = now;
+      }
+      requestAnimationFrame(tickStage);
+    }
+    requestAnimationFrame(tickStage);
+  }
+
+  // Primary Main Quest CTA right beneath the 3D rider stage
+  const sSave = save.season;
+  let questTitle = "立即出发 · 松林公开赛";
+  let questSub = "两趟资格赛晋级 · 首冠 +100 雪币 +25 极光券";
+  let questAction = () => stationMenu(0);
+  if (sSave.active && !raceProgress(sSave.active).finished) {
+    const st = stations[sSave.active.station];
+    questTitle = "继续主线 · " + st.route.name;
+    questSub = roundLabel[raceProgress(sSave.active).round] + "进行中 · 点击立即开滑";
+    questAction = () => raceBoard(sSave.active!);
+  } else if (!sSave.honors.pine) {
+    questTitle = "立即出发 · 松林公开赛";
+    questSub = "晋级夺冠解锁峡谷山 · 首冠 +100 雪币 +25 极光券";
+    questAction = () => stationMenu(0);
+  } else if (!sSave.honors.canyon) {
+    questTitle = "立即出发 · 峡谷大跳台分站";
+    questSub = "高落差大跳台 · 攒满 110 积分解锁夜光总决赛";
+    questAction = () => stationMenu(1);
+  } else if (!sSave.honors.night && !eligibility(sSave, 2)) {
+    questTitle = "终极决战 · 夜光总决赛";
+    questSub = "四段高速总决战 · 争夺雪山传奇奖杯";
+    questAction = () => stationMenu(2);
+  } else {
+    const nextTour = tours.find((t) => !(save.medals[t.id] > 0)) ?? route;
+    questTitle = "立即出发 · " + nextTour.name;
+    questSub = nextTour === route ? "返回当前雪道继续冲分" : "首枚奖牌 +40 雪币 +6 极光券";
+    questAction = () => (nextTour === route ? resume() : start(nextTour));
+  }
+  const launchBtn = document.createElement("button");
+  launchBtn.type = "button";
+  launchBtn.className = "lobby-launch-cta";
+  launchBtn.innerHTML =
+    "<strong>" + questTitle + "</strong><small>" + questSub + "</small>";
+  launchBtn.onclick = questAction;
+  heroCol.append(launchBtn);
+
+  // Right column: Daily 3-item goal bar with claimable Aurora Ticket bonus
   const today = beijingDay();
-  const goals = save.dailyGoals?.day === today
-    ? save.dailyGoals
-    : { day: today, runs: 0, daily: false, closet: false };
-  const goalBar = document.createElement("div");
-  goalBar.className = "daily-goals";
+  const goals =
+    save.dailyGoals?.day === today
+      ? save.dailyGoals
+      : { day: today, runs: 0, daily: false, closet: false, claimed: false };
+  const goalRow = document.createElement("div");
+  goalRow.className = "daily-goals-bar";
+  const chipsWrap = document.createElement("div");
+  chipsWrap.className = "daily-goals";
   for (const [label, done] of [
-    ["今日滑行 " + Math.min(1, goals.runs) + "/1", goals.runs >= 1],
-    ["每日同题", goals.daily],
-    ["衣柜穿搭", goals.closet],
+    ["滑行 " + Math.min(1, goals.runs) + "/1", goals.runs >= 1],
+    ["每日赛", goals.daily],
+    ["工坊", goals.closet],
   ] as const) {
     const chip = document.createElement("span");
     chip.className = "daily-goal-chip" + (done ? " done" : "");
     chip.textContent = (done ? "✓ " : "○ ") + label;
-    goalBar.append(chip);
+    chipsWrap.append(chip);
   }
-  current.append(goalBar);
-  if (save.passes) {
-    rowButton(current, "极光高台夜滑", "已持入场券 · 立即出发", aurora).classList.add(
-      "reward-button",
-      "accent-cta",
-    );
-  } else if (adAvailable("aurora") && rewardOffer(save, "aurora")) {
-    rowButton(
-      current,
-      "极光高台夜滑",
-      "看视频免费入场（独立每日次数）",
-      () => reward("aurora", menu),
-    ).classList.add("reward-button", "accent-cta");
-  }
-  subheading("比赛与训练", activities);
-  const g = grid(activities);
-  g.classList.add("scenic-grid");
+  goalRow.append(chipsWrap);
+  const allDone = goals.runs >= 1 && goals.daily && goals.closet;
+  const claimBtn = document.createElement("button");
+  claimBtn.type = "button";
+  claimBtn.className = "goal-claim-btn" + (allDone && !goals.claimed ? " ready" : "");
+  claimBtn.textContent = goals.claimed
+    ? "今日已领 ✓"
+    : allDone
+      ? "领 +15 极光券"
+      : "全勤 +15 极光券";
+  claimBtn.disabled = !allDone || goals.claimed;
+  claimBtn.onclick = () => {
+    let ok = false;
+    change((s) => {
+      ok = claimDailyBonus(s);
+    });
+    if (ok) menu();
+  };
+  goalRow.append(claimBtn);
+  deckCol.append(goalRow);
+
+  // 2x2 Core Mode Scenic Cards (clean, compact, zero overflow!)
+  const g = grid(deckCol);
+  g.className = "scenic-grid lobby-modes";
+  const honorsCount = Object.keys(sSave.honors).length;
   artButton(
     g,
-    "人机赛季",
-    "三站 · 晋级争冠",
+    "三山生涯 · 赛季",
+    "已通关 " + honorsCount + "/3 站 · 15 条雪道",
     2,
     () => seasonLobby(),
     true,
+    "season",
   ).classList.add("season-launch");
-  artButton(g, "巡回赛 · 选山", "三座山 · 15 条线", 0, () => selectMountain());
+
+  const canUpgradeSkill = save.skills.some(
+    (lv) => lv < 5 && save.tickets >= skillPrices[lv],
+  );
+  artButton(
+    g,
+    "雪具工坊" + (canUpgradeSkill ? " · 可强化" : ""),
+    "能力强化 · 36 件外观衣柜",
+    0,
+    () => skillsMenu(),
+    false,
+    "workshop",
+  ).classList.toggle("workshop-ready", canUpgradeSkill);
+
   artButton(
     g,
     "每日表演赛",
-    "每日同题 · 固定装备",
-    2,
+    "公平同题 · 赢 +8 极光券",
+    1,
     dailyMenu,
     false,
     "daily",
   );
-  artButton(
-    g,
-    "练习公园",
-    "起跳、抓板与落地",
-    0,
-    practiceMenu,
-    false,
-    "practice",
+
+  if (save.passes) {
+    artButton(g, "极光高台夜滑", "已持券 · 完赛 +15 极光券", 2, aurora, true, "aurora");
+  } else if (adAvailable("aurora") && rewardOffer(save, "aurora")) {
+    artButton(
+      g,
+      "极光高台夜滑",
+      "看视频免费入场 · 掉 15 极光券",
+      2,
+      () => reward("aurora", menu),
+      true,
+      "aurora",
+    );
+  } else {
+    artButton(g, "巡回赛 · 选山", "三座山 · 15 条雪道自由选", 0, () =>
+      selectMountain(),
+    );
+  }
+
+  // Single compact utility bar at bottom of right column
+  const utils = document.createElement("div");
+  utils.className = "resort-utils";
+  for (const [label, fn] of [
+    ["选山巡回", () => selectMountain()],
+    ["练习公园", practiceMenu],
+    ["衣柜", () => closet(false)],
+    ["奖牌 " + Object.values(save.medals).filter(Boolean).length, medals],
+    ["纪录", records],
+    ["设置", prefs],
+  ] as const) {
+    btn(utils, label, fn);
+  }
+  deckCol.append(utils);
+}
+
+const skillDefs = [
+  {
+    name: "爆发力",
+    desc: "缩短屈膝蓄力时间，手动蹬伸起跳高度每级 +5%，轻松飞跃大台多翻半圈。",
+    per: "+5% 弹跳",
+  },
+  {
+    name: "空中控制",
+    desc: "提升空中收腿转体速度每级 +8%，松手展体更干脆，精准卡点不转过头。",
+    per: "+8% 转速",
+  },
+  {
+    name: "落地平衡",
+    desc: "放宽安全落地角度容错每级 +3°，大幅降低手机端单指操作摔倒率。",
+    per: "+3° 容错",
+  },
+] as const;
+const skillPrices = [40, 80, 130, 190, 260];
+
+function skillsMenu(message = "") {
+  const save = read();
+  page(
+    "雪具工坊 · 能力强化",
+    "使用雪币提升三项基础手感（每日表演赛保持统一公平属性）",
+    menu,
+    "closet",
   );
-  const profile = grid(activities);
-  profile.classList.add("profile-grid");
-  rowButton(
-    profile,
-    "个人纪录",
-    Object.keys(save.records).length + " 条已记录",
-    records,
+  const topRow = document.createElement("div");
+  topRow.className = "workshop-bar";
+  wallet(
+    "雪币 " + save.tickets + "　·　✦ 极光券 " + save.auroraTickets,
+    topRow,
   );
-  rowButton(
-    profile,
-    "奖牌墙",
-    Object.values(save.medals).filter(Boolean).length + " 枚奖牌",
-    medals,
-  );
-  rowButton(profile, "滑行设置", "声音与辅助", prefs);
-  rowButton(profile, "重玩开场表演", "极光大跳台", () => start(opening));
+  const switchTabs = document.createElement("div");
+  switchTabs.className = "workshop-switch";
+  const tSkill = btn(switchTabs, "能力强化", () => skillsMenu());
+  tSkill.ariaPressed = "true";
+  btn(switchTabs, "外观衣柜 (" + save.owned.flat().length + "/36)", () =>
+    closet(false),
+  ).ariaPressed = "false";
+  topRow.append(switchTabs);
+  panel.append(topRow);
+
+  if (message) statusNote(message);
+  const g = grid();
+  g.classList.add("skill-grid");
+  skillDefs.forEach((def, idx) => {
+    const lv = save.skills[idx];
+    const cost = skillPrices[lv];
+    const card = document.createElement("div");
+    card.className = "skill-card";
+    const head = document.createElement("div");
+    head.className = "skill-head";
+    const skillIcons = [
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ffd685" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>',
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#7cf4d8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#9ecbff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16c4 3 14 3 18 0"/><path d="M12 4v10"/><path d="M8 9l4-5 4 5"/></svg>',
+    ];
+    const titleWrap = document.createElement("span");
+    titleWrap.className = "skill-title-wrap";
+    titleWrap.innerHTML = skillIcons[idx];
+    const title = document.createElement("strong");
+    title.textContent = def.name;
+    titleWrap.append(title);
+    const badge = document.createElement("span");
+    badge.className = "skill-badge";
+    badge.textContent =
+      "Lv." +
+      lv +
+      "/5" +
+      (lv > 0
+        ? " · " + def.per.replace(/\d+/, (n) => String(Number(n) * lv))
+        : "");
+    head.append(titleWrap, badge);
+
+    const pips = document.createElement("div");
+    pips.className = "skill-pips";
+    for (let i = 0; i < 5; i++) {
+      const pip = document.createElement("span");
+      pip.className = i < lv ? "on" : "";
+      pips.append(pip);
+    }
+
+    const desc = document.createElement("small");
+    desc.textContent = def.desc;
+    card.append(head, pips, desc);
+    if (lv < 5) {
+      const afford = save.tickets >= cost;
+      const upgradeBtn = btn(
+        card,
+        cost + " 雪币强化至 Lv." + (lv + 1),
+        () => {
+          let ok = false;
+          change((s) => {
+            if (
+              s.skills[idx] === lv &&
+              s.tickets >= cost &&
+              credit(s, "skill/" + idx + "/" + (lv + 1), -cost)
+            ) {
+              s.skills[idx] = lv + 1;
+              ok = true;
+            }
+          });
+          if (ok) {
+            log("能力升级", def.name + " Lv." + (lv + 1));
+            skillsMenu(
+              "已将「" + def.name + "」强化至 Lv." + (lv + 1) + "，下一趟立即生效！",
+            );
+          } else {
+            skillsMenu(
+              "雪币不足，还差 " + Math.max(0, cost - read().tickets) + " 雪币。",
+            );
+          }
+        },
+        afford,
+      );
+      upgradeBtn.disabled = !afford;
+    } else {
+      const maxed = btn(card, "已达满级", () => {}, false);
+      maxed.disabled = true;
+    }
+    g.append(card);
+  });
 }
 
 function seasonLobby(message = "") {
@@ -1387,12 +1757,36 @@ function launchRace(meetId: string) {
   const reference = referenceRival(meet, next.round);
   const event = stations[meet.station];
   const rivalWear = outfitForRival(reference.id);
+  const mainRide = new RivalRide(event.route, reference.run.seed);
+  // Build 3-rival (4-rider!) competitive pack: top seed + reference rival + chaser
+  const rankedRivals = standings(meet, next.round).filter((r) => r.id >= 0);
+  const pickIds = Array.from(
+    new Set([
+      reference.id,
+      rankedRivals[0]?.id ?? 6,
+      rankedRivals[Math.min(rankedRivals.length - 1, 2)]?.id ?? 1,
+      rankedRivals[Math.min(rankedRivals.length - 1, 4)]?.id ?? 0,
+    ]),
+  ).slice(0, 3);
+  const pack = pickIds.map((rid) => {
+    if (rid === reference.id)
+      return { ride: mainRide, wear: rivalWear, name: reference.name, passed: false };
+    const [r1, r2] = fields[meet.station][next.round][rid];
+    const bestRun = (r2.splits.at(-1) ?? 0) >= (r1.splits.at(-1) ?? 0) ? r2 : r1;
+    return {
+      ride: new RivalRide(event.route, bestRun.seed),
+      wear: outfitForRival(rid),
+      name: rivalNames[rid] ?? "滑手",
+      passed: false,
+    };
+  });
   start(event.route, {
     slot: { meetId, round: next.round, index: next.next },
     meeting: meet,
-    rival: new RivalRide(event.route, reference.run.seed),
+    rival: mainRide,
     rivalId: reference.id,
     rivalWear,
+    pack,
     name: reference.name,
     targetSplits: reference.run.splits,
   });
@@ -1513,6 +1907,25 @@ function raceBoard(meet: Meeting, last?: Round, bonus = 0) {
     btn(actions, "回看最好一趟", () =>
       view(best.clips, () => raceBoard(meet, round, bonus), course),
     );
+  if (podium) {
+    const s = read();
+    btn(actions, "生成冠军海报", () =>
+      showPoster(
+        {
+          title: course.name,
+          subtitle: "三山人机赛季 · 决赛第 " + player.rank + " 名",
+          score: player.best,
+          badge: trophy(player.rank),
+          rankTitle: riderRank(s),
+          mountain: course.mountain,
+          aurora: meet.station === 2,
+          wear: s.wear,
+          extraLine: bonus ? "领奖台荣誉 +" + bonus + " 雪币" : undefined,
+        },
+        () => raceBoard(meet, round, bonus),
+      ),
+    );
+  }
   if (completeFinal) btn(actions, "查看历站荣誉", seasonHonors);
 
   const curSave = read();
@@ -1921,14 +2334,16 @@ function closet(
   const owned = s.owned[cat].includes(index);
   const worn = s.wear[cat] === index;
   const back = post ? () => result() : menu;
-  page("衣柜与收藏", "", back, "closet");
+  page("雪具工坊 · 外观衣柜", "", back, "closet");
   const [fitting, catalog] = panelColumns("closet-spread");
   wallet(
-    "雪票 " +
+    "雪币 " +
       s.tickets +
-      " 张　·　已收集 " +
+      " · ✦ 极光券 " +
+      s.auroraTickets +
+      " · 收集 " +
       s.owned.flat().length +
-      " / " +
+      "/" +
       gearCatalog.flat().length,
     fitting,
   );
@@ -1939,8 +2354,8 @@ function closet(
   const display = document.createElement("div");
   display.className = "fitting-stage";
   const preview = document.createElement("canvas");
-  preview.width = 420;
-  preview.height = 186;
+  preview.width = 840;
+  preview.height = 372;
   preview.className = "outfit-preview";
   preview.ariaLabel = "滑手三维试穿";
   const stageLabel = document.createElement("small");
@@ -1951,20 +2366,36 @@ function closet(
     posing = new Ski(parks[0].jumps[0]);
   posing.angle = 0;
   function paintOutfit(clock: number) {
-    context.clearRect(0, 0, preview.width, preview.height);
+    context.setTransform(2, 0, 0, 2, 0, 0);
+    context.clearRect(0, 0, 420, 186);
+    const spot = context.createRadialGradient(210, 86, 12, 210, 96, 140);
+    spot.addColorStop(0, "rgba(182, 224, 244, 0.22)");
+    spot.addColorStop(1, "rgba(182, 224, 244, 0)");
+    context.fillStyle = spot;
+    context.fillRect(0, 0, 420, 186);
     trailSample(context, outfit[2], 198, 164, 160, clock);
     rider(context, 210, 164, 3.03, posing, outfit, fittingAngle);
   }
   const turntable = document.createElement("div");
   turntable.className = "turntable";
-  for (const [symbol, label, direction] of [
-    ["↶", "向左旋转滑手", -1],
-    ["↷", "向右旋转滑手", 1],
+  for (const [svgIcon, label, direction] of [
+    [
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 1 1 0 12h-2"/></svg>',
+      "向左旋转滑手",
+      -1,
+    ],
+    [
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 1 0 0 12h2"/></svg>',
+      "向右旋转滑手",
+      1,
+    ],
   ] as const) {
-    btn(turntable, symbol, () => {
+    const b = btn(turntable, "", () => {
       fittingAngle = (fittingAngle + (direction * Math.PI) / 6) % (Math.PI * 2);
       paintOutfit(0);
-    }).ariaLabel = label;
+    });
+    b.innerHTML = svgIcon;
+    b.ariaLabel = label;
   }
   display.append(turntable);
   paintOutfit(0);
@@ -2015,24 +2446,40 @@ function closet(
     closet(post, cat, index, favorites, "", catalogPage);
   });
   goal.ariaPressed = String(favorite);
+  const isAuroraItem = item.currency === "aurora";
+  const curUnit = currencyName(item.currency);
+  const curBalance = isAuroraItem ? s.auroraTickets : s.tickets;
   const equip = btn(
     actions,
-    worn ? "已穿戴" : owned ? "穿戴此款" : item.price + " 雪票兑换",
+    worn
+      ? "已穿戴"
+      : owned
+        ? "穿戴此款"
+        : (isAuroraItem ? "✦ " : "") + item.price + " " + curUnit + "兑换",
     () => {
       let equipped = false;
       change((save) => {
         if (!save.owned[cat].includes(index)) {
-          if (
-            save.tickets < item.price ||
-            !credit(save, "buy/" + cat + "/" + index, -item.price)
-          )
-            return;
+          if (isAuroraItem) {
+            if (
+              save.auroraTickets < item.price ||
+              !creditAurora(save, "buy/" + cat + "/" + index, -item.price)
+            )
+              return;
+          } else {
+            if (
+              save.tickets < item.price ||
+              !credit(save, "buy/" + cat + "/" + index, -item.price)
+            )
+              return;
+          }
           save.owned[cat].push(index);
         }
         save.wear[cat] = index;
         equipped = true;
       });
       settings();
+      const latestBal = isAuroraItem ? read().auroraTickets : read().tickets;
       closet(
         post,
         cat,
@@ -2040,9 +2487,7 @@ function closet(
         favorites,
         equipped
           ? (owned ? "已穿戴 " : "已兑换并穿戴 ") + item.name
-          : "还差 " +
-              Math.max(0, item.price - read().tickets) +
-              " 张雪票。巡回赛完赛可得 20 张。",
+          : "还差 " + Math.max(0, item.price - latestBal) + " " + curUnit + "。",
         catalogPage,
       );
     },
@@ -2053,17 +2498,18 @@ function closet(
     change((save) => markDailyGoal(save, "closet"));
   }
   if (!owned) {
-    const deficit = item.price - s.tickets;
+    const deficit = item.price - curBalance;
+    const maxDef = isAuroraItem ? topupMaxAuroraDeficit : topupMaxDeficit;
     const itemKey = cat + "/" + index;
     if (
       deficit > 0 &&
-      deficit <= topupMaxDeficit &&
+      deficit <= maxDef &&
       adAvailable("topup") &&
-      rewardOffer(s, "topup", itemKey, Date.now(), deficit)
+      rewardOffer(s, "topup", itemKey, Date.now(), deficit, item.currency)
     ) {
       const topupBtn = btn(
         actions,
-        "看视频补齐 " + deficit + " 张并穿戴",
+        "看视频补齐 " + deficit + " " + curUnit + "并穿戴",
         () =>
           reward(
             "topup",
@@ -2072,8 +2518,16 @@ function closet(
             deficit,
             () => {
               change((save) => {
-                if (
-                  !save.owned[cat].includes(index) &&
+                if (save.owned[cat].includes(index)) return;
+                if (isAuroraItem) {
+                  if (
+                    save.auroraTickets >= item.price &&
+                    creditAurora(save, "buy/" + cat + "/" + index, -item.price)
+                  ) {
+                    save.owned[cat].push(index);
+                    save.wear[cat] = index;
+                  }
+                } else if (
                   save.tickets >= item.price &&
                   credit(save, "buy/" + cat + "/" + index, -item.price)
                 ) {
@@ -2091,10 +2545,29 @@ function closet(
                 catalogPage,
               );
             },
+            item.currency,
           ),
         true,
       );
       topupBtn.classList.add("reward-button", "accent-cta");
+    } else if (deficit > 0 && isAuroraItem) {
+      btn(actions, "去每日赛赚极光券", dailyMenu).classList.add("earn-aurora-btn");
+      if (adAvailable("trial") && rewardOffer(s, "trial", "gear-" + cat + "-" + index)) {
+        btn(actions, "看视频免费试滑 1 趟", () =>
+          reward(
+            "trial",
+            (msg) => closet(post, cat, index, favorites, msg, catalogPage),
+            "gear-" + cat + "-" + index,
+            0,
+            () => {
+              const nextWear = [...read().wear];
+              nextWear[cat] = index;
+              trialWear = nextWear;
+              start(route.mode === "intro" ? tours[0] : route);
+            },
+          ),
+        ).classList.add("reward-button");
+      }
     } else if (
       deficit > 0 &&
       adAvailable("trial") &&
@@ -2155,9 +2628,10 @@ function closet(
         ? "已穿戴"
         : s.owned[cat].includes(i)
           ? "已拥有"
-          : entry.price + " 雪票";
+          : (entry.currency === "aurora" ? "✦ " : "") + entry.price + " " + currencyName(entry.currency);
     button.ariaLabel = entry.name;
     button.ariaPressed = String(index === i);
+    button.classList.toggle("aurora-item", entry.currency === "aurora");
     button.replaceChildren(gearArt(entry, cat, i), label, badge);
   }
   if (!cards.childElementCount)
@@ -2169,10 +2643,11 @@ async function reward(
   runKey = "",
   amount = 0,
   onClaimed?: () => void,
+  currency: GearCurrency = "coins",
 ) {
   if (adBusy || !adAvailable(kind)) return;
   const key = runKey || (kind === "tickets" ? runId : "");
-  const offer = rewardOffer(read(), kind, key, Date.now(), amount);
+  const offer = rewardOffer(read(), kind, key, Date.now(), amount, currency);
   if (!offer) {
     back("本次奖励已领取，或暂未达到领取条件。");
     return;
@@ -2201,9 +2676,13 @@ async function reward(
   else
     back(
       claimed
-        ? offer.amount > 0
-          ? "已领取 " + offer.amount + " 张雪票"
-          : "奖励已生效"
+        ? offer.amount > 0 && offer.auroraAmount > 0
+          ? "已领取 +" + offer.amount + " 雪币 · +" + offer.auroraAmount + " 极光券"
+          : offer.amount > 0
+            ? "已领取 +" + offer.amount + " 雪币"
+            : offer.auroraAmount > 0
+              ? "已领取 +" + offer.auroraAmount + " 极光券"
+              : "奖励已生效"
         : status === "empty"
           ? "暂无可用视频，请稍后再试。"
           : status === "cancel"

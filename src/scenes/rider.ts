@@ -486,7 +486,15 @@ export function buildRider(s: Ski, wear: number[], detail = true): Face[] {
         points: mark.map(([u, v]) => [-17 + 0.3 * u, -1.3, -5.4 + 0.108 * v]),
       }));
     }
-    outward(faces, bottom, [0, -2, 0], "#1c3d59");
+    // Stylized racing base graphics on snowboard underside (highly visible during 360°/720° aerial flips!)
+    const soleColor = !detail
+      ? "#1c3d59"
+      : i === 2 || i === 4
+        ? deck.accent
+        : i === 3
+          ? board
+          : "#162d42";
+    outward(faces, bottom, [0, -2, 0], soleColor, detail && i === 3 ? coating : undefined);
   }
   outward(
     faces,
@@ -495,7 +503,7 @@ export function buildRider(s: Ski, wear: number[], detail = true): Face[] {
     board,
     coating,
   );
-  outward(faces, [sole[0], sole[1], sole[11]], [0, -3.8, 0], "#1c3d59");
+  outward(faces, [sole[0], sole[1], sole[11]], [0, -3.8, 0], detail ? deck.accent : "#1c3d59");
   for (let i = 0; i < 12; i++) {
     const next = (i + 1) % 12;
     outward(
@@ -628,6 +636,19 @@ export function buildRider(s: Ski, wear: number[], detail = true): Face[] {
   const lens = wear[1] === 0 ? "#ecaa60" : outfit.accent;
   if (lenses) {
     goggles(faces, head, lens, lenses);
+    // Crisp angled lens glint bar on goggle glass
+    const glintShift = Math.sin(s.tick * 0.08 + s.lean * 2.2) * 1.1;
+    sleeve(
+      faces,
+      add(head, [5.45, 0.25, -1.6 + glintShift]),
+      add(head, [5.45, 1.55, 0.4 + glintShift]),
+      0.28,
+      0.22,
+      "#ffffff",
+      undefined,
+      undefined,
+      6,
+    );
   } else {
     const visor = add(head, [4.9, 1.05, 0]);
     sleeve(

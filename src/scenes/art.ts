@@ -337,6 +337,31 @@ export function panorama(
       }
     }
   }
+  // Distant alpine ski-lift cable & cabins silhouette on Pine & Canyon mountains
+  if (!aurora && !night) {
+    c.save();
+    c.strokeStyle = canyon ? "rgba(68, 52, 74, 0.32)" : "rgba(42, 72, 74, 0.28)";
+    c.lineWidth = 1.2;
+    c.beginPath();
+    c.moveTo(w * 0.04, h * 0.46);
+    c.quadraticCurveTo(w * 0.34, h * 0.41, w * 0.64, h * 0.34);
+    c.stroke();
+    for (const [tx, ty] of [[0.18, 0.43], [0.46, 0.38]]) {
+      c.beginPath();
+      c.moveTo(w * tx, h * ty);
+      c.lineTo(w * tx, h * (ty + 0.08));
+      c.stroke();
+      c.beginPath();
+      c.moveTo(w * tx - 6, h * ty);
+      c.lineTo(w * tx + 6, h * ty);
+      c.stroke();
+    }
+    c.fillStyle = canyon ? "rgba(82, 58, 78, 0.42)" : "rgba(46, 78, 80, 0.38)";
+    for (const [cx, cy] of [[0.11, 0.448], [0.31, 0.412], [0.55, 0.362]]) {
+      c.fillRect(w * cx - 3, h * cy + 3, 6, 4.5);
+    }
+    c.restore();
+  }
   for (let i = 0; i < Math.min(18000, (w * h) / 18); i++) {
     c.fillStyle = i % 2 ? "#fff7da14" : "#274a350e";
     c.fillRect(noise(i) * w, noise(i + 3101) * h, 1, 1);

@@ -229,3 +229,311 @@
   border-color: rgba(255, 198, 120, 0.65);
   background: linear-gradient(135deg, rgba(242, 169, 92, 0.28), rgba(232, 106, 51, 0.24));
 }
+
+.main-quest-card {
+  border-color: rgba(255, 206, 128, 0.72) !important;
+  box-shadow: 0 8px 22px rgba(10, 22, 34, 0.34);
+}
+.resort-utils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.resort-utils button {
+  flex: 1 1 auto;
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+.skill-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.skill-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.skill-badge {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(114, 214, 179, 0.18);
+  color: #dffef2;
+}
+.skill-card small {
+  color: #bfd2df;
+  line-height: 1.5;
+  flex: 1;
+}
+.turntable button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ecf6fb;
+}
+
+/* === v1.0 Grand Resort Lobby & Dual-Currency Visual Overhaul === */
+#screen {
+  background: radial-gradient(circle at 22% 14%, rgba(56, 126, 152, 0.28), transparent 46%),
+    radial-gradient(circle at 82% 8%, rgba(102, 224, 198, 0.16), transparent 42%),
+    linear-gradient(180deg, #0c1d2c 0%, #091521 100%) !important;
+}
+.resort-lobby {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.92fr) minmax(300px, 1.18fr);
+  gap: 14px;
+  align-items: start;
+}
+.lobby-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.rank-pill {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 211, 130, 0.25), rgba(232, 130, 62, 0.22));
+  border: 1px solid rgba(255, 211, 130, 0.55);
+  color: #ffe2a8;
+  white-space: nowrap;
+}
+.curr-pill {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.curr-pill.coins {
+  background: rgba(255, 214, 126, 0.14);
+  border: 1px solid rgba(255, 214, 126, 0.35);
+  color: #ffd98a;
+}
+.curr-pill.aurora {
+  background: rgba(118, 242, 216, 0.14);
+  border: 1px solid rgba(118, 242, 216, 0.42);
+  color: #93f7e2;
+}
+.lobby-stage {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(154, 218, 236, 0.26);
+  box-shadow: 0 10px 26px rgba(4, 12, 20, 0.42);
+  margin-bottom: 8px;
+}
+.lobby-rider-canvas {
+  display: block;
+  width: 100%;
+  height: 148px;
+  cursor: pointer;
+}
+.stage-gear-tag {
+  position: absolute;
+  left: 10px;
+  bottom: 7px;
+  font-size: 11px;
+  color: rgba(230, 245, 252, 0.88);
+  background: rgba(9, 22, 34, 0.62);
+  padding: 2px 8px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+.lobby-launch-cta {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 232, 178, 0.8);
+  background: linear-gradient(135deg, #ffd484 0%, #f09e4e 100%);
+  color: #132534 !important;
+  box-shadow: 0 8px 20px rgba(240, 158, 78, 0.28);
+  text-align: left;
+  cursor: pointer;
+}
+.lobby-launch-cta strong {
+  font-size: 16px;
+  line-height: 1.25;
+  color: #10212e;
+}
+.lobby-launch-cta small {
+  font-size: 11.5px;
+  color: #2c4354;
+}
+.daily-goals-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(162, 214, 232, 0.16);
+  margin-bottom: 8px;
+}
+.daily-goals-bar .daily-goals {
+  margin: 0;
+  gap: 5px;
+}
+.daily-goals-bar .daily-goal-chip {
+  font-size: 11px;
+  padding: 3px 8px;
+}
+.goal-claim-btn {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid rgba(118, 242, 216, 0.35);
+  background: rgba(118, 242, 216, 0.12);
+  color: #9af8e5;
+}
+.goal-claim-btn.ready {
+  background: linear-gradient(135deg, #74f0d4, #4cc9c0);
+  color: #0d2633;
+  border-color: #b7fff0;
+}
+.lobby-modes {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+.lobby-modes button {
+  min-height: 78px !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(154, 214, 232, 0.22) !important;
+}
+.lobby-modes .workshop-ready {
+  border-color: rgba(255, 212, 130, 0.72) !important;
+  box-shadow: 0 0 0 1px rgba(255, 212, 130, 0.25);
+}
+.resort-lobby .resort-utils {
+  margin-top: 8px;
+  gap: 6px;
+}
+.resort-lobby .resort-utils button {
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+.workshop-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.workshop-switch {
+  display: flex;
+  gap: 8px;
+}
+.workshop-switch button {
+  min-height: 36px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+.workshop-switch button[aria-pressed="true"] {
+  background: linear-gradient(135deg, #ffd484, #f09e4e);
+  color: #132534;
+  border-color: #ffe5ad;
+}
+.skill-head strong {
+  white-space: nowrap;
+  font-size: 16px;
+}
+.skill-badge {
+  white-space: nowrap;
+}
+.skill-pips {
+  display: flex;
+  gap: 5px;
+}
+.skill-pips span {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.skill-pips span.on {
+  background: linear-gradient(90deg, #74f0d4, #ffd484);
+}
+
+/* High-specificity overrides for primary golden & aurora CTA buttons inside #screen */
+#screen .lobby-launch-cta {
+  background: linear-gradient(135deg, #ffd685 0%, #f09c48 100%) !important;
+  border-color: #ffe8b5 !important;
+  color: #10212e !important;
+}
+#screen .lobby-launch-cta strong {
+  color: #0e1e2b !important;
+}
+#screen .lobby-launch-cta small {
+  color: #243b4c !important;
+}
+#screen .goal-claim-btn.ready {
+  background: linear-gradient(135deg, #7cf4d8 0%, #48c9be 100%) !important;
+  border-color: #c2fff1 !important;
+  color: #0b2230 !important;
+}
+#screen .workshop-switch button[aria-pressed="true"] {
+  background: linear-gradient(135deg, #ffd685 0%, #f09c48 100%) !important;
+  border-color: #ffe8b5 !important;
+  color: #10212e !important;
+  font-weight: 700;
+}
+
+/* === v1.0-rc.2 Aesthetic Polish: Skill Icons, Aurora Rare Cards & Share Poster === */
+.skill-title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.gear-grid button.aurora-item {
+  border-color: rgba(124, 244, 216, 0.42) !important;
+  background: linear-gradient(180deg, rgba(24, 52, 72, 0.85), rgba(14, 30, 46, 0.92)) !important;
+}
+.gear-grid button.aurora-item small {
+  color: #93f7e2 !important;
+}
+.earn-aurora-btn {
+  border-color: rgba(124, 244, 216, 0.55) !important;
+  color: #9efbe9 !important;
+}
+.poster-preview-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 6px 0 10px;
+}
+.poster-preview-img {
+  width: min(100%, 490px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 224, 158, 0.42);
+  box-shadow: 0 12px 30px rgba(4, 12, 22, 0.55);
+}

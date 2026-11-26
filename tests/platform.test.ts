@@ -130,15 +130,15 @@ test("soft-tier ticket rewards (+60/+40/+25 with 60s cooldown) and decoupled aur
   save.firstSeenAt--;
 
   // Soft tier progression: 1-3 -> 60, 4-6 -> 40, 7+ -> 25 with 60s cooldown
-  assert.equal(softTierReward(0), 60);
-  assert.equal(softTierReward(3), 40);
-  assert.equal(softTierReward(6), 25);
+  assert.equal(softTierReward(0), 80);
+  assert.equal(softTierReward(3), 60);
+  assert.equal(softTierReward(6), 40);
 
   let expectedTotal = 0;
   for (let i = 1; i <= 6; i++) {
     const offer = rewardOffer(save, "tickets", "run-" + i, now + i * 1000)!;
     assert.ok(offer);
-    assert.equal(offer.amount, i <= 3 ? 60 : 40);
+    assert.equal(offer.amount, i <= 3 ? 80 : 60);
     assert.equal(claimReward(save, offer), true);
     assert.equal(claimReward(save, offer), false); // idempotent
     expectedTotal += offer.amount;
@@ -151,7 +151,7 @@ test("soft-tier ticket rewards (+60/+40/+25 with 60s cooldown) and decoupled aur
   assert.equal(rewardOffer(save, "tickets", "run-7", t6 + 10000), null);
   const seventh = rewardOffer(save, "tickets", "run-7", t6 + 60000)!;
   assert.ok(seventh);
-  assert.equal(seventh.amount, 25);
+  assert.equal(seventh.amount, 40);
   assert.equal(claimReward(save, seventh), true);
 
   // Aurora is independent of ticket ad count
@@ -161,11 +161,11 @@ test("soft-tier ticket rewards (+60/+40/+25 with 60s cooldown) and decoupled aur
   assert.equal(save.passes, 1);
 
   // Wardrobe deficit top-up (<= 80) and season double/retry
-  assert.equal(rewardOffer(save, "topup", "0/1", t6, 90), null);
+  assert.equal(rewardOffer(save, "topup", "0/1", t6, 120), null);
   const topup = rewardOffer(save, "topup", "0/1", t6, 45)!;
   assert.ok(topup);
   assert.equal(claimReward(save, topup), true);
-  assert.equal(save.tickets, expectedTotal + 25 + 45);
+  assert.equal(save.tickets, expectedTotal + 40 + 45);
 
   const retry = rewardOffer(save, "seasonRetry", "m1/qualifying", t6)!;
   assert.ok(retry);
@@ -175,7 +175,7 @@ test("soft-tier ticket rewards (+60/+40/+25 with 60s cooldown) and decoupled aur
   const dbl = rewardOffer(save, "seasonDouble", "pine/1", t6, 100)!;
   assert.ok(dbl);
   assert.equal(claimReward(save, dbl), true);
-  assert.equal(save.tickets, expectedTotal + 25 + 45 + 100);
+  assert.equal(save.tickets, expectedTotal + 40 + 45 + 100);
 });
 
 test("all 7 season rivals have distinct high-contrast showcase outfits with non-default trails", () => {

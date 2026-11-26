@@ -24,6 +24,14 @@ function random(seed: number) {
 export class SnowEffects {
   readonly flakes: Flake[] = [];
   readonly marks: Mark[] = [];
+  readonly ribbons: {
+    point: V3;
+    tick: number;
+    style: number;
+    air: boolean;
+    fever: boolean;
+    boost: boolean;
+  }[] = [];
   private tick = 0;
 
   record(s: Ski, wear: number[], lite: boolean) {
@@ -39,6 +47,18 @@ export class SnowEffects {
     const style = crash || !trailGear[wear[2]] ? 0 : wear[2];
     const look = trailAppearance(style);
     const z = roadCenter(s.j, s.x) + s.lateral;
+    if (!lite && !crash && s.tick % 2 === 0) {
+      const yPos = air ? s.y - 0.06 : height(s.j, s.x) - 0.09;
+      this.ribbons.push({
+        point: [s.x, yPos, z],
+        tick: s.tick,
+        style,
+        air,
+        fever: Boolean((s as { fever?: boolean }).fever),
+        boost: s.boostAt !== undefined,
+      });
+      if (this.ribbons.length > 26) this.ribbons.shift();
+    }
     if (
       air &&
       !lite &&
@@ -224,6 +244,57 @@ export class SnowEffects {
         c.fill();
         c.globalAlpha = 1;
       }
+    }
+    // Continuous luminous twin speed ribbons (ground + mid-air!) inspired by extreme downhill racing
+    if (!lite && this.ribbons.length > 1) {
+      c.lineCap = "round";
+      c.lineJoin = "round";
+      for (let i = 1; i < this.ribbons.length; i++) {
+        const a = this.ribbons[i - 1];
+        const b = this.ribbons[i];
+        if (b.tick - a.tick > 6) continue;
+        const active = b.style > 0 || b.air || b.fever || b.boost;
+        if (!active) continue;
+        const age = 1 - (this.tick - b.tick) / 52;
+        if (age <= 0) continue;
+        const t = i / this.ribbons.length;
+        const glowCol = b.fever
+          ? "#5efce8"
+          : b.style > 0
+            ? trailGear[b.style].accent
+            : b.boost
+              ? "#ffbe6b"
+              : "#8ce8ff";
+        const coreCol = b.fever
+          ? "#eafffc"
+          : b.style > 0
+            ? trailGear[b.style].color
+            : "#f2fcff";
+        for (const side of [-1, 1]) {
+          const offset = side * (b.air ? 0.28 : 0.23);
+          const p0 = project([a.point[0], a.point[1], a.point[2] + offset]);
+          const p1 = project([b.point[0], b.point[1], b.point[2] + offset]);
+          if (!p0 || !p1) continue;
+          const width = Math.min(8.5, Math.max(1.8, p1.scale * 0.14 * t));
+          // Outer soft neon glow
+          c.beginPath();
+          c.moveTo(...p0.screen);
+          c.lineTo(...p1.screen);
+          c.strokeStyle = glowCol;
+          c.lineWidth = width * 2.1;
+          c.globalAlpha = age * t * (night ? 0.42 : 0.34);
+          c.stroke();
+          // Razor-sharp bright inner laser core
+          c.beginPath();
+          c.moveTo(...p0.screen);
+          c.lineTo(...p1.screen);
+          c.strokeStyle = coreCol;
+          c.lineWidth = Math.max(1.1, width * 0.65);
+          c.globalAlpha = age * t * (night ? 0.88 : 0.78);
+          c.stroke();
+        }
+      }
+      c.globalAlpha = 1;
     }
     c.restore();
   }

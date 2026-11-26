@@ -2,7 +2,7 @@ import { drawDeckMotif, type Gear } from "../content/gear";
 import { trailSample } from "../scenes/trail-art";
 import { panorama } from "../scenes/art";
 
-export type ScenicFeature = "daily" | "practice";
+export type ScenicFeature = "daily" | "practice" | "workshop" | "season" | "aurora";
 function shape(
   c: CanvasRenderingContext2D,
   outline: number[][],
@@ -198,7 +198,94 @@ export function scenicArt(
         "#df855a",
       );
     }
+    // Dynamic silhouette skier carving past daily flags
+    c.save();
+    c.fillStyle = "rgba(18, 36, 52, 0.72)";
+    c.beginPath();
+    c.ellipse(175, 118, 22, 5, -0.25, 0, Math.PI * 2);
+    c.fill();
+    c.beginPath();
+    c.arc(178, 88, 7, 0, Math.PI * 2);
+    c.fill();
+    shape(c, [[165, 114], [174, 95], [186, 98], [182, 115]], "rgba(18, 36, 52, 0.72)");
+    c.restore();
+  } else if (feature === "workshop") {
+    // Bespoke alpine gear workshop warm amber & ice-teal illustration with crossed snowboards
+    const wg = c.createLinearGradient(0, 0, 540, 206);
+    wg.addColorStop(0, "#14293b");
+    wg.addColorStop(0.55, "#1e3d52");
+    wg.addColorStop(1, "#354952");
+    c.fillStyle = wg;
+    c.fillRect(0, 0, 540, 206);
+    const glow = c.createRadialGradient(415, 76, 12, 415, 86, 155);
+    glow.addColorStop(0, "rgba(255, 208, 122, 0.44)");
+    glow.addColorStop(0.6, "rgba(116, 240, 212, 0.16)");
+    glow.addColorStop(1, "rgba(20, 41, 59, 0)");
+    c.fillStyle = glow;
+    c.fillRect(0, 0, 540, 206);
+    // Crossed twin snowboards emblem on right side
+    for (const [ang, col, acc] of [
+      [-0.48, "#f07c4a", "#ffe3a8"],
+      [0.48, "#4ecdc4", "#e8fffb"],
+    ] as const) {
+      c.save();
+      c.translate(425, 92);
+      c.rotate(ang);
+      c.fillStyle = col;
+      c.beginPath();
+      c.roundRect(-14, -72, 28, 144, 14);
+      c.fill();
+      c.fillStyle = acc;
+      c.fillRect(-10, -28, 20, 12);
+      c.fillRect(-10, 16, 20, 12);
+      c.restore();
+    }
+    // Crisp tuning spark star
+    c.fillStyle = "#ffe6a3";
+    c.beginPath();
+    c.arc(425, 92, 6, 0, Math.PI * 2);
+    c.fill();
+  } else if (feature === "season") {
+    // Golden trajectory arc & soaring champion silhouette over aurora mountain
+    c.save();
+    c.strokeStyle = "rgba(255, 214, 126, 0.72)";
+    c.lineWidth = 3;
+    c.setLineDash([8, 6]);
+    c.beginPath();
+    c.moveTo(260, 168);
+    c.quadraticCurveTo(370, 26, 515, 148);
+    c.stroke();
+    c.setLineDash([]);
+    // Glowing golden crest emblem
+    const cg = c.createRadialGradient(388, 72, 4, 388, 72, 42);
+    cg.addColorStop(0, "rgba(255, 214, 126, 0.85)");
+    cg.addColorStop(1, "rgba(255, 214, 126, 0)");
+    c.fillStyle = cg;
+    c.fillRect(340, 26, 96, 96);
+    c.fillStyle = "#fff1c7";
+    c.beginPath();
+    c.ellipse(388, 76, 18, 4, -0.35, 0, Math.PI * 2);
+    c.fill();
+    c.beginPath();
+    c.arc(388, 58, 6, 0, Math.PI * 2);
+    c.fill();
+    c.restore();
+  } else if (feature === "aurora") {
+    // Radiant emerald-violet aurora flare
+    const ag = c.createRadialGradient(410, 68, 10, 410, 68, 150);
+    ag.addColorStop(0, "rgba(116, 246, 224, 0.45)");
+    ag.addColorStop(0.55, "rgba(156, 128, 245, 0.2)");
+    ag.addColorStop(1, "rgba(12, 26, 44, 0)");
+    c.fillStyle = ag;
+    c.fillRect(0, 0, 540, 206);
   }
+  // Editorial bottom gradient scrim guarantees crisp text contrast on every card
+  const scrim = c.createLinearGradient(0, 54, 0, 206);
+  scrim.addColorStop(0, "rgba(8, 20, 32, 0)");
+  scrim.addColorStop(0.55, "rgba(8, 20, 32, 0.35)");
+  scrim.addColorStop(1, "rgba(7, 17, 27, 0.86)");
+  c.fillStyle = scrim;
+  c.fillRect(0, 0, 540, 206);
   return canvas;
 }
 
